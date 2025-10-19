@@ -43,9 +43,9 @@ export default function CourseCard({ course }: CourseCardProps) {
             <Icon className="h-6 w-6 glowing-icon" />
         </div>
       </div>
-      <div className="p-6 flex flex-col flex-grow">
-        <div className="flex justify-between items-start mb-2">
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">{level}</Badge>
+      <div className="p-4 flex flex-col flex-grow items-center text-center">
+        <div className="flex justify-center w-full mb-2">
+            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 mr-2">{level}</Badge>
             <div className="flex items-center gap-1 text-amber-400">
                 <Star className="w-4 h-4 fill-current" />
                 <span className="font-bold text-sm text-foreground">{rating}</span>
@@ -53,11 +53,13 @@ export default function CourseCard({ course }: CourseCardProps) {
         </div>
         <h3 className="text-xl font-bold mb-2 flex-grow">{title}</h3>
         
-        <div className="flex justify-between items-center mt-4">
-            <p className="text-2xl font-bold text-primary">${price}</p>
-            <Button variant="ghost" className="text-primary hover:bg-primary/10 hover:text-primary">
+        <p className="text-2xl font-bold text-primary mb-4">${price}</p>
+
+        <div className="flex flex-col w-full gap-2 mt-auto">
+            <Button variant="ghost" className="text-primary hover:bg-primary/10 hover:text-primary w-full">
                 View Course <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
+            <Button className="w-full gradient-btn gradient-btn-1">Buy Now</Button>
         </div>
       </div>
     </div>
