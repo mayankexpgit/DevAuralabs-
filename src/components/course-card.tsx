@@ -8,7 +8,6 @@ type Course = {
   id: string;
   title: string;
   icon: React.ElementType;
-  rating: number;
   level: string;
   price: number;
   compareAtPrice?: number;
@@ -25,7 +24,7 @@ const getPlaceholderImage = (id: string) => {
 };
 
 export default function CourseCard({ course }: CourseCardProps) {
-  const { title, icon: Icon, rating, level, price, compareAtPrice, image } = course;
+  const { title, icon: Icon, level, price, compareAtPrice, image } = course;
   const placeholder = getPlaceholderImage(image);
 
   return (
@@ -48,12 +47,6 @@ export default function CourseCard({ course }: CourseCardProps) {
         </div>
       </div>
       <div className="p-4 flex flex-col flex-grow items-center text-center">
-        <div className="flex justify-center w-full mb-2">
-            <div className="flex items-center gap-1 text-amber-400">
-                <Star className="w-4 h-4 fill-current" />
-                <span className="font-bold text-sm text-foreground">{rating}</span>
-            </div>
-        </div>
         <h3 className="text-base font-bold mb-2 flex-grow">{title}</h3>
         
         <div className="flex items-baseline gap-2 mb-4 justify-center">
