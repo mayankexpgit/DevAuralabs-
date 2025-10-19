@@ -52,13 +52,13 @@ export default function CourseCard({ course }: CourseCardProps) {
                 <span className="font-bold text-sm text-foreground">{rating}</span>
             </div>
         </div>
-        <h3 className="text-xl font-bold mb-2 flex-grow">{title}</h3>
+        <h3 className="text-lg font-bold mb-2 flex-grow">{title}</h3>
         
         <div className="flex items-baseline gap-2 mb-4 justify-center">
             {compareAtPrice && (
-                <p className="text-lg text-muted-foreground line-through">${compareAtPrice}</p>
+                <p className="text-base text-muted-foreground line-through">${compareAtPrice}</p>
             )}
-            <p className="text-2xl font-bold text-primary">${price}</p>
+            <p className="text-xl font-bold text-primary">${price}</p>
         </div>
 
         <div className="flex flex-col w-full gap-2 mt-auto">
