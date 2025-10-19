@@ -44,21 +44,23 @@ export default function Navbar() {
         hasScrolled ? "shadow-lg shadow-primary/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : "bg-transparent"
       )}>
       <div className="container flex h-16 items-center">
-        <Link href="/" className="mr-10 font-bold text-lg text-foreground">DevAura Labs</Link>
-        <nav className="hidden md:flex md:items-center md:gap-6 text-sm font-medium">
-          {navLinks.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'transition-colors hover:text-primary',
-                pathname === href ? 'text-primary' : 'text-muted-foreground'
-              )}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <div className="flex items-center gap-6">
+            <Link href="/" className="mr-4 font-bold text-lg text-foreground">DevAura Labs</Link>
+            <nav className="hidden md:flex md:items-center md:gap-6 text-sm font-medium">
+              {navLinks.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={cn(
+                    'transition-colors hover:text-primary',
+                    pathname === href ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+        </div>
         <div className="flex flex-1 items-center justify-end gap-4">
           <div className="hidden md:flex">
             <Link href="/login">
