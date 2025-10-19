@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, ShieldEllipsis } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ export default function Navbar() {
         </nav>
         <div className="flex flex-1 items-center justify-end gap-4">
           <div className="hidden md:flex">
-            <Link href="/login" legacyBehavior passHref>
+            <Link href="/login">
               <Button className="glowing-btn" variant="outline" size="sm">
                 Login
               </Button>
@@ -81,8 +81,8 @@ export default function Navbar() {
                     ))}
                   </nav>
                   <div className="mt-auto">
-                     <Link href="/login" legacyBehavior passHref>
-                        <Button className="glowing-btn w-full" variant="outline" onClick={() => setIsOpen(false)}>Login</Button>
+                     <Link href="/login" onClick={() => setIsOpen(false)}>
+                        <Button className="glowing-btn w-full" variant="outline">Login</Button>
                     </Link>
                   </div>
                 </div>
