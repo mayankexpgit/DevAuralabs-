@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import Logo from '@/components/logo';
 
 export default function HeroSection() {
   return (
@@ -8,6 +9,9 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background z-10" />
 
       <div className="container relative z-20 px-4">
+        <div className="flex justify-center mb-4">
+          <Logo />
+        </div>
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500">
           Master. Build. Secure.
         </h1>

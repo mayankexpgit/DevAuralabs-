@@ -40,12 +40,12 @@ export default function Navbar() {
 
   return (
     <header className={cn(
-        "sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow duration-300",
-        hasScrolled && "shadow-lg shadow-primary/10"
+        "sticky top-0 z-50 w-full transition-shadow duration-300",
+        hasScrolled ? "shadow-lg shadow-primary/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : "bg-transparent"
       )}>
       <div className="container flex h-16 items-center">
-        <Logo />
-        <nav className="hidden md:flex md:items-center md:gap-6 text-sm font-medium ml-10">
+        <Link href="/" className="mr-10 font-bold text-lg text-foreground">DevAura Labs</Link>
+        <nav className="hidden md:flex md:items-center md:gap-6 text-sm font-medium">
           {navLinks.map(({ href, label }) => (
             <Link
               key={href}
