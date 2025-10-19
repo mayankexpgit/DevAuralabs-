@@ -11,6 +11,7 @@ type Course = {
   rating: number;
   level: string;
   price: number;
+  compareAtPrice?: number;
   description: string;
   image: string;
 };
@@ -24,7 +25,7 @@ const getPlaceholderImage = (id: string) => {
 };
 
 export default function CourseCard({ course }: CourseCardProps) {
-  const { title, icon: Icon, rating, level, price, image } = course;
+  const { title, icon: Icon, rating, level, price, compareAtPrice, image } = course;
   const placeholder = getPlaceholderImage(image);
 
   return (
@@ -53,7 +54,12 @@ export default function CourseCard({ course }: CourseCardProps) {
         </div>
         <h3 className="text-xl font-bold mb-2 flex-grow">{title}</h3>
         
-        <p className="text-2xl font-bold text-primary mb-4">${price}</p>
+        <div className="flex items-baseline gap-2 mb-4">
+            <p className="text-2xl font-bold text-primary">${price}</p>
+            {compareAtPrice && (
+                <p className="text-lg text-muted-foreground line-through">${compareAtPrice}</p>
+            )}
+        </div>
 
         <div className="flex flex-col w-full gap-2 mt-auto">
             <Button variant="ghost" className="text-primary hover:bg-primary/10 hover:text-primary w-full">
