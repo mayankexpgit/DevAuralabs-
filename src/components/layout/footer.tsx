@@ -28,7 +28,7 @@ export default function Footer() {
           <div className="flex items-center gap-6">
             {quickLinks.map((link) => (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 className="text-sm text-muted-foreground hover:text-primary transition-colors"
               >
