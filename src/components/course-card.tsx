@@ -30,10 +30,10 @@ export default function CourseCard({ course, parallaxOffset }: CourseCardProps) 
   const placeholder = getPlaceholderImage(image);
 
   return (
-    <div className="glass-card flex flex-col">
-      <div className="relative h-48 w-full overflow-hidden rounded-t-2xl">
+    <div className="glass-card flex flex-col h-full">
+      <div className="relative w-full overflow-hidden rounded-t-2xl" style={{paddingTop: '177.77%' /* 9:16 aspect ratio */}}>
         <div
-          className="h-full w-full"
+          className="absolute inset-0"
           style={{
             transform: `translateX(${parallaxOffset}%)`,
             willChange: 'transform',
