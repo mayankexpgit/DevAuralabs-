@@ -1,3 +1,4 @@
+
 'use client';
 
 import { z } from 'zod';
@@ -14,8 +15,9 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldEllipsis } from 'lucide-react';
+import { ShieldEllipsis, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -24,6 +26,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -73,7 +76,16 @@ export default function LoginPage() {
                         <FormItem>
                             <FormLabel>Password</FormLabel>
                             <FormControl>
-                            <Input type="password" placeholder="********" {...field} className="bg-background/50"/>
+                                <div className="relative">
+                                    <Input type={showPassword ? 'text' : 'password'} placeholder="********" {...field} className="bg-background/50 pr-10"/>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                                    >
+                                        {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                    </button>
+                                </div>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
