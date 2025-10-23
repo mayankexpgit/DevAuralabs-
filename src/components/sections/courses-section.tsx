@@ -31,14 +31,16 @@ export default function CoursesSection() {
         engine.slideLooper.loopPoints.forEach(loopPoint => {
           const isUsed = loopPoint.target() === scrollProgress;
           if (isUsed) {
-            const sign = Math.sign(
-              engine.dragHandler.pointerMoves[0]?.x ?? 0
-            );
-            if (sign === -1) {
-              diffToTarget = scrollSnap - (1 + scrollProgress);
-            }
-            if (sign === 1) {
-              diffToTarget = scrollSnap + (1 - scrollProgress);
+            const dragHandler = engine.dragHandler;
+            const pointerMoves = dragHandler.pointerMoves;
+            if (pointerMoves.length > 0) {
+              const sign = Math.sign(pointerMoves[0]?.x ?? 0);
+              if (sign === -1) {
+                diffToTarget = scrollSnap - (1 + scrollProgress);
+              }
+              if (sign === 1) {
+                diffToTarget = scrollSnap + (1 - scrollProgress);
+              }
             }
           }
         });
