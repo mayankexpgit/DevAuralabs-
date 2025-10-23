@@ -36,6 +36,7 @@ const useParallax = (
         if (engine.options.loop && slidesInView.indexOf(index) === -1) {
             const { slideLooper } = engine;
             const loopPoints = slideLooper.loopPoints;
+            if (!loopPoints) return { scale: 0.8, rotateY: 0, opacity: 0.5 };
             const shortest = loopPoints.reduce((acc, loopPoint) => {
                 const diff = loopPoint.location - scrollSnap;
                 return Math.abs(diff) < Math.abs(acc) ? diff : acc;
@@ -80,7 +81,7 @@ export default function CoursesSection() {
           align: 'center',
           loop: true,
         }}
-        className="w-full"
+        className="w-[90%] md:w-full"
       >
         <div className='perspective-1000 transform-style-3d'>
           <CarouselContent>
