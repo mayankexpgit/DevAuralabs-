@@ -23,10 +23,9 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     const isAuthenticated = false;
 
     if (!isAuthenticated) {
-      router.push('/signup');
+      router.push(`/signup?next=/checkout/${course.id}`);
     } else {
-      // Proceed to checkout
-      console.log('Proceeding to checkout...');
+      router.push(`/checkout/${course.id}`);
     }
   };
 

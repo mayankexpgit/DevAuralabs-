@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ShieldEllipsis, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -34,6 +35,9 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const next = searchParams.get('next');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,6 +56,12 @@ export default function SignupPage() {
       title: 'Sign-up Successful',
       description: 'Welcome to DevAura Labs!',
     });
+    
+    if (next) {
+      router.push(next);
+    } else {
+      router.push('/admin');
+    }
   }
 
   return (
@@ -157,7 +167,7 @@ export default function SignupPage() {
                 </Form>
                 <p className="text-center text-sm text-muted-foreground">
                     Already have an account?{' '}
-                    <Link href="/login" className="font-semibold text-primary hover:underline">
+                    <Link href={`/login${next ? `?next=${next}` : ''}`} className="font-semibold text-primary hover:underline">
                         Login
                     </Link>
                 </p>
