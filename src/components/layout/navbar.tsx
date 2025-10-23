@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, ShoppingCart, BookOpen } from 'lucide-react';
+import { Menu, User, ShoppingCart } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -97,6 +97,18 @@ export default function Navbar() {
                         {label}
                       </Link>
                     ))}
+                     {isMounted && isAuthenticated && (
+                      <Link
+                        href="/profile/my-courses"
+                        onClick={() => setIsOpen(false)}
+                        className={cn(
+                          'transition-colors hover:text-primary',
+                          pathname === '/profile/my-courses' ? 'text-primary' : 'text-foreground'
+                        )}
+                      >
+                        My Courses
+                      </Link>
+                    )}
                   </nav>
                   <div className="mt-auto">
                     {isMounted && (
