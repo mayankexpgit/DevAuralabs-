@@ -26,29 +26,10 @@ const useParallax = (
   
     const onScroll = useCallback((api: CarouselApi) => {
       if (!api) return;
-      const engine = api.internalEngine();
       const scrollProgress = api.scrollProgress();
   
       const newTransforms = api.scrollSnapList().map((scrollSnap, index) => {
-        let diffToTarget = scrollSnap - scrollProgress;
-  
-        if (engine.options.loop && engine.slideLooper) {
-            engine.slideLooper.loopPoints.forEach(loopPoint => {
-              const isUsed = loopPoint.target() === scrollProgress;
-              if (isUsed) {
-                if (api.isDragging()) {
-                    const sign = Math.sign(engine.dragHandler.pointerDown()?.x - engine.dragHandler.pointerMove()?.x);
-                    if (sign === -1) {
-                        diffToTarget = scrollSnap - (1 + scrollProgress);
-                    }
-                    if (sign === 1) {
-                        diffToTarget = scrollSnap + (1 - scrollProgress);
-                    }
-                }
-              }
-            });
-        }
-  
+        const diffToTarget = scrollSnap - scrollProgress;
         const scale = 1 - Math.abs(diffToTarget) * 0.4;
         const rotateY = diffToTarget * -30;
         const opacity = 1 - Math.abs(diffToTarget) * 0.5;
@@ -56,7 +37,7 @@ const useParallax = (
         return { scale, rotateY, opacity };
       });
       setTransforms(newTransforms);
-    }, [api]);
+    }, []);
   
     useEffect(() => {
       if (!api || !isClient) return;
