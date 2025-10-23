@@ -42,6 +42,8 @@ export default function LoginPage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    // Simulate successful login
+    localStorage.setItem('isAuthenticated', 'true');
     toast({
       title: 'Login Successful',
       description: 'Welcome back!',

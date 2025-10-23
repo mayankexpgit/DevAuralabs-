@@ -1,7 +1,8 @@
+
 'use client';
 
 import Link from 'next/link';
-import { Menu } from 'lucide-react';
+import { Menu, User } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,15 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Logo from '@/components/logo';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
@@ -27,8 +37,12 @@ export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
+    // This will only run on the client side
+    setIsAuthenticated(localStorage.getItem('isAuthenticated') === 'true');
+
     const handleScroll = () => {
       setHasScrolled(window.scrollY > 10);
     };
@@ -37,6 +51,13 @@ export default function Navbar() {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('isAuthenticated');
+    setIsAuthenticated(false);
+    // a full page reload is a good way to reset all state
+    window.location.href = '/'; 
+  };
 
 
   return (
@@ -76,9 +97,13 @@ export default function Navbar() {
                     ))}
                   </nav>
                   <div className="mt-auto">
+                    {isAuthenticated ? (
+                       <Button className="glowing-btn w-full" variant="outline" onClick={handleLogout}>Logout</Button>
+                    ) : (
                       <Link href="/login" onClick={() => setIsOpen(false)}>
                         <Button className="glowing-btn w-full" variant="outline">Login</Button>
-                    </Link>
+                      </Link>
+                    )}
                   </div>
                 </div>
               </SheetContent>
@@ -105,11 +130,44 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center justify-end gap-4">
-          <Link href="/login">
-            <Button className="glowing-btn" variant="outline" size="sm">
-              Login
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="@user" />
+                    <AvatarFallback>
+                        <User className="h-5 w-5" />
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">John Doe</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      john.doe@example.com
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link href="/login">
+                <Button className="glowing-btn hidden md:flex" variant="outline" size="sm">
+                Login
+                </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>

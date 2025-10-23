@@ -52,6 +52,8 @@ export default function SignupPage() {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
+    // Simulate successful signup
+    localStorage.setItem('isAuthenticated', 'true');
     toast({
       title: 'Sign-up Successful',
       description: 'Welcome to DevAura Labs!',
