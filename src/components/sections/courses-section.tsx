@@ -14,7 +14,6 @@ import {
 
 const useParallax = (
     api: CarouselApi,
-    isClient: boolean,
   ) => {
     const [transforms, setTransforms] = useState<
       {
@@ -39,10 +38,7 @@ const useParallax = (
             const loopPoints = slideLooper.loopPoints;
             const shortest = loopPoints.reduce((acc, loopPoint) => {
                 const diff = loopPoint.location - scrollSnap;
-                const dir = Math.sign(diff);
-                const abs = Math.abs(diff);
-                const far = Math.abs(acc);
-                return abs < far ? diff : acc;
+                return Math.abs(diff) < Math.abs(acc) ? diff : acc;
             }, diffToTarget);
             diffToTarget = shortest;
         }
@@ -57,24 +53,18 @@ const useParallax = (
     }, [api]);
   
     useEffect(() => {
-      if (!api || !isClient) return;
+      if (!api) return;
       onScroll();
       api.on('scroll', onScroll);
       api.on('reInit', onScroll);
-    }, [api, isClient, onScroll]);
+    }, [api, onScroll]);
   
     return transforms;
   };
 
 export default function CoursesSection() {
   const [api, setApi] = useState<CarouselApi>();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const transforms = useParallax(api, isClient);
+  const transforms = useParallax(api);
 
   return (
     <section id="courses" className="py-12 md:py-24">
@@ -112,12 +102,10 @@ export default function CoursesSection() {
             })}
           </CarouselContent>
         </div>
-        {isClient && (
-          <>
+        <>
             <CarouselPrevious className="hidden md:flex"/>
             <CarouselNext className="hidden md:flex"/>
-          </>
-        )}
+        </>
       </Carousel>
     </section>
   );
