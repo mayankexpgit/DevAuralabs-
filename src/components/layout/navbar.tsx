@@ -50,7 +50,7 @@ export default function Navbar() {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [pathname]); // Re-check on path change
 
   const handleLogout = () => {
     localStorage.removeItem('isAuthenticated');
@@ -162,8 +162,8 @@ export default function Navbar() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link href="/login">
-                <Button className="glowing-btn hidden md:flex" variant="outline" size="sm">
+            <Link href="/login" className="hidden md:flex">
+                <Button className="glowing-btn" variant="outline" size="sm">
                 Login
                 </Button>
             </Link>
