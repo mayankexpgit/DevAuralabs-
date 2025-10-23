@@ -1,7 +1,10 @@
+
+'use client';
+
 import { courses } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle } from 'lucide-react';
@@ -12,10 +15,24 @@ const getPlaceholderImage = (id: string) => {
 
 export default function CourseDetailPage({ params }: { params: { id: string } }) {
   const course = courses.find((c) => c.id === params.id);
+  const router = useRouter();
 
   if (!course) {
     notFound();
   }
+
+  const handlePurchase = () => {
+    // In a real app, you would check for user authentication status here.
+    // For now, we'll simulate an unauthenticated user and redirect to signup.
+    const isAuthenticated = false; 
+
+    if (!isAuthenticated) {
+      router.push('/signup');
+    } else {
+      // Proceed to checkout
+      console.log('Proceeding to checkout...');
+    }
+  };
 
   const placeholder = getPlaceholderImage(course.image);
 
@@ -60,10 +77,10 @@ export default function CourseDetailPage({ params }: { params: { id: string } })
                 </div>
                 <p className="text-sm text-muted-foreground mb-6">Get lifetime access to this course and all future updates.</p>
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full gradient-btn gradient-btn-1">
+                    <Button size="lg" className="w-full gradient-btn gradient-btn-1" onClick={handlePurchase}>
                         Buy Now
                     </Button>
-                    <Button size="lg" variant="outline" className="w-full glowing-btn">
+                    <Button size="lg" variant="outline" className="w-full glowing-btn" onClick={handlePurchase}>
                         Add to Cart
                     </Button>
                 </div>
