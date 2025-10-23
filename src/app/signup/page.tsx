@@ -1,3 +1,4 @@
+
 'use client';
 
 import { z } from 'zod';
@@ -95,7 +96,7 @@ export default function SignupPage() {
                         <FormItem>
                             <FormLabel>Mobile Number</FormLabel>
                             <FormControl>
-                            <Input placeholder="123-456-7890" {...field} className="bg-background/50"/>
+                            <Input placeholder="+91 00000-00000" {...field} className="bg-background/50"/>
                             </FormControl>
                             <FormMessage />
                         </FormItem>
