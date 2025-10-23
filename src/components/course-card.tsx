@@ -53,23 +53,23 @@ export default function CourseCard({ course, parallaxOffset }: CourseCardProps) 
             {level}
         </Badge>
         <div className="absolute top-3 right-3 bg-background/70 backdrop-blur-sm p-2 rounded-full">
-            <Icon className="h-6 w-6 glowing-icon" />
+            <Icon className="h-5 w-5 glowing-icon" />
         </div>
       </div>
-      <div className="p-4 flex flex-col flex-grow items-center text-center">
-        <h3 className="text-base font-bold mb-2 flex-grow">{title}</h3>
+      <div className="p-3 flex flex-col flex-grow items-center text-center">
+        <h3 className="text-sm font-bold mb-2 flex-grow">{title}</h3>
         
-        <div className="flex items-baseline gap-2 mb-4 justify-center">
+        <div className="flex items-baseline gap-1 mb-3 justify-center">
             {compareAtPrice && (
-                <p className="text-sm text-muted-foreground line-through">${compareAtPrice}</p>
+                <p className="text-xs text-muted-foreground line-through">${compareAtPrice}</p>
             )}
-            <p className="text-lg font-bold text-primary">${price}</p>
+            <p className="text-base font-bold text-primary">${price}</p>
         </div>
 
         <div className="flex flex-col w-full gap-2 mt-auto">
             <Link href={`/courses/${id}`}>
-                <Button variant="ghost" className="text-primary hover:bg-primary/10 hover:text-primary w-full">
-                    View Course <ArrowRight className="w-4 h-4 ml-2" />
+                <Button size="sm" variant="ghost" className="text-primary hover:bg-primary/10 hover:text-primary w-full text-xs">
+                    View Course <ArrowRight className="w-3 h-3 ml-1" />
                 </Button>
             </Link>
         </div>
