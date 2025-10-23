@@ -17,14 +17,13 @@ type Course = {
 
 type CourseCardProps = {
   course: Course;
-  parallaxOffset: number;
 };
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
 };
 
-export default function CourseCard({ course, parallaxOffset }: CourseCardProps) {
+export default function CourseCard({ course }: CourseCardProps) {
   const { title, icon: Icon, level, price, compareAtPrice, image, id } = course;
   const placeholder = getPlaceholderImage(image);
 
