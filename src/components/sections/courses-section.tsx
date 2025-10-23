@@ -24,19 +24,25 @@ const useParallax = (
       }[]
     >([]);
   
-    const onScroll = useCallback((api: CarouselApi) => {
+    const onScroll = useCallback(() => {
       if (!api) return;
+  
+      const engine = api.internalEngine();
       const scrollProgress = api.scrollProgress();
   
       const newTransforms = api.scrollSnapList().map((scrollSnap, index) => {
         let diffToTarget = scrollSnap - scrollProgress;
 
-        if (api.internalEngine().options.loop) {
-            const { slideLooper } = api.internalEngine();
+        const slidesInView = api.slidesInView(true);
+        if (engine.options.loop && slidesInView.indexOf(index) === -1) {
+            const { slideLooper } = engine;
             const loopPoints = slideLooper.loopPoints;
             const shortest = loopPoints.reduce((acc, loopPoint) => {
-                const diff = loopPoint.get(diffToTarget);
-                return Math.abs(diff) < Math.abs(acc) ? diff : acc;
+                const diff = loopPoint.location - scrollSnap;
+                const dir = Math.sign(diff);
+                const abs = Math.abs(diff);
+                const far = Math.abs(acc);
+                return abs < far ? diff : acc;
             }, diffToTarget);
             diffToTarget = shortest;
         }
@@ -48,11 +54,11 @@ const useParallax = (
         return { scale, rotateY, opacity };
       });
       setTransforms(newTransforms);
-    }, []);
+    }, [api]);
   
     useEffect(() => {
       if (!api || !isClient) return;
-      onScroll(api);
+      onScroll();
       api.on('scroll', onScroll);
       api.on('reInit', onScroll);
     }, [api, isClient, onScroll]);
