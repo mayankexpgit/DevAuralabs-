@@ -38,10 +38,16 @@ const useCoverflow = (api: EmblaCarouselType | undefined) => {
 
   useEffect(() => {
     if (!api) return;
-    onScroll();
-    api.on('scroll', onScroll);
-    api.on('reInit', onScroll);
+    
+    // Defer the initial calculation to prevent hydration mismatch
+    const timer = setTimeout(() => {
+        onScroll();
+        api.on('scroll', onScroll);
+        api.on('reInit', onScroll);
+    }, 0);
+
     return () => {
+        clearTimeout(timer);
         api.off('scroll', onScroll);
         api.off('reInit', onScroll);
     };
@@ -68,7 +74,7 @@ export default function CoursesSection() {
           align: 'center',
           loop: true,
         }}
-        className="w-full perspective-container"
+        className="perspective-container"
       >
         <CarouselContent>
           {courses.map((course, index) => (
