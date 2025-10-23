@@ -12,53 +12,47 @@ import {
 import { useState, useCallback, useEffect } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
 
-const useCoverflow = (api: EmblaCarouselType | undefined) => {
-  const [transforms, setTransforms] = useState<
-    { scale: number; rotateY: number; opacity: number }[]
-  >([]);
+const TWEEN_FACTOR = 1.2;
+
+const useTweening = (api: EmblaCarouselType | undefined) => {
+  const [tweenValues, setTweenValues] = useState<number[]>([]);
 
   const onScroll = useCallback(() => {
     if (!api) return;
 
-    const newTransforms = api.scrollSnapList().map((scrollSnap, index) => {
-      let diff = scrollSnap - api.scrollProgress();
-      const scrollProgress = Math.max(0, 1 - Math.abs(diff));
-      
-      const inView = Math.abs(diff) < 0.99;
+    const engine = api.internalEngine();
+    const scrollProgress = api.scrollProgress();
 
-      const scale = inView ? 1 - Math.abs(diff) * 0.4 : 0.6;
-      const rotateY = diff * -25;
-      const opacity = inView ? 1 - Math.abs(diff) * 0.5 : 0.5;
-      
-      return { scale, rotateY, opacity };
-    });
+    const getTweenValues = (scrollProgress: number) => {
+        return api.scrollSnapList().map((scrollSnap, index) => {
+            let diffToTarget = scrollSnap - scrollProgress;
+            const isSlideInView = Math.abs(diffToTarget) < 1;
 
-    setTransforms(newTransforms);
-  }, [api]);
+            if (isSlideInView) {
+                 return 1 - Math.abs(diffToTarget);
+            }
+            return 0;
+        });
+    };
+
+    setTweenValues(getTweenValues(scrollProgress));
+  }, [api, setTweenValues]);
+
 
   useEffect(() => {
     if (!api) return;
-    
-    // Defer the initial calculation to prevent hydration mismatch
-    const timer = setTimeout(() => {
-        onScroll();
-        api.on('scroll', onScroll);
-        api.on('reInit', onScroll);
-    }, 0);
 
-    return () => {
-        clearTimeout(timer);
-        api.off('scroll', onScroll);
-        api.off('reInit', onScroll);
-    };
+    onScroll();
+    api.on('scroll', onScroll);
+    api.on('reInit', onScroll);
   }, [api, onScroll]);
 
-  return transforms;
+  return tweenValues;
 };
 
 export default function CoursesSection() {
   const [api, setApi] = useState<EmblaCarouselType | undefined>();
-  const transforms = useCoverflow(api);
+  const tweenValues = useTweening(api);
 
   return (
     <section id="courses" className="py-12 md:py-24">
@@ -74,17 +68,17 @@ export default function CoursesSection() {
           align: 'center',
           loop: true,
         }}
-        className="perspective-container"
       >
         <CarouselContent>
           {courses.map((course, index) => (
             <CarouselItem key={course.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/4 xl:basis-1/5">
               <div
-                className="p-1 h-full transition-transform duration-300 ease-out"
-                style={{
-                  transform: `scale(${transforms[index]?.scale || 1}) rotateY(${transforms[index]?.rotateY || 0}deg)`,
-                  opacity: transforms[index]?.opacity || 1,
-                  transformStyle: 'preserve-3d',
+                className="p-1 h-full"
+                 style={{
+                    ...(tweenValues.length && {
+                        opacity: tweenValues[index],
+                        transform: `scale(${tweenValues[index]})`,
+                    }),
                 }}
               >
                 <CourseCard course={course} />

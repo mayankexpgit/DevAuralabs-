@@ -89,7 +89,4 @@
     @apply bg-primary/10 shadow-[0_0_20px_hsl(var(--primary)/0.8)];
   }
 
-  .perspective-container {
-      perspective: 1000px;
-  }
 }
