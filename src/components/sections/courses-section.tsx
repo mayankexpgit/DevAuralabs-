@@ -67,7 +67,7 @@ export default function CoursesSection() {
               let diffToTarget = scrollSnaps[index] - scrollProgress;
               
               const engine = api.internalEngine();
-              if (engine.options.loop) {
+              if (engine && engine.options.loop) {
                   engine.slideLooper.loopPoints.forEach(loopPoint => {
                     const isUsed = loopPoint.target() === scrollProgress;
                     if (isUsed) {
