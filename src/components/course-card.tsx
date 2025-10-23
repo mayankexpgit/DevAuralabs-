@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { ArrowRight } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -34,10 +33,6 @@ export default function CourseCard({ course, parallaxOffset }: CourseCardProps) 
       <div className="relative w-full overflow-hidden rounded-t-2xl" style={{paddingTop: '177.77%' /* 9:16 aspect ratio */}}>
         <div
           className="absolute inset-0"
-          style={{
-            transform: `translateX(${parallaxOffset}%)`,
-            willChange: 'transform',
-          }}
         >
           {placeholder && (
               <Image
