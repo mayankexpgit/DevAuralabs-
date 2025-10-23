@@ -24,27 +24,31 @@ const useTweening = (api: EmblaCarouselType | undefined) => {
     const scrollProgress = api.scrollProgress();
 
     const getTweenValues = (scrollProgress: number) => {
-        return api.scrollSnapList().map((scrollSnap, index) => {
-            let diffToTarget = scrollSnap - scrollProgress;
-            const isSlideInView = Math.abs(diffToTarget) < 1;
+      return api.scrollSnapList().map((scrollSnap, index) => {
+        let diffToTarget = scrollSnap - scrollProgress;
+        const isSlideInView = Math.abs(diffToTarget) < 1;
 
-            if (isSlideInView) {
-                 return 1 - Math.abs(diffToTarget);
-            }
-            return 0;
-        });
+        if (isSlideInView) {
+          return 1 - Math.abs(diffToTarget);
+        }
+        return 0;
+      });
     };
 
     setTweenValues(getTweenValues(scrollProgress));
   }, [api, setTweenValues]);
 
-
   useEffect(() => {
     if (!api) return;
 
+    // Run on mount to avoid hydration mismatch
     onScroll();
     api.on('scroll', onScroll);
     api.on('reInit', onScroll);
+
+    return () => {
+      api.off('scroll', onScroll);
+    };
   }, [api, onScroll]);
 
   return tweenValues;
@@ -53,6 +57,11 @@ const useTweening = (api: EmblaCarouselType | undefined) => {
 export default function CoursesSection() {
   const [api, setApi] = useState<EmblaCarouselType | undefined>();
   const tweenValues = useTweening(api);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   return (
     <section id="courses" className="py-12 md:py-24">
@@ -74,11 +83,11 @@ export default function CoursesSection() {
             <CarouselItem key={course.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/4 xl:basis-1/5">
               <div
                 className="p-1 h-full"
-                 style={{
-                    ...(tweenValues.length && {
-                        opacity: tweenValues[index],
-                        transform: `scale(${tweenValues[index]})`,
-                    }),
+                style={{
+                  ...(isMounted && tweenValues.length && {
+                    opacity: tweenValues[index],
+                    transform: `scale(${tweenValues[index]})`,
+                  }),
                 }}
               >
                 <CourseCard course={course} />
@@ -86,8 +95,8 @@ export default function CoursesSection() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="hidden md:flex"/>
-        <CarouselNext className="hidden md:flex"/>
+        <CarouselPrevious className="hidden md:flex" />
+        <CarouselNext className="hidden md:flex" />
       </Carousel>
     </section>
   );
