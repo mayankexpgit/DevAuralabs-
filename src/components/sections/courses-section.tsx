@@ -36,7 +36,7 @@ const useParallax = (
             engine.slideLooper.loopPoints.forEach(loopPoint => {
               const isUsed = loopPoint.target() === scrollProgress;
               if (isUsed) {
-                if (engine.dragHandler && engine.dragHandler.isDragging()) {
+                if (api.isDragging()) {
                     const sign = Math.sign(engine.dragHandler.pointerDown()?.x - engine.dragHandler.pointerMove()?.x);
                     if (sign === -1) {
                         diffToTarget = scrollSnap - (1 + scrollProgress);
@@ -56,7 +56,7 @@ const useParallax = (
         return { scale, rotateY, opacity };
       });
       setTransforms(newTransforms);
-    }, []);
+    }, [api]);
   
     useEffect(() => {
       if (!api || !isClient) return;
