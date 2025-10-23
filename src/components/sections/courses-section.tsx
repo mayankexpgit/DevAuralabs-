@@ -38,7 +38,7 @@ export default function CoursesSection() {
           if (isUsed) {
             const dragHandler = engine.dragHandler;
             const pointerMoves = dragHandler.pointerMoves;
-            if (pointerMoves && pointerMoves.length > 0) {
+            if (pointerMoves?.length > 0) {
               const sign = Math.sign(pointerMoves[0]?.x ?? 0);
               if (sign === -1) {
                 diffToTarget = scrollSnap - (1 + scrollProgress);
