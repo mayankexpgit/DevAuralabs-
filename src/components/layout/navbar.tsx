@@ -163,12 +163,6 @@ export default function Navbar() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/cart">
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        <span>Cart</span>
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuItem>Profile</DropdownMenuItem>
                     <DropdownMenuItem>Dashboard</DropdownMenuItem>
                     <DropdownMenuItem>Settings</DropdownMenuItem>
