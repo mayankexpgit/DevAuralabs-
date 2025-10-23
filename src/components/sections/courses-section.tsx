@@ -54,7 +54,7 @@ export default function CoursesSection() {
         <div style={{ perspective: '1000px' }}>
           <CarouselContent>
             {courses.map((course, index) => {
-              if (!api) {
+              if (!api || !isClient) {
                 return (
                   <CarouselItem key={course.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 xl:basis-1/6">
                     <div className="p-1 h-full">
@@ -67,16 +67,18 @@ export default function CoursesSection() {
               let diffToTarget = scrollSnaps[index] - scrollProgress;
               
               const engine = api.internalEngine();
-              if (engine && engine.options.loop) {
+              if (engine && engine.options.loop && engine.dragHandler) {
                   engine.slideLooper.loopPoints.forEach(loopPoint => {
                     const isUsed = loopPoint.target() === scrollProgress;
                     if (isUsed) {
-                      const sign = Math.sign(engine.dragHandler.dragged.x);
-                      if (sign === -1) {
-                          diffToTarget = scrollSnaps[index] - (1 + scrollProgress);
-                      }
-                      if (sign === 1) {
-                          diffToTarget = scrollSnaps[index] + (1 - scrollProgress);
+                      if (engine.dragHandler.dragged.x) {
+                        const sign = Math.sign(engine.dragHandler.dragged.x);
+                        if (sign === -1) {
+                            diffToTarget = scrollSnaps[index] - (1 + scrollProgress);
+                        }
+                        if (sign === 1) {
+                            diffToTarget = scrollSnaps[index] + (1 - scrollProgress);
+                        }
                       }
                     }
                   });
