@@ -163,7 +163,7 @@ export default function Navbar() {
               <Link href="/login">
                   <Button className="glass-btn" variant="outline" size="sm">
                   Login
-                  </button>
+                  </Button>
               </Link>
             )
           )}
