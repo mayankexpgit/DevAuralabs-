@@ -54,7 +54,7 @@ export default function Navbar() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-white/10">
+    <header className="sticky top-0 z-50 w-full bg-background/50 backdrop-blur-xl border-b border-white/10">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="md:hidden flex items-center gap-4">
