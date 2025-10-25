@@ -36,7 +36,6 @@ const navLinks = [
 export default function Navbar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [hasScrolled, setHasScrolled] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -44,14 +43,6 @@ export default function Navbar() {
     setIsMounted(true);
     const authStatus = localStorage.getItem('isAuthenticated') === 'true';
     setIsAuthenticated(authStatus);
-
-    const handleScroll = () => {
-      setHasScrolled(window.scrollY > 10);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
   }, [pathname]); // Re-check on path change
 
   const handleLogout = () => {
@@ -63,10 +54,7 @@ export default function Navbar() {
 
 
   return (
-    <header className={cn(
-        "sticky top-0 z-50 w-full transition-shadow duration-300",
-        hasScrolled ? "shadow-lg shadow-primary/10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60" : "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-      )}>
+    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-lg border-b border-white/10">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="md:hidden flex items-center gap-4">
@@ -151,7 +139,7 @@ export default function Navbar() {
             isAuthenticated ? (
               <>
                 <Link href="/cart">
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className="hover:bg-primary/10">
                         <ShoppingCart className="h-5 w-5" />
                         <span className="sr-only">Cart</span>
                     </Button>
