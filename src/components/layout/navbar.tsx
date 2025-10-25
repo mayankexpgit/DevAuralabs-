@@ -52,7 +52,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full p-4">
+    <header className="absolute top-0 z-50 w-full p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4 md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -97,18 +97,7 @@ export default function Navbar() {
         </div>
 
         <nav className="hidden md:flex items-center gap-6 text-sm">
-            {navLinks.map(({ href, label }) => (
-                <Link
-                key={href}
-                href={href}
-                className={cn(
-                    'transition-colors hover:text-primary font-medium',
-                    pathname === href ? 'text-primary' : 'text-muted-foreground'
-                )}
-                >
-                {label}
-                </Link>
-            ))}
+            {/* Desktop nav links removed as requested */}
         </nav>
 
         <div className="flex items-center justify-end gap-2">
