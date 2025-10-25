@@ -54,13 +54,13 @@ export default function Navbar() {
 
 
   return (
-    <header className="sticky top-0 z-50 w-full header-glass">
+    <header className="sticky top-0 z-50 w-full">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="md:hidden flex items-center gap-4">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="glass-btn">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle Menu</span>
                 </Button>
@@ -102,7 +102,7 @@ export default function Navbar() {
                     {isMounted && (
                       !isAuthenticated ? (
                         <Link href="/login" onClick={() => setIsOpen(false)}>
-                          <Button className="glowing-btn w-full" variant="outline">Login</Button>
+                          <Button className="w-full" variant="outline">Login</Button>
                         </Link>
                       ) : (
                         <Button className="w-full" variant="destructive" onClick={() => { handleLogout(); setIsOpen(false); }}>
@@ -146,7 +146,7 @@ export default function Navbar() {
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full glass-btn">
                       <Avatar className="h-9 w-9">
                         <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="@user" />
                         <AvatarFallback>
@@ -184,7 +184,7 @@ export default function Navbar() {
               </>
             ) : (
               <Link href="/login">
-                  <Button className="glowing-btn" variant="outline" size="sm">
+                  <Button className="glass-btn" variant="outline" size="sm">
                   Login
                   </Button>
               </Link>
