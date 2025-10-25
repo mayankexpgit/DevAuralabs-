@@ -33,23 +33,13 @@ export default function RootLayout({
         <title>DevAura Labs</title>
         <meta name="description" content="Master. Build. Secure — All in One Platform." />
         <link rel="icon" href="/favicon.ico" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <svg style={{ display: 'none' }}>
-            <filter id="liquid-glass" colorInterpolationFilters="linearRGB" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
-                <feTurbulence type="fractalNoise" baseFrequency="0.01 0.04" numOctaves="3" result="NOISE" />
-                <feDisplacementMap in="SourceGraphic" in2="NOISE" scale="10" xChannelSelector="R" yChannelSelector="G"/>
-            </filter>
+          <filter id="liquid-glass" colorInterpolationFilters="linearRGB" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+              <feTurbulence type="fractalNoise" baseFrequency="0.01 0.04" numOctaves="3" result="NOISE" />
+              <feDisplacementMap in="SourceGraphic" in2="NOISE" scale="10" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
         </svg>
         <div className="relative flex min-h-screen flex-col">
           <Navbar />
