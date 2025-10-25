@@ -47,19 +47,68 @@
 
 @layer components {
   .gradient-btn {
-    @apply px-8 py-3 text-sm font-bold text-primary-foreground rounded-lg transition-all duration-300;
+    @apply px-8 py-3 text-sm font-bold text-primary-foreground rounded-lg transition-all duration-300 relative z-0;
     background-size: 200% auto;
+    border: none;
+    outline: none;
   }
+
   .gradient-btn-1 {
     @apply bg-gradient-to-r from-primary via-secondary to-primary;
   }
    .gradient-btn-2 {
     @apply bg-gradient-to-r from-secondary via-primary to-secondary;
   }
-  .gradient-btn:hover {
-    background-position: right center;
-    transform: scale(1.05);
+
+  .gradient-btn:before {
+    content: '';
+    background: linear-gradient(45deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--primary)), hsl(var(--secondary)));
+    position: absolute;
+    top: -2px;
+    left:-2px;
+    background-size: 400%;
+    z-index: -1;
+    filter: blur(5px);
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    animation: glowing 20s linear infinite;
+    opacity: 0;
+    transition: opacity .3s ease-in-out;
+    border-radius: 10px;
   }
+
+  .gradient-btn:hover:before {
+    opacity: 1;
+  }
+
+  .gradient-btn:active:after {
+    background: transparent;
+  }
+  
+  .gradient-btn:after {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    border-radius: 10px;
+  }
+
+  .gradient-btn-1:after {
+     @apply bg-gradient-to-r from-primary via-secondary to-primary;
+     background-size: 200% auto;
+  }
+  .gradient-btn-2:after {
+     @apply bg-gradient-to-r from-secondary via-primary to-secondary;
+     background-size: 200% auto;
+  }
+
+  .gradient-btn:hover:after {
+    background-position: right center;
+  }
+
   .gradient-btn:active {
     transform: scale(0.95);
     transition-duration: 100ms;
