@@ -58,10 +58,10 @@ export default function Navbar() {
         <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="liquid-glass-btn">
+                <div className="glass-icon-btn">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle Menu</span>
-                </Button>
+                </div>
               </SheetTrigger>
               <SheetContent side="left">
                 <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
@@ -118,22 +118,20 @@ export default function Navbar() {
           {isMounted && (
             isAuthenticated ? (
               <>
-                <Link href="/cart">
-                    <Button variant="ghost" size="icon" className="liquid-glass-btn">
-                        <ShoppingCart className="h-5 w-5" />
-                        <span className="sr-only">Cart</span>
-                    </Button>
+                <Link href="/cart" className="glass-icon-btn">
+                    <ShoppingCart className="h-5 w-5" />
+                    <span className="sr-only">Cart</span>
                 </Link>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full liquid-glass-btn">
+                    <div className="glass-icon-btn h-10 w-10">
                       <Avatar className="h-9 w-9">
                         <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="@user" />
                         <AvatarFallback>
                             <User className="h-5 w-5" />
                         </AvatarFallback>
                       </Avatar>
-                    </Button>
+                    </div>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
@@ -163,10 +161,8 @@ export default function Navbar() {
                 </DropdownMenu>
               </>
             ) : (
-              <Link href="/login">
-                  <Button className="liquid-glass-btn" variant="outline" size="sm">
+              <Link href="/login" className="glass-icon-btn login-btn text-sm">
                   Login
-                  </Button>
               </Link>
             )
           )}
@@ -175,5 +171,3 @@ export default function Navbar() {
     </header>
   );
 }
-
-    
