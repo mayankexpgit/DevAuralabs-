@@ -46,11 +46,11 @@ export default function HeroSection() {
         <div className="relative flex justify-center items-center h-24 md:h-32 lg:h-40 mb-4">
           <TypeAnimation
             sequence={[
-              'Master.',
+              'Master',
               1000,
-              'Build.',
+              'Build',
               1000,
-              'Secure.',
+              'Secure',
               1000,
             ]}
             wrapper="h1"
