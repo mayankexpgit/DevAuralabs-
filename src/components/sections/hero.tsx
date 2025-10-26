@@ -28,7 +28,7 @@ export default function HeroSection() {
           ]}
           wrapper="h1"
           speed={50}
-          className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-500"
+          className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-200"
           repeat={Infinity}
         />
         <p className="text-xl md:text-2xl font-bold mb-8 text-primary">
