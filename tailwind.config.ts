@@ -99,7 +99,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         glowing: 'glowing 20s linear infinite',
-        'blink-cursor': 'blink-cursor 1s step-end infinite',
+        'blink-cursor': 'blink-cursor 1.2s step-end infinite',
       },
     },
   },
