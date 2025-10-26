@@ -48,6 +48,9 @@ export default function HeroSection() {
             as="h1"
             words={["Master", "Build", "Secure"]}
             loop={true}
+            typeSpeed={50}
+            deleteSpeed={150}
+            pauseDelay={2000}
             className={`text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-200 [text-shadow:0_2px_4px_rgba(0,0,0,0.2)] transition-opacity duration-500 ${isLoaded ? 'opacity-0' : 'opacity-100'}`}
             showCursor={true}
             blinkCursor={true}
