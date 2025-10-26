@@ -1,0 +1,13 @@
+<svg width="1000" height="150" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .title {
+      font-family: 'font', sans-serif;
+      font-size: 80px;
+      font-weight: bold;
+      fill: #000000;
+    }
+  </style>
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" class="title">
+    Master. Build. Secure.
+  </text>
+</svg>

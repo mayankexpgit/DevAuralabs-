@@ -5,32 +5,48 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/logo';
 import VantaBackground from '@/components/vanta-background';
-import { TypeAnimation } from 'react-type-animation';
+import { useEffect, useState } from 'react';
+import MetallicText from '@/components/metallic-text';
+import { parseLogoImage } from '@/components/metallic-text';
 
 export default function HeroSection() {
+  const [imageData, setImageData] = useState(null);
+
+  useEffect(() => {
+    async function loadImage() {
+      try {
+        const response = await fetch('/hero-text.svg');
+        const svgBlob = await response.blob();
+        const file = new File([svgBlob], 'hero-text.svg', { type: 'image/svg+xml' });
+        const { imageData: parsedImageData } = await parseLogoImage(file);
+        setImageData(parsedImageData);
+      } catch (error) {
+        console.error('Error loading or parsing SVG:', error);
+      }
+    }
+    loadImage();
+  }, []);
+
   return (
     <section className="relative w-full h-[80vh] min-h-[500px] flex items-center justify-center text-center overflow-hidden pt-12">
       <VantaBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background z-10" />
 
       <div className="container relative z-20 px-4">
-        <div className="flex justify-center -mt-12 mb-12">
+        <div className="flex justify-center -mt-12 mb-8">
           <Logo />
         </div>
-        <TypeAnimation
-          sequence={[
-            'Master.',
-            1000,
-            'Build.',
-            1000,
-            'Secure.',
-            1000,
-          ]}
-          wrapper="h1"
-          speed={50}
-          className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-200 [text-shadow:0_2px_4px_rgba(0,0,0,0.2)]"
-          repeat={Infinity}
-        />
+        
+        <div className="flex justify-center items-center h-24 md:h-32 lg:h-40 mb-4">
+          {imageData ? (
+            <MetallicText imageData={imageData} />
+          ) : (
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-200 [text-shadow:0_2px_4px_rgba(0,0,0,0.2)]">
+              Master. Build. Secure.
+            </h1>
+          )}
+        </div>
+        
         <p className="text-xl md:text-2xl font-bold mb-8 text-primary">
           All in One Platform.
         </p>
