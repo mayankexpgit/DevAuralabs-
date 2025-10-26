@@ -10,7 +10,7 @@ export default function SkillsSection() {
           From coding and web development to AI, we have the right program to boost your career.
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {skills.map((skill) => (
           <SkillCard key={skill.id} skill={skill} />
         ))}
