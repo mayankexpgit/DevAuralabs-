@@ -23,6 +23,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
+import Logo from '../logo';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -66,6 +67,13 @@ export default function Navbar() {
       isScrolled ? "glass-header" : "bg-transparent"
     )}>
       <div className="container mx-auto flex items-center justify-between p-4">
+        <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8">
+                <Logo />
+            </div>
+            <span className="font-bold text-lg">DevAura Labs</span>
+        </Link>
+
         {/* Mobile Menu Button - Top Left */}
         <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
