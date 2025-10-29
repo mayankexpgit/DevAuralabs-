@@ -5,6 +5,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Script from 'next/script';
 import Footer from '@/components/layout/footer';
+import Navbar from '@/components/layout/navbar';
 
 export default function RootLayout({
   children,
@@ -27,6 +28,7 @@ export default function RootLayout({
           </filter>
         </svg>
         <div className="relative flex min-h-screen flex-col">
+          <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
         </div>

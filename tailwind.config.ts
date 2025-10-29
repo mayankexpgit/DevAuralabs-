@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['font', 'sans-serif'],
-        headline: ['font', 'sans-serif'],
+        body: ['Gued', 'sans-serif'],
+        headline: ['Gued', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
