@@ -23,7 +23,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
-import Logo from '../logo';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -64,7 +63,7 @@ export default function Navbar() {
   return (
     <header className={cn(
       "sticky top-0 z-50 w-full transition-all duration-300",
-      isScrolled ? "" : ""
+      isScrolled ? "glass-header" : ""
     )}>
       <div className="container mx-auto flex items-center justify-between p-4">
         <div className="flex items-center gap-2">
@@ -110,9 +109,7 @@ export default function Navbar() {
                   </SheetContent>
                 </Sheet>
             </div>
-            <div className="w-40 h-12 hidden md:block">
-                {/* Logo removed from here */}
-            </div>
+            
         </div>
 
         {/* Desktop nav */}
