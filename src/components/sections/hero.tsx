@@ -16,7 +16,7 @@ export default function HeroSection() {
 
       <div className="container relative z-20 px-4">
         
-        <div className="w-40 h-24 mx-auto mb-4">
+        <div className="w-56 h-32 mx-auto mb-4">
             <Logo />
         </div>
 
