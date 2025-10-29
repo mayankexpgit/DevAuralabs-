@@ -16,7 +16,7 @@ export default function HeroSection() {
 
       <div className="container relative z-20 px-4">
         
-        <div className="w-56 h-32 mx-auto mb-4">
+        <div className="w-56 h-auto mx-auto mb-4">
             <Logo />
         </div>
 
@@ -39,10 +39,10 @@ export default function HeroSection() {
         </div>
         
         <p className="text-xl md:text-2xl font-bold mb-8 text-primary">
-          All in One Platform.
+          Your Gateway to Digital Mastery.
         </p>
         <p className="max-w-2xl mx-auto text-muted-foreground md:text-xl mb-12">
-          DevAura Labs is your all-in-one platform for e-commerce learning and services, specializing in Cybersecurity, Skill Development, and Website Creation.
+          Unlock your potential with expert-led courses in Cybersecurity, cutting-edge Skill Development programs, and professional Website Creation services to elevate your digital presence.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/courses">
