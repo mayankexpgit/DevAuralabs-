@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Course": {
+      "title": "Course",
+      "description": "Represents a single course offered on the platform.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the course." },
+        "title": { "type": "string", "description": "The title of the course." },
+        "icon": { "type": "string", "description": "The name of the lucide-react icon for the course." },
+        "level": { "type": "string", "description": "The difficulty level of the course (e.g., Beginner, Intermediate)." },
+        "price": { "type": "number", "description": "The price of the course." },
+        "compareAtPrice": { "type": "number", "description": "The original price for comparison, if on sale." },
+        "description": { "type": "string", "description": "A short description of the course." },
+        "image": { "type": "string", "description": "The ID for the placeholder image." }
+      },
+      "required": ["id", "title", "icon", "level", "price", "description", "image"]
+    },
+    "Skill": {
+      "title": "Skill",
+      "description": "Represents a skill development program offered on the platform.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the skill program." },
+        "title": { "type": "string", "description": "The title of the skill program." },
+        "icon": { "type": "string", "description": "The name of the lucide-react icon for the skill." },
+        "progress": { "type": "number", "description": "A simulated progress percentage for display purposes." },
+        "description": { "type": "string", "description": "A short description of the skill program." },
+        "image": { "type": "string", "description": "The ID for the placeholder image." }
+      },
+      "required": ["id", "title", "icon", "progress", "description", "image"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "/courses/{courseId}": {
+      "schema": {
+        "$ref": "#/entities/Course"
+      },
+      "description": "Stores individual course documents."
+    },
+    "/skills/{skillId}": {
+      "schema": {
+        "$ref": "#/entities/Skill"
+      },
+      "description": "Stores individual skill program documents."
+    }
+  }
+}
