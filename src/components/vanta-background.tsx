@@ -29,10 +29,10 @@ const VantaBackground = () => {
     const initVanta = async () => {
       try {
         await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js');
-        await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.globe.min.js');
+        await loadScript('https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.birds.min.js');
 
-        if ((window as any).VANTA && (window as any).THREE && vantaRef.current && !vantaEffect) {
-          effect = (window as any).VANTA.GLOBE({
+        if ((window as any).VANTA && (window as any).VANTA.BIRDS && (window as any).THREE && vantaRef.current && !vantaEffect) {
+          effect = (window as any).VANTA.BIRDS({
             el: vantaRef.current,
             THREE: (window as any).THREE,
             mouseControls: true,
@@ -42,8 +42,7 @@ const VantaBackground = () => {
             minWidth: 200.0,
             scale: 1.0,
             scaleMobile: 1.0,
-            color: 0xf6f6fb,
-            color2: 0x1932cc,
+            color1: 0x22ff,
             backgroundColor: 0x0,
           });
           setVantaEffect(effect);

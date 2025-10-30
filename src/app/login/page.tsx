@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import VantaBackground from '@/components/vanta-background';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -57,8 +58,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-[80vh] items-center justify-center px-4">
-        <div className="w-full max-w-md">
+    <div className="relative flex min-h-[80vh] items-center justify-center px-4">
+        <VantaBackground />
+        <div className="relative z-10 w-full max-w-md">
             <div className="glass-card p-8 space-y-6">
                 <div className="text-center space-y-2">
                     <div className="flex justify-center">
