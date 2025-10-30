@@ -47,6 +47,12 @@
       "description": "UI/UX design sketches and wireframes on a desk",
       "imageUrl": "https://images.unsplash.com/photo-1568584263125-bf8f0a77d51c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx1c2VyJTIwaW50ZXJmYWNlfGVufDB8fHx8MTc2MDg1NDA0MXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "user interface"
+    },
+    {
+      "id": "ai-logo",
+      "description": "Abstract image of an AI",
+      "imageUrl": "https://images.unsplash.com/photo-1674027444485-cec3da58eef4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxuZXR3b3JrfGVufDB8fHx8MTc2MDg3ODk1Mnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ai"
     }
   ]
 }

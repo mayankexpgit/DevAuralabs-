@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { ArrowUp, Book, BrainCircuit, HeartPulse, Menu, Mic, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VantaFogBackground from '@/components/vanta-fog-background';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type Message = {
   id: string;
@@ -27,6 +28,7 @@ export default function AuraAiChatPage() {
   const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [userName, setUserName] = useState('Josh');
+  const logoImage = PlaceHolderImages.find(p => p.id === 'ai-logo');
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -90,7 +92,7 @@ export default function AuraAiChatPage() {
             >
               {message.sender === 'aura' && (
                 <Avatar className="h-8 w-8 border-2 border-green-glow">
-                  <AvatarImage src="https://i.ibb.co/20tFWD4/IMG-20251019-191415-1.png" />
+                  <AvatarImage src={logoImage?.imageUrl} />
                   <AvatarFallback>A</AvatarFallback>
                 </Avatar>
               )}
@@ -181,7 +183,7 @@ export default function AuraAiChatPage() {
   const renderListeningUI = () => (
     <div className="flex flex-col h-full w-full max-w-2xl mx-auto p-4 text-white items-center justify-center text-center">
       <div className="listening-indicator">
-        <img src="https://i.ibb.co/20tFWD4/IMG-20251019-191415-1.png" alt="Aura AI" className="w-24 h-24"/>
+        <img src={logoImage?.imageUrl} alt="Aura AI" className="w-24 h-24"/>
       </div>
       <p className='mt-8 text-zinc-300'>Listening...</p>
       <p className="text-xl mt-4 max-w-md">

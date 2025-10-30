@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import type { MouseEventHandler } from 'react';
 import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 type LogoProps = {
   onLinkClick?: MouseEventHandler<HTMLAnchorElement>;
@@ -9,9 +10,11 @@ type LogoProps = {
 
 
 export default function Logo({ onLinkClick }: LogoProps) {
+  const logoImage = PlaceHolderImages.find(p => p.id === 'ai-logo');
+  
   return (
     <Link href="/" onClick={onLinkClick} className="flex items-center justify-center w-full h-full" aria-label="DevAura Labs homepage">
-      <Image src="https://i.ibb.co/20tFWD4/IMG-20251019-191415-1.png" alt="DevAura Labs Logo" width={200} height={200} className="rounded-lg object-contain w-full h-full" unoptimized />
+      <Image src={logoImage?.imageUrl || ''} alt="DevAura Labs Logo" width={200} height={200} className="rounded-lg object-contain w-full h-full" unoptimized />
     </Link>
   );
 }
