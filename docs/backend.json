@@ -1,53 +1,230 @@
 {
   "entities": {
     "Course": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Course",
-      "description": "Represents a single course offered on the platform.",
       "type": "object",
+      "description": "Represents a cybersecurity course offered by DevAura Labs.",
       "properties": {
-        "id": { "type": "string", "description": "Unique identifier for the course." },
-        "title": { "type": "string", "description": "The title of the course." },
-        "icon": { "type": "string", "description": "The name of the lucide-react icon for the course." },
-        "level": { "type": "string", "description": "The difficulty level of the course (e.g., Beginner, Intermediate)." },
-        "price": { "type": "number", "description": "The price of the course." },
-        "compareAtPrice": { "type": "number", "description": "The original price for comparison, if on sale." },
-        "description": { "type": "string", "description": "A short description of the course." },
-        "image": { "type": "string", "description": "The ID for the placeholder image." }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the course."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the course."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the course content."
+        },
+        "icon": {
+          "type": "string",
+          "description": "Icon representing the course (e.g., URL to an image)."
+        },
+        "rating": {
+          "type": "number",
+          "description": "Average rating of the course (e.g., 4.5)."
+        },
+        "level": {
+          "type": "string",
+          "description": "Difficulty level of the course (e.g., Beginner, Intermediate, Advanced)."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the course."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the course."
+        }
       },
-      "required": ["id", "title", "icon", "level", "price", "description", "image"]
+      "required": [
+        "id",
+        "title",
+        "description",
+        "icon",
+        "rating",
+        "level",
+        "price",
+        "category"
+      ]
     },
-    "Skill": {
-      "title": "Skill",
-      "description": "Represents a skill development program offered on the platform.",
+    "SkillDevelopmentProgram": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SkillDevelopmentProgram",
       "type": "object",
+      "description": "Represents a skill development program offered by DevAura Labs.",
       "properties": {
-        "id": { "type": "string", "description": "Unique identifier for the skill program." },
-        "title": { "type": "string", "description": "The title of the skill program." },
-        "icon": { "type": "string", "description": "The name of the lucide-react icon for the skill." },
-        "progress": { "type": "number", "description": "A simulated progress percentage for display purposes." },
-        "description": { "type": "string", "description": "A short description of the skill program." },
-        "image": { "type": "string", "description": "The ID for the placeholder image." }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the skill development program."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the skill development program."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the program."
+        },
+        "progress": {
+          "type": "number",
+          "description": "User's progress in the program (e.g., percentage completed)."
+        }
       },
-      "required": ["id", "title", "icon", "progress", "description", "image"]
+      "required": [
+        "id",
+        "title",
+        "description",
+        "progress"
+      ]
+    },
+    "WebsiteRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "WebsiteRequest",
+      "type": "object",
+      "description": "Represents a request for a website creation service.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the website request."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N WebsiteRequest)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the website requirements."
+        },
+        "deadline": {
+          "type": "string",
+          "description": "Desired deadline for the website creation.",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the website request (e.g., Pending, In Progress, Completed)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "description",
+        "deadline",
+        "status"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the DevAura Labs platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "role": {
+          "type": "string",
+          "description": "User's role (e.g., Admin, Student)."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "role"
+      ]
     }
   },
   "auth": {
     "providers": [
+      "password",
       "anonymous"
     ]
   },
   "firestore": {
-    "/courses/{courseId}": {
-      "schema": {
-        "$ref": "#/entities/Course"
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. The 'userId' parameter is the unique identifier for each user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
       },
-      "description": "Stores individual course documents."
-    },
-    "/skills/{skillId}": {
-      "schema": {
-        "$ref": "#/entities/Skill"
+      {
+        "path": "/users/{userId}/website_requests/{websiteRequestId}",
+        "definition": {
+          "entityName": "WebsiteRequest",
+          "schema": {
+            "$ref": "#/backend/entities/WebsiteRequest"
+          },
+          "description": "Stores website requests for each user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user who created the request."
+            },
+            {
+              "name": "websiteRequestId",
+              "description": "The unique identifier for the website request."
+            }
+          ]
+        }
       },
-      "description": "Stores individual skill program documents."
-    }
+      {
+        "path": "/courses/{courseId}",
+        "definition": {
+          "entityName": "Course",
+          "schema": {
+            "$ref": "#/backend/entities/Course"
+          },
+          "description": "Stores course information. The 'courseId' parameter is the unique identifier for each course.",
+          "params": [
+            {
+              "name": "courseId",
+              "description": "The unique identifier for the course."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/skill_development_programs/{skillDevelopmentProgramId}",
+        "definition": {
+          "entityName": "SkillDevelopmentProgram",
+          "schema": {
+            "$ref": "#/backend/entities/SkillDevelopmentProgram"
+          },
+          "description": "Stores skill development programs. The 'skillDevelopmentProgramId' parameter is the unique identifier for each program.",
+          "params": [
+            {
+              "name": "skillDevelopmentProgramId",
+              "description": "The unique identifier for the skill development program."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, DBAC, and QAPs. User data is stored under `/users/{userId}`. Website requests are stored as subcollections under each user (`/users/{userId}/website_requests/{websiteRequestId}`), ensuring clear ownership and easy querying of a user's requests. Denormalization is applied by including the `userId` field within the WebsiteRequest document itself; this ensures authorization rules do not need to perform `get()` operations to verify ownership. Courses are stored in a top-level `/courses` collection, allowing for easy listing and filtering. Similarly, skill development programs are stored in a `/skill_development_programs` collection. Since access to courses and skill development programs is likely public or managed via other mechanisms (e.g., purchase), this flat structure is appropriate. The `id` field in each document acts as the unique identifier.\n\nThis structure facilitates listing all courses and skill development programs without complex security rules. Path-based ownership for website requests provides simple and robust authorization rules. The denormalized `userId` in the `website_requests` collection enables authorization independence, preventing the need for expensive and fragile `get()` calls in security rules."
   }
 }
