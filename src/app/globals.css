@@ -44,7 +44,7 @@
 
 @layer components {
   .gradient-btn {
-    @apply px-8 py-3 text-sm font-bold text-primary-foreground rounded-lg transition-all duration-300 relative z-0;
+    @apply px-8 py-3 text-sm font-bold text-primary-foreground rounded-lg transition-all duration-300 relative z-0 overflow-hidden;
     background-size: 200% auto;
     border: none;
     outline: none;
@@ -161,6 +161,22 @@
     .glass-header {
       -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
+    }
+  }
+
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%);
+    transform: scale(0);
+    animation: ripple-effect 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  @keyframes ripple-effect {
+    to {
+      transform: scale(4);
+      opacity: 0;
     }
   }
 }

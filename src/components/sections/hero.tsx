@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TypeAnimation } from 'react-type-animation';
 import Logo from '@/components/logo';
+import { RippleEffect } from '@/components/ui/ripple-effect';
 
 export default function HeroSection() {
 
@@ -46,11 +47,13 @@ export default function HeroSection() {
           <Link href="/courses">
             <Button size="lg" className="gradient-btn gradient-btn-1 w-full sm:w-auto relative">
               Start Learning
+              <RippleEffect />
             </Button>
           </Link>
           <Link href="/services">
             <Button size="lg" className="gradient-btn gradient-btn-2 w-full sm:w-auto relative">
               Hire Us
+              <RippleEffect />
             </Button>
           </Link>
         </div>

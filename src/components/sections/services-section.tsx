@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '../ui/button';
+import { RippleEffect } from '../ui/ripple-effect';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -101,6 +102,7 @@ export default function ServicesSection() {
               />
               <Button type="submit" className="w-full gradient-btn gradient-btn-1 relative">
                 Submit Request
+                <RippleEffect />
               </Button>
             </form>
           </Form>

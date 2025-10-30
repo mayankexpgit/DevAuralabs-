@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { icons } from '@/lib/data';
 import { Button } from './ui/button';
+import { RippleEffect } from './ui/ripple-effect';
 
 type Skill = {
   id: string;
@@ -55,6 +56,7 @@ export default function SkillCard({ skill }: SkillCardProps) {
         </div>
         <Button className="w-full gradient-btn gradient-btn-2 mt-auto relative">
           Enroll Now
+          <RippleEffect />
         </Button>
       </div>
     </div>
