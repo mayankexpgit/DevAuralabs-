@@ -3,7 +3,6 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import VantaBackground from '@/components/vanta-background';
 import { TypeAnimation } from 'react-type-animation';
 import Logo from '@/components/logo';
 
@@ -11,7 +10,6 @@ export default function HeroSection() {
 
   return (
     <section className="relative w-full h-screen min-h-[500px] flex items-center justify-center text-center overflow-hidden -mt-20">
-      <VantaBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background z-10" />
 
       <div className="container relative z-20 px-4">
