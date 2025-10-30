@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowUp, Menu, Mic, X } from 'lucide-react';
+import { Menu, Mic, X, Send } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VantaFogBackground from '@/components/vanta-fog-background';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -52,10 +52,16 @@ export default function AuraAiChatPage() {
   
   const startListening = () => {
     setIsListening(true);
+    // Simulate speech-to-text
     setTimeout(() => {
-      handleSend("Hey Aura, can you help plan a weekend trip to the mountains?");
-      setIsListening(false);
+        setInput("Hey Aura, can you help plan a weekend trip to the mountains?");
+        setIsListening(false);
     }, 2500);
+  };
+
+  const stopListening = () => {
+    setIsListening(false);
+    handleSend("Hey Aura, can you help plan a weekend trip to the mountains?");
   };
   
   const renderChatUI = () => (
@@ -107,18 +113,21 @@ export default function AuraAiChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        <footer className="px-4 pt-2">
+        <footer className="px-4 pt-2 pb-4">
            <div className="relative">
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
               placeholder="Ask Aura,"
-              className="aura-glass-input min-h-[96px] pt-3 pr-12"
-              rows={4}
+              className="aura-glass-input min-h-[56px] pt-3 pr-24"
+              rows={1}
             />
-            <Button size="icon" className="absolute right-2 bottom-2 aura-send-btn" onClick={() => handleSend()}>
-              <ArrowUp className="h-5 w-5" />
+            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening}>
+              <Mic className="h-5 w-5" />
+            </Button>
+            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={() => handleSend()}>
+                {isListening ? <Mic className="h-5 w-5" /> : <Send className="h-5 w-5" />}
             </Button>
           </div>
         </footer>
@@ -138,54 +147,32 @@ export default function AuraAiChatPage() {
             <p className="text-white mt-2">What Do You Want To Chat About Today?</p>
         </div>
         
-        <footer className="px-4 pt-2">
+        <footer className="px-4 pt-2 pb-4">
           <div className="relative">
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
               placeholder="Ask Aura,"
-              className="aura-glass-input min-h-[96px] pt-3 pr-24"
-              rows={4}
+              className="aura-glass-input min-h-[56px] pt-3 pr-24"
+              rows={1}
             />
-             <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={() => {}}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening}>
+              <Mic className="h-5 w-5" />
             </Button>
-            <Button size="icon" className="absolute right-2 bottom-2 aura-send-btn" onClick={startListening}>
-              <ArrowUp className="h-5 w-5" />
+            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={isListening ? stopListening : () => handleSend()}>
+                {isListening ? <Mic className="h-5 w-5" /> : <Send className="h-5 w-5" />}
             </Button>
           </div>
         </footer>
      </div>
   );
 
-  const renderListeningUI = () => (
-    <div className="flex flex-col h-full w-full max-w-2xl mx-auto p-4 text-white items-center justify-center text-center">
-      <div className="listening-indicator">
-        <img src={logoImage?.imageUrl} alt="Aura AI" className="w-24 h-24"/>
-      </div>
-      <p className='mt-8 text-zinc-300'>Listening...</p>
-      <p className="text-xl mt-4 max-w-md">
-        Hey Aura, can you help plan a weekend trip to the mountains?
-      </p>
-      <div className="absolute bottom-10 flex gap-4">
-         <Button size="lg" className="aura-send-btn rounded-full gap-2 px-8">
-            <Mic className="h-5 w-5" />
-            Send
-         </Button>
-         <Button variant="ghost" size="icon" className="aura-glass-btn h-14 w-14" onClick={() => setIsListening(false)}>
-            <X className="h-6 w-6" />
-         </Button>
-      </div>
-    </div>
-  );
-
-
   return (
     <div className="h-screen w-full bg-black aura-chat-container">
       <VantaFogBackground />
       <div className="relative z-10 h-full w-full backdrop-blur-sm bg-black/30">
-        {isListening ? renderListeningUI() : (messages.length > 0 ? renderChatUI() : renderWelcomeUI())}
+        {messages.length > 0 ? renderChatUI() : renderWelcomeUI()}
       </div>
     </div>
   );

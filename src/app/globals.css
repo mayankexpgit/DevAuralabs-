@@ -179,7 +179,6 @@
     }
   }
 
-
   .aura-send-btn {
     @apply rounded-full bg-green-500 h-9 w-9;
     @apply hover:bg-green-400;
@@ -202,13 +201,13 @@
      box-shadow: 0 0 15px hsl(var(--aura-green) / 0.7);
   }
 
-  .listening-indicator {
-    @apply relative flex items-center justify-center;
+  .listening-btn-glow {
+    @apply relative;
   }
 
-  .listening-indicator::before {
+  .listening-btn-glow::before {
     content: '';
-    @apply absolute w-48 h-48 rounded-full;
+    @apply absolute -inset-1 rounded-full;
     background-image: conic-gradient(from 180deg at 50% 50%, hsl(var(--aura-green)/0.8) 0deg, transparent 60deg, transparent 360deg);
     animation: spin 1.5s linear infinite;
     z-index: -1;
