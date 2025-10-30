@@ -11,7 +11,7 @@ const quickLinks = [
 
 const socialLinks = [
   { name: 'Twitter', href: '#' },
-  { name: 'LinkedIn', href: '#' },
+  { name: 'Instagram', href: '#' },
   { name: 'WhatsApp', href: '#' },
 ];
 
