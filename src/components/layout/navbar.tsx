@@ -66,11 +66,11 @@ export default function Navbar() {
   return (
     <header className={cn(
       "w-full z-50",
-      isTransparentPage ? "top-0" : "sticky top-0 glass-header"
+      !isTransparentPage && "sticky top-0 glass-header"
     )}>
       <div className="container mx-auto flex items-center justify-between p-4">
         {/* Mobile Menu Button - Top Left */}
-        <div className={cn("md:hidden", isTransparentPage && "invisible")}>
+        <div className="md:hidden">
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <div className="glass-icon-btn">

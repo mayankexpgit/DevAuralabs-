@@ -11,7 +11,7 @@ import VantaGlobeBackground from '../vanta-globe-background';
 export default function HeroSection() {
 
   return (
-    <section className="relative w-full h-screen min-h-[500px] flex items-center justify-center text-center overflow-hidden -mt-20">
+    <section className="relative w-full h-screen min-h-[500px] flex items-center justify-center text-center overflow-hidden">
       <VantaGlobeBackground />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background z-10" />
 
