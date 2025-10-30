@@ -17,9 +17,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['var(--font-geist-sans)'],
-        headline: ['var(--font-geist-sans)'],
-        code: ['var(--font-geist-mono)'],
+        body: ['Aldrich', 'sans-serif'],
+        headline: ['Aldrich', 'sans-serif'],
+        code: ['monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',

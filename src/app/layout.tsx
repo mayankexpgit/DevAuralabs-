@@ -5,8 +5,6 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/layout/footer';
 import Navbar from '@/components/layout/navbar';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
 
 export default function RootLayout({
   children,
@@ -15,13 +13,13 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} dark`}>
+    <html lang="en" className={`dark`}>
       <head>
         <title>DevAura Labs</title>
         <meta name="description" content="Master. Build. Secure — All in One Platform." />
         <link rel="icon" href="/favicon.ico" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground">
+      <body className="antialiased bg-background text-foreground">
         <svg style={{ display: 'none' }}>
           <filter id="liquid-glass" colorInterpolationFilters="linearRGB" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
               <feTurbulence type="fractalNoise" baseFrequency="0.01 0.04" numOctaves="3" result="NOISE" />
