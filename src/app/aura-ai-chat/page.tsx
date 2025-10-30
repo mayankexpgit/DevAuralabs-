@@ -115,7 +115,7 @@ export default function AuraAiChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
               placeholder="What is on your mind?"
-              className="aura-input min-h-[96px] pl-12 pt-3"
+              className="aura-glass-input min-h-[96px] pl-12 pt-3"
               rows={4}
             />
             <Button size="icon" className="absolute right-2 bottom-4 aura-send-btn" onClick={() => handleSend()}>
@@ -147,7 +147,7 @@ export default function AuraAiChatPage() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
               placeholder="What is on your mind?"
-              className="aura-input min-h-[96px] pl-12 pt-3"
+              className="aura-glass-input min-h-[96px] pl-12 pt-3"
               rows={4}
             />
              <Button size="icon" className="absolute right-12 bottom-4 aura-glass-btn h-8 w-8" onClick={() => {}}>
