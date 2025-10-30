@@ -11,11 +11,14 @@ import VantaFogBackground from '@/components/vanta-fog-background';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import TypingAnimation from '@/components/typing-animation';
 import { getCourseRecommendations } from '@/app/actions';
+import type { AIPoweredCourseRecommendationsOutput } from '@/ai/flows/ai-powered-course-recommendations';
+import CourseChatCard from '@/components/course-chat-card';
 
 type Message = {
   id: string;
   text: string;
   sender: 'user' | 'aura';
+  courses?: AIPoweredCourseRecommendationsOutput['courses'];
 };
 
 export default function AuraAiChatPage() {
@@ -49,8 +52,9 @@ export default function AuraAiChatPage() {
     if (result.success && result.data) {
         aiResponse = {
             id: `aura-${Date.now()}`,
-            text: result.data.courseRecommendations,
+            text: result.data.response,
             sender: 'aura',
+            courses: result.data.courses,
         };
     } else {
         aiResponse = {
@@ -79,7 +83,7 @@ export default function AuraAiChatPage() {
   };
   
   const renderChatUI = () => (
-     <div className="flex flex-col h-full w-full max-w-2xl mx-auto">
+     <div className="flex flex-col h-full w-full max-w-4xl mx-auto">
         <header className="flex items-center justify-between p-4 text-white">
           <Button variant="ghost" size="icon" className="aura-glass-btn">
             <Menu className="h-6 w-6" />
@@ -111,10 +115,18 @@ export default function AuraAiChatPage() {
                   'max-w-xs md:max-w-md rounded-2xl px-4 py-3',
                   message.sender === 'user'
                     ? 'bg-green-500/80 text-white rounded-br-none'
-                    : 'bg-zinc-800/80 text-zinc-200 rounded-bl-none'
+                    : 'bg-zinc-800/80 text-zinc-200 rounded-bl-none',
+                  !message.courses && 'max-w-xs md:max-w-md' 
                 )}
               >
                 <p>{message.text}</p>
+                 {message.courses && message.courses.length > 0 && (
+                    <div className="mt-4 space-y-4">
+                        {message.courses.map(course => (
+                            <CourseChatCard key={course.id} course={course} />
+                        ))}
+                    </div>
+                )}
               </div>
                {message.sender === 'user' && (
                  <Avatar className="h-8 w-8">
