@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Trash2, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { RippleButton } from '@/components/ui/ripple-button';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
@@ -109,9 +110,9 @@ export default function CartPage() {
               </CardContent>
               <CardFooter>
                 <Link href={`/checkout/${cartItems[0].id}`} className="w-full">
-                  <Button size="lg" className="w-full gradient-btn gradient-btn-1">
+                  <RippleButton size="lg" className="w-full gradient-btn gradient-btn-1">
                     Proceed to Checkout
-                  </Button>
+                  </RippleButton>
                 </Link>
               </CardFooter>
             </Card>
@@ -124,9 +125,9 @@ export default function CartPage() {
           <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
           <div className="mt-6">
             <Link href="/courses">
-                <Button className="gradient-btn gradient-btn-2">
+                <RippleButton className="gradient-btn gradient-btn-2">
                     Explore Courses
-                </Button>
+                </RippleButton>
             </Link>
           </div>
         </div>

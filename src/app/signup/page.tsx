@@ -4,7 +4,6 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -19,6 +18,7 @@ import { ShieldEllipsis, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { RippleButton } from '@/components/ui/ripple-button';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -161,9 +161,9 @@ export default function SignupPage() {
                         </FormItem>
                         )}
                     />
-                    <Button type="submit" className="w-full gradient-btn gradient-btn-1">
+                    <RippleButton type="submit" className="w-full gradient-btn gradient-btn-1">
                         Create Account
-                    </Button>
+                    </RippleButton>
                     </form>
                 </Form>
                 <p className="text-center text-sm text-muted-foreground">

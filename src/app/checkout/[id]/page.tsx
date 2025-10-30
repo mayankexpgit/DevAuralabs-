@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { RippleButton } from '@/components/ui/ripple-button';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
@@ -83,9 +84,9 @@ export default function CheckoutPage({ params }: { params: { id: string } }) {
               </div>
             </CardContent>
             <CardFooter>
-              <Button size="lg" className="w-full gradient-btn gradient-btn-1">
+              <RippleButton size="lg" className="w-full gradient-btn gradient-btn-1">
                 Pay ${course.price}
-              </Button>
+              </RippleButton>
             </CardFooter>
           </Card>
         </div>

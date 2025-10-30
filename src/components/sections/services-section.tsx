@@ -3,7 +3,6 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -15,6 +14,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { RippleButton } from '../ui/ripple-button';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -98,9 +98,9 @@ export default function ServicesSection() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full gradient-btn gradient-btn-1">
+              <RippleButton type="submit" className="w-full gradient-btn gradient-btn-1">
                 Submit Request
-              </Button>
+              </RippleButton>
             </form>
           </Form>
         </div>

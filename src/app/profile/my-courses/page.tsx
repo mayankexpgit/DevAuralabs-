@@ -4,11 +4,11 @@
 import { courses } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen } from 'lucide-react';
+import { RippleButton } from '@/components/ui/ripple-button';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
@@ -59,10 +59,10 @@ export default function MyCoursesPage() {
                     <p className="text-xs text-muted-foreground mb-6">Last accessed: {course.lastAccessed}</p>
                     <div className="mt-auto">
                         <Link href={`/courses/${course.id}`}>
-                            <Button className="gradient-btn gradient-btn-2">
+                            <RippleButton className="gradient-btn gradient-btn-2">
                                 <BookOpen className="mr-2 h-4 w-4" />
                                 Continue Learning
-                            </Button>
+                            </RippleButton>
                         </Link>
                     </div>
                   </div>
@@ -78,9 +78,9 @@ export default function MyCoursesPage() {
           <p className="mt-2 text-muted-foreground">You haven't enrolled in any courses.</p>
           <div className="mt-6">
             <Link href="/courses">
-                <Button className="gradient-btn gradient-btn-2">
+                <RippleButton className="gradient-btn gradient-btn-2">
                     Explore Courses
-                </Button>
+                </RippleButton>
             </Link>
           </div>
         </div>

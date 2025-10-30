@@ -10,6 +10,7 @@ import { CheckCircle, ShoppingCart } from 'lucide-react';
 import type { courses } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
+import { RippleButton } from '@/components/ui/ripple-button';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
@@ -101,13 +102,13 @@ export default function CourseDetailClient({ course }: { course: Course }) {
                 </div>
                 <p className="text-sm text-muted-foreground mb-6">Get lifetime access to this course and all future updates.</p>
                 <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full gradient-btn gradient-btn-1" onClick={handleBuyNow}>
+                    <RippleButton size="lg" className="w-full gradient-btn gradient-btn-1" onClick={handleBuyNow}>
                         Buy Now
-                    </Button>
-                    <Button size="lg" variant="outline" className="w-full" onClick={handleAddToCart}>
+                    </RippleButton>
+                    <RippleButton size="lg" variant="outline" className="w-full" onClick={handleAddToCart}>
                         <ShoppingCart className="mr-2 h-5 w-5" />
                         Add to Cart
-                    </Button>
+                    </RippleButton>
                 </div>
                  <div className="mt-8 text-xs text-center text-muted-foreground">
                     30-Day Money-Back Guarantee
