@@ -17,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { RippleButton } from '@/components/ui/ripple-button';
+import { Button } from '@/components/ui/button';
 
 const passwordFormSchema = z.object({
   oldPassword: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
@@ -120,9 +120,9 @@ export default function SettingsPage() {
                     </FormItem>
                   )}
                 />
-                <RippleButton type="submit" className="w-full gradient-btn gradient-btn-2 mt-4">
+                <Button type="submit" className="w-full gradient-btn gradient-btn-2 mt-4 relative">
                   Update Password
-                </RippleButton>
+                </Button>
               </form>
             </Form>
           </CardContent>

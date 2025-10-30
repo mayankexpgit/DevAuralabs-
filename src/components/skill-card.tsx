@@ -1,8 +1,9 @@
+
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { icons } from '@/lib/data';
-import { RippleButton } from './ui/ripple-button';
+import { Button } from './ui/button';
 
 type Skill = {
   id: string;
@@ -52,7 +53,9 @@ export default function SkillCard({ skill }: SkillCardProps) {
             </div>
             <Progress value={progress} className="h-2 [&>div]:bg-secondary" />
         </div>
-        <RippleButton className="w-full gradient-btn gradient-btn-2 mt-auto">Enroll Now</RippleButton>
+        <Button className="w-full gradient-btn gradient-btn-2 mt-auto relative">
+          Enroll Now
+        </Button>
       </div>
     </div>
   );

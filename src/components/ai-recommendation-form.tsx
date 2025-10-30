@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -18,7 +19,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { getCourseRecommendations } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RippleButton } from './ui/ripple-button';
+import { Button } from './ui/button';
 
 const formSchema = z.object({
   interests: z.string().min(10, 'Please describe your interests in at least 10 characters.'),
@@ -95,7 +96,7 @@ export default function AiRecommendationForm() {
               </FormItem>
             )}
           />
-          <RippleButton type="submit" className="w-full gradient-btn gradient-btn-2" disabled={isLoading}>
+          <Button type="submit" className="w-full gradient-btn gradient-btn-2 relative" disabled={isLoading}>
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -107,7 +108,7 @@ export default function AiRecommendationForm() {
                 Get Recommendations
               </>
             )}
-          </RippleButton>
+          </Button>
         </form>
       </Form>
       {recommendations && (

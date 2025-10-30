@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { TypeAnimation } from 'react-type-animation';
 import Logo from '@/components/logo';
-import { RippleButton } from '../ui/ripple-button';
 
 export default function HeroSection() {
 
@@ -45,14 +44,14 @@ export default function HeroSection() {
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/courses">
-            <RippleButton size="lg" className="gradient-btn gradient-btn-1 w-full sm:w-auto">
+            <Button size="lg" className="gradient-btn gradient-btn-1 w-full sm:w-auto relative">
               Start Learning
-            </RippleButton>
+            </Button>
           </Link>
           <Link href="/services">
-            <RippleButton size="lg" className="gradient-btn gradient-btn-2 w-full sm:w-auto">
+            <Button size="lg" className="gradient-btn gradient-btn-2 w-full sm:w-auto relative">
               Hire Us
-            </RippleButton>
+            </Button>
           </Link>
         </div>
       </div>

@@ -18,7 +18,7 @@ import { ShieldEllipsis, Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { RippleButton } from '@/components/ui/ripple-button';
+import { Button } from '@/components/ui/button';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -109,9 +109,9 @@ export default function LoginPage() {
                             Forgot password?
                         </Link>
                     </div>
-                    <RippleButton type="submit" className="w-full gradient-btn gradient-btn-1">
+                    <Button type="submit" className="w-full gradient-btn gradient-btn-1 relative">
                         Login
-                    </RippleButton>
+                    </Button>
                     </form>
                 </Form>
                 <p className="text-center text-sm text-muted-foreground">

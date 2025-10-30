@@ -1,3 +1,4 @@
+
 'use client';
 
 import { z } from 'zod';
@@ -14,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { RippleButton } from '../ui/ripple-button';
+import { Button } from '../ui/button';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -98,9 +99,9 @@ export default function ServicesSection() {
                   </FormItem>
                 )}
               />
-              <RippleButton type="submit" className="w-full gradient-btn gradient-btn-1">
+              <Button type="submit" className="w-full gradient-btn gradient-btn-1 relative">
                 Submit Request
-              </RippleButton>
+              </Button>
             </form>
           </Form>
         </div>
