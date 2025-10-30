@@ -40,13 +40,13 @@ const VantaFogBackground = () => {
             gyroControls: false,
             minHeight: 200.0,
             minWidth: 200.0,
-            highlightColor: 0xffffff,
-            midtoneColor: 0xcccccc,
-            lowlightColor: 0xaaaaaa,
+            highlightColor: 0xff00ff,
+            midtoneColor: 0xffff00,
+            lowlightColor: 0x00ffff,
             baseColor: 0x0,
-            blurFactor: 0.6,
-            speed: 1.2,
-            zoom: 0.6,
+            blurFactor: 0.9,
+            speed: 1.5,
+            zoom: 1.5,
           });
           setVantaEffect(effect);
         }
