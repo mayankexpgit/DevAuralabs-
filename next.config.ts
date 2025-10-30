@@ -37,6 +37,17 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  experimental: {
+    ppr: true,
+    useLightningCSS: true,
+    turbotrace: {},
+    cpus: 1,
+    memoryBasedWorkersCount: true,
+    nextScriptWorkers: true,
+    optimizePackageImports: [
+        'lucide-react',
+    ],
+  },
   // The following is a workaround for a known issue in Next.js, where cross-origin
   // requests are blocked in development.
   // See: https://github.com/vercel/next.js/issues/64115
