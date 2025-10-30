@@ -162,9 +162,13 @@
   }
 
   .aura-glass-input {
-    @apply rounded-2xl text-base text-white placeholder:text-zinc-500 border border-white/20;
+    @apply rounded-2xl text-base text-white border border-white/20;
     @apply focus:ring-2 focus:ring-green-400 focus:border-green-400;
     font-weight: 700;
+  }
+
+  .aura-glass-input::placeholder {
+    color: hsl(var(--muted-foreground) / 0.5);
   }
 
   @supports (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px)) {
