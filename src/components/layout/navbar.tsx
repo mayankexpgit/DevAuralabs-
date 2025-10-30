@@ -39,11 +39,16 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isTransparentPage, setIsTransparentPage] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
     const authStatus = localStorage.getItem('isAuthenticated') === 'true';
     setIsAuthenticated(authStatus);
+    
+    // Check if on a page that should have a transparent header
+    setIsTransparentPage(pathname === '/' || pathname === '/login');
+
   }, [pathname]); // Re-check on path change
 
   const handleLogout = () => {
@@ -54,9 +59,15 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-transparent">
+    <header className={cn(
+      "sticky top-0 z-50 w-full",
+      isTransparentPage ? "bg-transparent" : "glass-header"
+    )}>
       <div className="container mx-auto flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
+        <div className={cn(
+          "flex items-center gap-2",
+          isTransparentPage && "md:invisible"
+        )}>
             {/* Mobile Menu Button - Top Left */}
             <div className="md:hidden">
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -108,7 +119,10 @@ export default function Navbar() {
         </div>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6 text-sm">
+        <nav className={cn(
+            "hidden md:flex items-center gap-6 text-sm",
+            isTransparentPage && "invisible"
+        )}>
             {navLinks.map(({ href, label }) => (
                 <Link
                 key={href}
@@ -171,7 +185,7 @@ export default function Navbar() {
                 </DropdownMenu>
               </>
             ) : (
-              <Link href="/login" className="glass-icon-btn login-btn text-sm">
+              <Link href="/login" className="glass-icon-btn login-btn text-sm text-foreground">
                   Login
               </Link>
             )
