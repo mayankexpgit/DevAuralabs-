@@ -216,20 +216,33 @@
     }
   }
 
-  @keyframes pulse-glow {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-      box-shadow: 0 0 10px #a855f7, 0 0 20px #a855f7, 0 0 30px #a855f7;
+  @keyframes spin-glow {
+    from {
+      transform: rotate(0deg);
     }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px #a855f7, 0 0 40px #a855f7, 0 0 60px #a855f7;
+    to {
+      transform: rotate(360deg);
     }
   }
 
-  .pulse-glow-animation {
-    animation: pulse-glow 3s infinite ease-in-out;
+  .spin-glow-animation {
+    box-shadow: 0 0 8px #a855f7, 0 0 16px #a855f7;
+  }
+  .spin-glow-animation::before {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    border-radius: 50%;
+    background-image: conic-gradient(
+      from 180deg at 50% 50%,
+      rgba(168, 85, 247, 0.8) 0deg,
+      rgba(168, 85, 247, 0.5) 120deg,
+      transparent 360deg
+    );
+    animation: spin-glow 2.5s linear infinite;
+    z-index: -1;
   }
 }
