@@ -140,14 +140,6 @@
     background-color: hsl(var(--background) / 0.1);
   }
 
-  @supports (backdrop-filter: blur(4px)) or (-webkit-backdrop-filter: blur(4px)) {
-    .glass-header {
-      background-color: hsl(var(--background) / 0.1);
-      -webkit-backdrop-filter: blur(4px);
-      backdrop-filter: blur(4px);
-    }
-  }
-
   .ripple {
     position: absolute;
     border-radius: 50%;
