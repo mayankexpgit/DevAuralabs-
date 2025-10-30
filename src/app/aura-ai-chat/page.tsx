@@ -109,13 +109,12 @@ export default function AuraAiChatPage() {
 
         <footer className="p-4">
            <div className="relative">
-             <img src={logoImage?.imageUrl} alt="AI Icon" className="absolute top-3 left-4 w-6 h-6" />
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-              placeholder="What is on your mind?"
-              className="aura-glass-input min-h-[96px] pl-12 pt-3"
+              placeholder="Ask Aura ai"
+              className="aura-glass-input min-h-[96px] pt-3 pr-12"
               rows={4}
             />
             <Button size="icon" className="absolute right-2 bottom-4 aura-send-btn" onClick={() => handleSend()}>
@@ -141,13 +140,12 @@ export default function AuraAiChatPage() {
         
         <footer className="p-4">
           <div className="relative">
-            <img src={logoImage?.imageUrl} alt="AI Icon" className="absolute top-3 left-4 w-6 h-6" />
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
-              placeholder="What is on your mind?"
-              className="aura-glass-input min-h-[96px] pl-12 pt-3"
+              placeholder="Ask Aura ai"
+              className="aura-glass-input min-h-[96px] pt-3 pr-24"
               rows={4}
             />
              <Button size="icon" className="absolute right-12 bottom-4 aura-glass-btn h-8 w-8" onClick={() => {}}>
