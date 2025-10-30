@@ -80,7 +80,7 @@ export default function Navbar() {
                             onClick={() => setIsOpen(false)}
                             className={cn(
                                 'flex items-center gap-4 rounded-lg px-4 py-3 text-xl transition-colors hover:text-primary',
-                                pathname === href ? 'text-primary bg-white/10 backdrop-blur-sm border border-white/20 shadow-[0_0_8px_rgba(255,255,255,0.3)]' : 'text-muted-foreground'
+                                pathname === href ? 'text-primary bg-white/10 backdrop-blur-md border border-white/20 shadow-[0_0_12px_rgba(255,255,255,0.4)]' : 'text-muted-foreground'
                             )}
                             >
                             <Icon className="h-6 w-6" />
