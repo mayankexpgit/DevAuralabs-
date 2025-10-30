@@ -162,8 +162,12 @@
   }
 
   .aura-input {
-    @apply h-12 bg-zinc-900/70 border-zinc-700 rounded-full pl-6 pr-24 text-base text-white placeholder:text-zinc-500;
+    @apply h-12 rounded-2xl text-base text-white placeholder:text-zinc-400;
     @apply focus:ring-2 focus:ring-green-400 focus:border-green-400;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   .aura-send-btn {
