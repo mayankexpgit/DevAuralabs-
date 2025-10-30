@@ -38,7 +38,6 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
-    ppr: true,
     useLightningCSS: true,
     turbotrace: {},
     cpus: 1,
