@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import Logo from '../logo';
+import SocialIcon from '../social-icon';
 
 const navLinks: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/', label: 'Menu', icon: LayoutGrid },
@@ -33,6 +34,12 @@ const navLinks: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/xino-ai-chat', label: 'Xino AI', icon: Sparkles },
   { href: '/about', label: 'About', icon: Info },
   { href: '/admin', label: 'Admin Panel', icon: UserCog },
+];
+
+const socialLinks = [
+  { name: 'Twitter', href: '#' },
+  { name: 'Instagram', href: '#' },
+  { name: 'WhatsApp', href: '#' },
 ];
 
 export default function Navbar() {
@@ -82,7 +89,7 @@ export default function Navbar() {
                   <span className="sr-only">Toggle Menu</span>
                 </div>
               </SheetTrigger>
-              <SheetContent side="left" className="glass-header">
+              <SheetContent side="left" className="glass-header flex flex-col">
                 <SheetTitle>
                     <div className='w-40 h-auto mx-auto'>
                         <Logo />
@@ -105,6 +112,13 @@ export default function Navbar() {
                     ))}
                 </nav>
                 <div className="mt-auto">
+                    <div className="flex items-center justify-center gap-4 my-4">
+                        {socialLinks.map((social) => (
+                        <Link key={social.name} href={social.href} target="_blank" rel="noopener noreferrer">
+                            <SocialIcon name={social.name} />
+                        </Link>
+                        ))}
+                    </div>
                     {isMounted && (
                       !isAuthenticated ? (
                         <Link href="/login" onClick={() => setIsOpen(false)}>
