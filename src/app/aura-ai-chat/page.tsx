@@ -5,10 +5,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Menu, Mic, X, ChevronRight } from 'lucide-react';
+import { Menu, Mic, X, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VantaFogBackground from '@/components/vanta-fog-background';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import TypingAnimation from '@/components/typing-animation';
 
 type Message = {
   id: string;
@@ -19,6 +20,7 @@ type Message = {
 export default function AuraAiChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [userName, setUserName] = useState('Josh');
@@ -26,10 +28,10 @@ export default function AuraAiChatPage() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const handleSend = (text: string = input) => {
-    if (!text.trim()) return;
+    if (!text.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: `user-${Date.now()}`,
@@ -38,6 +40,7 @@ export default function AuraAiChatPage() {
     };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+    setIsLoading(true);
     
     // Simulate AI response
     setTimeout(() => {
@@ -46,8 +49,9 @@ export default function AuraAiChatPage() {
         text: "I'm sorry, I am a demo assistant and my capabilities are limited. I can only show you how a conversation would look.",
         sender: 'aura',
       };
+      setIsLoading(false);
       setMessages((prev) => [...prev, aiResponse]);
-    }, 1000);
+    }, 2500);
   };
   
   const startListening = () => {
@@ -110,10 +114,21 @@ export default function AuraAiChatPage() {
               )}
             </div>
           ))}
+          {isLoading && (
+            <div className="flex items-start gap-3 justify-start">
+                <Avatar className="h-8 w-8 border-2 border-green-glow">
+                    <AvatarImage src={logoImage?.imageUrl} />
+                    <AvatarFallback>A</AvatarFallback>
+                </Avatar>
+                <div className="bg-zinc-800/80 text-zinc-200 rounded-bl-none max-w-xs md:max-w-md rounded-2xl px-4 py-3">
+                    <TypingAnimation />
+                </div>
+            </div>
+          )}
           <div ref={messagesEndRef} />
         </div>
 
-        <footer className="px-4 pt-2 pb-4">
+        <footer className="px-4 pt-2">
            <div className="relative">
             <Textarea
               value={input}
@@ -122,12 +137,19 @@ export default function AuraAiChatPage() {
               placeholder="Ask Aura,"
               className="aura-glass-input min-h-[56px] pt-3 pr-24"
               rows={1}
+              disabled={isLoading}
             />
-            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening}>
+            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening} disabled={isLoading}>
               <Mic className="h-5 w-5" />
             </Button>
-            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={() => handleSend()}>
-                {isListening ? <Mic className="h-5 w-5" /> : <ChevronRight className="h-6 w-6" />}
+            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={() => handleSend()} disabled={isLoading}>
+                {isLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                ) : isListening ? (
+                    <Mic className="h-5 w-5" />
+                ) : (
+                    <ChevronRight className="h-6 w-6" />
+                )}
             </Button>
           </div>
         </footer>
@@ -147,7 +169,7 @@ export default function AuraAiChatPage() {
             <p className="text-white mt-2">What Do You Want To Chat About Today?</p>
         </div>
         
-        <footer className="px-4 pt-2 pb-4">
+        <footer className="px-4 pt-2">
           <div className="relative">
             <Textarea
               value={input}
@@ -156,12 +178,19 @@ export default function AuraAiChatPage() {
               placeholder="Ask Aura,"
               className="aura-glass-input min-h-[56px] pt-3 pr-24"
               rows={1}
+              disabled={isLoading}
             />
-            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening}>
+            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening} disabled={isLoading}>
               <Mic className="h-5 w-5" />
             </Button>
-            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={isListening ? stopListening : () => handleSend()}>
-                {isListening ? <Mic className="h-5 w-5" /> : <ChevronRight className="h-6 w-6" />}
+            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={isListening ? stopListening : () => handleSend()} disabled={isLoading}>
+                 {isLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                ) : isListening ? (
+                    <Mic className="h-5 w-5" />
+                ) : (
+                    <ChevronRight className="h-6 w-6" />
+                )}
             </Button>
           </div>
         </footer>
