@@ -30,7 +30,8 @@ export default function Home() {
         <Separator className="my-12 md:my-24 bg-white/10" />
         <ServicesSection />
       </div>
-      {isAdmin ? <AdminFAB /> : (user && <FloatingAiButton />)}
+      {isAdmin && <AdminFAB />}
+      {user && <FloatingAiButton />}
       <Footer />
     </div>
   );
