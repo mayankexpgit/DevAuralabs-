@@ -11,6 +11,60 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
+import { useState, useCallback, useEffect } from 'react';
+import { EmblaCarouselType } from 'embla-carousel-react';
+
+const CIRCULAR_EFFECT_FACTOR = 10;
+
+const useCircularEffect = (api: EmblaCarouselType | undefined) => {
+  const [transforms, setTransforms] = useState<{
+    opacity: number,
+    scale: number,
+    rotateY: number,
+  }[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const onScroll = useCallback(() => {
+    if (!api || !isMounted) return;
+
+    const engine = api.internalEngine();
+    const scrollProgress = api.scrollProgress();
+
+    const newTransforms = api.scrollSnapList().map((scrollSnap, index) => {
+      if (!api.slidesInView().includes(index)) return { opacity: 0, scale: 0.8, rotateY: 0 };
+      
+      let diffToTarget = scrollSnap - scrollProgress;
+      const factor = diffToTarget * CIRCULAR_EFFECT_FACTOR;
+
+      const opacity = 1 - Math.abs(diffToTarget);
+      const scale = 1 - Math.abs(diffToTarget) * 0.15;
+      const rotateY = factor * -5;
+
+      return { opacity, scale, rotateY };
+    });
+
+    setTransforms(newTransforms);
+  }, [api, isMounted]);
+
+  useEffect(() => {
+    if (!api || !isMounted) return;
+
+    onScroll();
+    api.on('scroll', onScroll);
+    api.on('reInit', onScroll);
+
+    return () => {
+      api.off('scroll', onScroll);
+    };
+  }, [api, onScroll, isMounted]);
+
+  return transforms;
+};
+
 
 const ShowcaseCard = ({
   img,
@@ -43,20 +97,36 @@ const ShowcaseCard = ({
 };
 
 export default function ShowcaseSection() {
+  const [api, setApi] = useState<EmblaCarouselType | undefined>();
+  const transforms = useCircularEffect(api);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
     return (
       <section id="showcase" className="py-12 md:py-16">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4" style={{perspective: '1000px'}}>
            <Carousel
+                setApi={setApi}
                 opts={{
                     align: 'center',
                     loop: true,
                 }}
                 className="w-full"
             >
-                <CarouselContent>
+                <CarouselContent style={{ transformStyle: 'preserve-3d' }}>
                     {showcaseImages.map((image, index) => (
-                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/1">
-                            <div className="p-1">
+                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 flex justify-center">
+                            <div className="p-1 h-full w-full max-w-md"
+                              style={{
+                                ...(isMounted && transforms.length && {
+                                  opacity: transforms[index].opacity,
+                                  transform: `scale(${transforms[index].scale}) rotateY(${transforms[index].rotateY}deg)`,
+                                }),
+                              }}
+                            >
                                 <ShowcaseCard img={image.url} title={image.alt} />
                             </div>
                         </CarouselItem>
