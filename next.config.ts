@@ -21,13 +21,6 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  experimental: {
-    cpus: 1,
-    memoryBasedWorkersCount: true,
-    optimizePackageImports: [
-        'lucide-react',
-    ],
-  },
 };
 
 export default nextConfig;
