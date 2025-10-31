@@ -19,7 +19,7 @@ export default function AdminFAB() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-8 right-8 z-50 group">
+    <div className="fixed bottom-28 right-8 z-50 group">
       <div className="relative">
         {isOpen && (
           <div className="absolute bottom-full right-0 mb-4 flex flex-col items-end gap-3">
