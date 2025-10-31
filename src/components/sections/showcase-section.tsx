@@ -27,6 +27,7 @@ const ShowcaseCard = ({
           height={128}
           alt={alt}
           src={img}
+          unoptimized
         />
       </div>
     </figure>
