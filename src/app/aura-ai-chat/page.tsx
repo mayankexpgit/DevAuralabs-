@@ -373,10 +373,12 @@ export default function AuraAiChatPage() {
     <div className="h-screen w-full bg-black aura-chat-container">
       <VantaFogBackground />
       <div className="relative z-10 h-full w-full backdrop-blur-sm bg-black/30">
-        {messages.length > 0 || currentChatId ? renderChatUI() : renderWelcomeUI()}
+        {messages.length > 0 ? renderChatUI() : renderWelcomeUI()}
       </div>
     </div>
   );
 }
+
+    
 
     
