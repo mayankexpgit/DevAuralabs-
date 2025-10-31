@@ -223,9 +223,27 @@ export default function Navbar() {
                 </DropdownMenu>
               </>
             ) : (
-              <Link href="/login" className="glass-icon-btn login-btn text-foreground">
-                  Login
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="glass-icon-btn login-btn text-foreground">
+                    Login
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuItem asChild>
+                    <Link href="/login">User Login</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                   <DropdownMenuItem asChild>
+                    <Link href="/login?view=admin">
+                        <div className="flex flex-col">
+                            <span>Connect Private</span>
+                            <span className="text-xs text-muted-foreground">(Authorized Only)</span>
+                        </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )
           ) : (
             <Skeleton className="h-9 w-20 rounded-md" />

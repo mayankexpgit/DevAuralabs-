@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import VantaBackground from '@/components/vanta-background';
@@ -53,6 +53,13 @@ export default function LoginPage() {
   const [adminStep, setAdminStep] = useState<AdminLoginStep>('prompt');
   const [consentChecked, setConsentChecked] = useState(false);
 
+  useEffect(() => {
+    if (searchParams.get('view') === 'admin') {
+      setView('admin');
+      setAdminStep('agreement');
+    }
+  }, [searchParams]);
+
 
   const adminForm = useForm<z.infer<typeof adminFormSchema>>({
     resolver: zodResolver(adminFormSchema),
@@ -86,11 +93,6 @@ export default function LoginPage() {
         description: 'Invalid Web ID or Password.',
       });
     }
-  }
-  
-  const handleConnectPrivate = () => {
-      setView('admin');
-      setAdminStep('agreement');
   }
 
   const renderUserView = () => (
@@ -129,12 +131,6 @@ export default function LoginPage() {
         <Link href="#" className="font-semibold text-primary hover:underline">
           Terms of Service
         </Link>.
-      </p>
-      <Separator className="my-4 bg-white/10" />
-       <p className="text-center text-xs text-muted-foreground">
-          <button onClick={handleConnectPrivate} className="font-semibold text-primary hover:underline">
-              connect private
-          </button>
       </p>
     </>
   );
@@ -232,7 +228,8 @@ export default function LoginPage() {
           case 'form':
               return renderAdminFormView();
           default:
-              return renderUserView();
+            // Fallback to user view if step is invalid
+            return renderUserView();
       }
   }
 
