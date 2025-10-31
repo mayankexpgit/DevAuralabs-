@@ -24,40 +24,48 @@ const useCircularEffect = (api: EmblaCarouselType | undefined) => {
     rotateY: number,
   }[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const animationFrame = useRef(0);
 
   useEffect(() => {
     setIsMounted(true);
+    return () => {
+      cancelAnimationFrame(animationFrame.current);
+    }
   }, []);
 
   const onScroll = useCallback(() => {
     if (!api || !isMounted) return;
 
-    const engine = api.internalEngine();
-    const scrollProgress = api.scrollProgress();
-    
-    const newTransforms = api.scrollSnapList().map((scrollSnap, index) => {
-      let diffToTarget = scrollSnap - scrollProgress;
+    cancelAnimationFrame(animationFrame.current);
 
-      // Handle looping to create a seamless circular effect
-      if (engine.options.loop) {
-        if (Math.abs(diffToTarget) > 0.5) {
-          const sign = Math.sign(diffToTarget);
-          if (sign === -1) {
-            diffToTarget = 1 + diffToTarget;
-          } else {
-            diffToTarget = diffToTarget - 1;
-          }
+    animationFrame.current = requestAnimationFrame(() => {
+        const engine = api.internalEngine();
+        const scrollProgress = api.scrollProgress();
+        
+        const newTransforms = api.scrollSnapList().map((scrollSnap, index) => {
+        let diffToTarget = scrollSnap - scrollProgress;
+
+        // Handle looping to create a seamless circular effect
+        if (engine.options.loop) {
+            if (Math.abs(diffToTarget) > 0.5) {
+            const sign = Math.sign(diffToTarget);
+            if (sign === -1) {
+                diffToTarget = 1 + diffToTarget;
+            } else {
+                diffToTarget = diffToTarget - 1;
+            }
+            }
         }
-      }
-      
-      const opacity = 1 - Math.abs(diffToTarget);
-      const scale = 1 - Math.abs(diffToTarget) * 0.15;
-      const rotateY = diffToTarget * CIRCULAR_EFFECT_FACTOR * -5;
+        
+        const opacity = 1 - Math.abs(diffToTarget);
+        const scale = 1 - Math.abs(diffToTarget) * 0.15;
+        const rotateY = diffToTarget * CIRCULAR_EFFECT_FACTOR * -5;
 
-      return { opacity, scale, rotateY };
+        return { opacity, scale, rotateY };
+        });
+
+        setTransforms(newTransforms);
     });
-
-    setTransforms(newTransforms);
   }, [api, isMounted]);
 
 
