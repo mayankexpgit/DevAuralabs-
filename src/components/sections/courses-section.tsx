@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/carousel';
 import { useState, useCallback, useEffect } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 const CIRCULAR_EFFECT_FACTOR = 10;
 
@@ -121,6 +123,13 @@ export default function CoursesSection() {
           )}
         </Carousel>
       </div>
+        <div className="text-center mt-12">
+            <Link href="/profile/my-courses">
+                <Button className="gradient-btn gradient-btn-2 relative">
+                    My Courses
+                </Button>
+            </Link>
+        </div>
     </section>
   );
 }
