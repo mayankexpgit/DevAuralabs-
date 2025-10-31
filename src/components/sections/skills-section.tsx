@@ -4,7 +4,11 @@ import SkillCard from '@/components/skill-card';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 
-export default function SkillsSection() {
+type SkillsSectionProps = {
+  hideViewMore?: boolean;
+};
+
+export default function SkillsSection({ hideViewMore = false }: SkillsSectionProps) {
   return (
     <section id="skills" className="py-12 md:py-24">
       <div className="text-center mb-12">
@@ -18,13 +22,15 @@ export default function SkillsSection() {
           <SkillCard key={skill.id} skill={skill} />
         ))}
       </div>
-      <div className="text-center mt-12">
-        <Link href="/courses">
-            <Button className="gradient-btn gradient-btn-2 relative">
-                View More
-            </Button>
-        </Link>
-      </div>
+      {!hideViewMore && (
+        <div className="text-center mt-12">
+          <Link href="/courses">
+              <Button className="gradient-btn gradient-btn-2 relative">
+                  View More
+              </Button>
+          </Link>
+        </div>
+      )}
     </section>
   );
 }

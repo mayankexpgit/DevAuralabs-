@@ -13,7 +13,7 @@ export default function CoursesPage() {
       </div>
       <CoursesSection />
       <Separator className="my-12 md:my-24 bg-white/10" />
-      <SkillsSection />
+      <SkillsSection hideViewMore />
     </div>
   );
 }
