@@ -11,9 +11,11 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import VantaBackground from '@/components/vanta-background';
 import Footer from '@/components/layout/footer';
-import { useAuth, useUser, initiateGoogleSignIn, initiateFacebookSignIn, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useAuth, useUser, initiateGoogleSignIn, initiateFacebookSignIn } from '@/firebase';
 import { Separator } from '@/components/ui/separator';
-import { doc } from 'firebase/firestore';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -30,6 +32,11 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
+const adminFormSchema = z.object({
+  webId: z.string().min(1, { message: 'Web ID is required.' }),
+  password: z.string().min(1, { message: 'Password is required.' }),
+});
+
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -37,23 +44,39 @@ export default function LoginPage() {
   const next = searchParams.get('next');
   const auth = useAuth();
   const { user } = useUser();
-  const firestore = useFirestore();
+  const [view, setView] = useState('user'); // 'user' or 'admin'
 
-  const adminRef = useMemoFirebase(() => user ? doc(firestore, 'privates', user.uid) : null, [firestore, user]);
-  const { data: adminData } = useDoc(adminRef);
-
+  const adminForm = useForm<z.infer<typeof adminFormSchema>>({
+    resolver: zodResolver(adminFormSchema),
+    defaultValues: {
+      webId: '',
+      password: '',
+    },
+  });
 
   if (user) {
-    if (adminData) {
-        toast({ title: 'Admin Login Successful', description: 'Welcome back, Admin!' });
-        router.push('/admin');
+    // Check for admin role would happen here in a real app after user logs in
+    toast({ title: 'Login Successful', description: 'Welcome back!' });
+    if (next) {
+      router.push(next);
     } else {
-        toast({ title: 'Login Successful', description: 'Welcome back!' });
-        if (next) {
-        router.push(next);
-        } else {
-        router.push('/');
-        }
+      router.push('/');
+    }
+  }
+
+  function onAdminSubmit(values: z.infer<typeof adminFormSchema>) {
+    if (values.webId === 'DEV42NL8900' && values.password === 'Dev@adminz7') {
+      toast({
+        title: 'Admin Login Successful',
+        description: 'Redirecting to admin dashboard...',
+      });
+      router.push('/admin');
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: 'Invalid Web ID or Password.',
+      });
     }
   }
 
@@ -63,41 +86,97 @@ export default function LoginPage() {
         <VantaBackground />
         <div className="relative z-10 w-full max-w-sm">
           <div className="glass-card p-8 space-y-6">
-            <div className="text-center space-y-2">
-              <div className="flex justify-center">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="hsl(var(--primary))"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-12 w-12 text-primary"
-                >
-                  <circle cx="12" cy="8" r="4" />
-                  <path d="M5.5 20.5c0-3.31 2.91-6 6.5-6s6.5 2.69 6.5 6" />
-                </svg>
-              </div>
-              <h1 className="text-3xl font-bold">Welcome Back</h1>
-              <p className="text-muted-foreground">Sign in to continue</p>
-            </div>
-            
-            <div className="grid grid-cols-1 gap-4">
-                <Button variant="outline" className="w-full" onClick={() => initiateGoogleSignIn(auth)}>
-                    <GoogleIcon className="mr-2 h-5 w-5"/> Continue with Google
-                </Button>
-                <Button variant="outline" className="w-full" onClick={() => initiateFacebookSignIn(auth)}>
-                    <FacebookIcon className="mr-2 h-5 w-5"/> Continue with Facebook
-                </Button>
-            </div>
+            {view === 'user' ? (
+              <>
+                <div className="text-center space-y-2">
+                  <div className="flex justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="h-12 w-12 text-primary"
+                    >
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M5.5 20.5c0-3.31 2.91-6 6.5-6s6.5 2.69 6.5 6" />
+                    </svg>
+                  </div>
+                  <h1 className="text-3xl font-bold">Welcome Back</h1>
+                  <p className="text-muted-foreground">Sign in to continue</p>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-4">
+                    <Button variant="outline" className="w-full" onClick={() => initiateGoogleSignIn(auth)}>
+                        <GoogleIcon className="mr-2 h-5 w-5"/> Continue with Google
+                    </Button>
+                    <Button variant="outline" className="w-full" onClick={() => initiateFacebookSignIn(auth)}>
+                        <FacebookIcon className="mr-2 h-5 w-5"/> Continue with Facebook
+                    </Button>
+                </div>
 
-            <p className="text-center text-sm text-muted-foreground pt-4">
-              By continuing, you agree to our{' '}
-              <Link href="#" className="font-semibold text-primary hover:underline">
-                Terms of Service
-              </Link>.
-            </p>
+                <p className="text-center text-sm text-muted-foreground pt-4">
+                  By continuing, you agree to our{' '}
+                  <Link href="#" className="font-semibold text-primary hover:underline">
+                    Terms of Service
+                  </Link>.
+                </p>
+                <Separator className="my-4 bg-white/10" />
+                 <p className="text-center text-xs text-muted-foreground">
+                    <button onClick={() => setView('admin')} className="font-semibold text-primary hover:underline">
+                        Admin Login
+                    </button>
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="text-center space-y-2">
+                  <h1 className="text-3xl font-bold">Admin Panel</h1>
+                  <p className="text-muted-foreground">Enter your credentials</p>
+                </div>
+                 <Form {...adminForm}>
+                    <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-4">
+                        <FormField
+                        control={adminForm.control}
+                        name="webId"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Web ID</FormLabel>
+                            <FormControl>
+                                <Input placeholder="Enter your Web ID" {...field} className="bg-background/50"/>
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={adminForm.control}
+                        name="password"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                                <Input type="password" placeholder="Enter your password" {...field} className="bg-background/50"/>
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <Button type="submit" className="w-full gradient-btn gradient-btn-1 relative">
+                            Login
+                        </Button>
+                    </form>
+                </Form>
+                 <Separator className="my-4 bg-white/10" />
+                 <p className="text-center text-xs text-muted-foreground">
+                    <button onClick={() => setView('user')} className="font-semibold text-primary hover:underline">
+                        User Login
+                    </button>
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
