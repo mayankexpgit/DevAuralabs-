@@ -11,8 +11,9 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 
 const CIRCULAR_EFFECT_FACTOR = 10;
 
@@ -38,14 +39,13 @@ const useCircularEffect = (api: EmblaCarouselType | undefined) => {
       let diffToTarget = scrollSnap - scrollProgress;
 
       // Handle looping to create a seamless circular effect
-      if (engine.options.loop) {
-        if (Math.abs(diffToTarget) > 0.5) {
-          const sign = Math.sign(diffToTarget);
-          if (sign === -1) {
-            diffToTarget = 1 + diffToTarget;
-          } else {
-            diffToTarget = diffToTarget - 1;
-          }
+      const slidesInView = api.slidesInView(true);
+      if (engine.options.loop && slidesInView.indexOf(index) === -1) {
+        const sign = Math.sign(diffToTarget);
+        if (sign === -1) {
+          diffToTarget = 1 + diffToTarget;
+        } else {
+          diffToTarget = diffToTarget - 1;
         }
       }
       
@@ -109,6 +109,9 @@ export default function ShowcaseSection() {
   const [api, setApi] = useState<EmblaCarouselType | undefined>();
   const transforms = useCircularEffect(api);
   const [isMounted, setIsMounted] = useState(false);
+  const autoplay = useRef(
+    Autoplay({ delay: 3000, stopOnInteraction: true })
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -123,11 +126,14 @@ export default function ShowcaseSection() {
                     align: 'center',
                     loop: true,
                 }}
+                plugins={[autoplay.current]}
+                onMouseEnter={autoplay.current.stop}
+                onMouseLeave={autoplay.current.reset}
                 className="w-full"
             >
                 <CarouselContent style={{ transformStyle: 'preserve-3d' }}>
                     {showcaseImages.map((image, index) => (
-                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3 flex justify-center">
+                        <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4 flex justify-center">
                             <div className="p-1 h-full w-full max-w-md"
                               style={{
                                 ...(isMounted && transforms.length && {
