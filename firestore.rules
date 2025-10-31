@@ -1,8 +1,9 @@
+
 /**
  * @fileoverview Firestore Security Rules for DevAura Labs platform.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for user-specific data (enrollments, website requests) while allowing public read access to course information. Administrative privileges are granted based on the existence of a document in the `/privates/{userId}` collection.
+ * This ruleset enforces a strict user-ownership model for user-specific data (enrollments, website requests, chats) while allowing public read access to course information. Administrative privileges are granted based on the existence of a document in the `/privates/{userId}` collection.
  *
  * Data Structure:
  * - `/users/{userId}`: Stores user profiles.
@@ -10,10 +11,11 @@
  * - `/skills/{skillId}`: Stores skill development program information (publicly readable).
  * - `/users/{userId}/enrollments/{enrollmentId}`: Stores enrollment records for a specific user.
  * - `/users/{userId}/website_requests/{websiteRequestId}`: Stores website requests for a specific user.
+ * - `/users/{userId}/chats/{chatId}`: Stores chat sessions for a specific user.
  * - `/privates/{userId}`: Indicates admin status.
  *
  * Key Security Decisions:
- * - Users can only manage their own enrollments and website requests.
+ * - Users can only manage their own data (profiles, enrollments, website requests, chats).
  * - Course and skill data is publicly readable but only writable by admins.
  * - User listing is disallowed.
  * - Admin privileges are determined by the presence of a document in `/privates/{userId}`.
@@ -39,10 +41,8 @@ service cloud.firestore {
         return request.auth != null && request.auth.uid == userId;
       }
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
+      allow list: if false; // Disallow listing all users
+      allow create, update, delete: if isOwner(userId);
     }
 
     /**
@@ -74,47 +74,45 @@ service cloud.firestore {
     /**
      * @description Enforces user-ownership for enrollment records.
      * @path /users/{userId}/enrollments/{enrollmentId}
-     * @allow (create) - User with UID 'user_abc' can create an enrollment document under their profile.
-     * @deny (create) - User with UID 'user_xyz' cannot create an enrollment document under 'user_abc' profile.
-     * @allow (get, list, update, delete) - User with UID 'user_abc' can get, list, update, and delete their own enrollment records.
-     * @deny (get, list, update, delete) - User with UID 'user_xyz' cannot get, list, update, and delete enrollment records under 'user_abc' profile.
+     * @allow (read, write) - User can manage their own enrollment records.
+     * @deny (read, write) - User cannot manage other users' enrollment records.
      * @principle Enforces path-based ownership for enrollments.
      */
     match /users/{userId}/enrollments/{enrollmentId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
+      allow read, write: if isOwner(userId);
     }
 
     /**
      * @description Enforces user-ownership for website requests.
      * @path /users/{userId}/website_requests/{websiteRequestId}
-     * @allow (create) - User with UID 'user_abc' can create a website request under their profile.
-     * @deny (create) - User with UID 'user_xyz' cannot create a website request under 'user_abc' profile.
-     * @allow (get, list, update, delete) - User with UID 'user_abc' can get, list, update, and delete their own website requests.
-     * @deny (get, list, update, delete) - User with UID 'user_xyz' cannot get, list, update, and delete website requests under 'user_abc' profile.
+     * @allow (read, write) - User can manage their own website requests.
+     * @deny (read, write) - User cannot manage other users' website requests.
      * @principle Enforces path-based ownership for website requests.
      */
     match /users/{userId}/website_requests/{websiteRequestId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+      allow read, write: if isOwner(userId);
+    }
+
+    /**
+     * @description Enforces user-ownership for chat sessions and messages.
+     * @path /users/{userId}/chats/{chatId}
+     * @allow (read, write) - User can manage their own chat sessions.
+     * @deny (read, write) - User cannot manage other users' chat sessions.
+     * @principle Enforces path-based ownership for chats.
+     */
+    match /users/{userId}/chats/{chatId} {
+      allow read, write: if isOwner(userId) || isAdmin(); // Allow admin to view chats
+      
+      match /messages/{messageId} {
+        allow read, write: if isOwner(userId) || isAdmin();
       }
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
     }
 
     /**
      * @description Grants admin privileges based on the existence of a document in this collection.
      * @path /privates/{userId}
      * @allow (get) - Any authenticated user can check if another user is an admin.
-     * @deny (list) - Listing of admin roles is not allowed for security reasons.
-     * @deny (create, update, delete) - All write operations are denied. This collection should be managed manually through the Firebase Console.
+     * @deny (list, write) - Listing and writing to this collection is disallowed for security.
      * @principle Database-Based Access Control (DBAC) for admin privileges.
      */
     match /privates/{userId} {
@@ -126,9 +124,15 @@ service cloud.firestore {
     function isSignedIn() {
       return request.auth != null;
     }
+    
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
 
     function isAdmin() {
       return isSignedIn() && exists(/databases/$(database)/documents/privates/$(request.auth.uid));
     }
   }
 }
+
+    
