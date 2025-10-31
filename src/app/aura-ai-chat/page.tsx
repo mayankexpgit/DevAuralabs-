@@ -24,6 +24,8 @@ import type { AIPoweredCourseRecommendationsOutput } from '@/ai/flows/ai-powered
 import CourseChatCard from '@/components/course-chat-card';
 import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { collection, serverTimestamp, query, orderBy, addDoc, doc, setDoc } from 'firebase/firestore';
+import { useAdmin } from '@/context/admin-context';
+import type { User } from 'firebase/auth';
 
 type Message = {
   id: string;
@@ -52,15 +54,32 @@ export default function AuraAiChatPage() {
   const logoImage = PlaceHolderImages.find(p => p.id === 'ai-logo');
   const router = useRouter();
 
-  const { user, isUserLoading } = useUser();
+  const { user: regularUser, isUserLoading } = useUser();
+  const { isAdmin, isLoading: isAdminLoading } = useAdmin();
   const firestore = useFirestore();
+
+  const [activeUser, setActiveUser] = useState<User | null>(null);
 
   // Redirect if not logged in
   useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login?next=/aura-ai-chat');
+    if (!isUserLoading && !isAdminLoading) {
+      if (isAdmin) {
+        // Create a mock user object for admin
+        setActiveUser({
+            uid: 'admin_user',
+            displayName: 'Administrator',
+            email: 'admin@devaura.labs',
+            photoURL: "https://i.pravatar.cc/150?u=admin",
+        } as User);
+      } else if (regularUser) {
+        setActiveUser(regularUser);
+      } else {
+        router.push('/login?next=/aura-ai-chat');
+      }
     }
-  }, [user, isUserLoading, router]);
+  }, [regularUser, isUserLoading, isAdmin, isAdminLoading, router]);
+
+  const user = activeUser;
 
   // Fetch user's chat sessions
   const chatSessionsQuery = useMemoFirebase(() => 
@@ -177,7 +196,7 @@ export default function AuraAiChatPage() {
     handleSend("Hey Aura, can you help plan a weekend trip to the mountains?");
   };
 
-  if (isUserLoading || !user) {
+  if (isUserLoading || isAdminLoading || !user) {
     return (
         <div className="h-screen w-full bg-black flex items-center justify-center">
             <VantaFogBackground />
@@ -386,5 +405,3 @@ export default function AuraAiChatPage() {
     </div>
   );
 }
-
-    
