@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, ShoppingCart, LayoutGrid, BookOpen, Briefcase, Info, Sparkles, Award } from 'lucide-react';
+import { Menu, User, ShoppingCart, LayoutGrid, BookOpen, Briefcase, Info, Sparkles, KeyRound } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 
@@ -127,6 +127,17 @@ export default function Navbar() {
                         <span>{label}</span>
                         </Link>
                     ))}
+                    <Link
+                      href="/login?view=admin"
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-4 rounded-lg px-4 py-3 text-xl transition-colors text-muted-foreground hover:text-primary"
+                    >
+                      <KeyRound className="h-6 w-6" />
+                      <div>
+                        <span className="text-lg">Connect Private</span>
+                        <p className="text-xs text-muted-foreground">(Authorized Only)</p>
+                      </div>
+                    </Link>
                 </nav>
                 <div className="mt-auto">
                     <div className="flex items-center justify-center gap-4 my-4">
@@ -223,27 +234,11 @@ export default function Navbar() {
                 </DropdownMenu>
               </>
             ) : (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="glass-icon-btn login-btn text-foreground">
-                    Login
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuItem asChild>
-                    <Link href="/login">User Login</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                   <DropdownMenuItem asChild>
-                    <Link href="/login?view=admin">
-                        <div className="flex flex-col">
-                            <span>Connect Private</span>
-                            <span className="text-xs text-muted-foreground">(Authorized Only)</span>
-                        </div>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                <Link href="/login">
+                    <Button className="glass-icon-btn login-btn text-foreground">
+                        Login
+                    </Button>
+              </Link>
             )
           ) : (
             <Skeleton className="h-9 w-20 rounded-md" />
