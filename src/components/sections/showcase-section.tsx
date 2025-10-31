@@ -2,7 +2,7 @@
 'use client';
 
 import Image from 'next/image';
-import Marquee from 'magic-ui-react/marquee';
+import { Marquee } from 'magic-ui-react';
 import { showcaseImages } from '@/lib/showcase-data';
 import { cn } from '@/lib/utils';
 
