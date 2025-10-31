@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
@@ -59,12 +60,12 @@ export default function CourseCard({ course }: CourseCardProps) {
             {compareAtPrice && (
                 <p className="text-[10px] text-muted-foreground line-through">${compareAtPrice}</p>
             )}
-            <p className="text-xs font-bold text-primary">${price}</p>
+            <p className="text-xs font-bold text-green">${price}</p>
         </div>
 
         <div className="flex flex-col w-full gap-2 mt-auto">
             <Link href={`/courses/${id}`}>
-                <Button size="xs" variant="ghost" className="text-primary hover:bg-primary/10 hover:text-primary w-full text-[10px] h-7">
+                <Button size="xs" variant="ghost" className="text-green hover:bg-green/10 hover:text-green w-full text-[10px] h-7">
                     View Course
                 </Button>
             </Link>

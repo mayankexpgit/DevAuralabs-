@@ -1,3 +1,4 @@
+
 import type { Config } from 'tailwindcss';
 
 export default {
@@ -24,6 +25,7 @@ export default {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        green: 'hsl(var(--aura-green))',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
