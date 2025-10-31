@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, ShoppingCart, LayoutGrid, BookOpen, Briefcase, Info, Sparkles, Loader2, Award } from 'lucide-react';
+import { Menu, User, ShoppingCart, LayoutGrid, BookOpen, Briefcase, Info, Sparkles, Award } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 
@@ -30,6 +30,7 @@ import SocialIcon from '../social-icon';
 import { useAuth, useUser } from '@/firebase';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const AuraAiIcon = () => {
@@ -215,9 +216,7 @@ export default function Navbar() {
               </Link>
             )
           ) : (
-            <div className="h-9 w-20 flex items-center justify-center">
-              <Loader2 className='h-5 w-5 animate-spin' />
-            </div>
+            <Skeleton className="h-9 w-20" />
           )}
         </div>
       </div>
