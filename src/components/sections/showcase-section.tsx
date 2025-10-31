@@ -13,16 +13,14 @@ const ShowcaseCard = ({
   alt: string;
 }) => {
   return (
-    <figure
+    <div
       className={cn(
-        'relative w-48 h-48 cursor-pointer overflow-hidden rounded-xl border p-4 mx-4',
-        'border-gray-950/[.1] bg-gray-950/[.01] hover:bg-gray-950/[.05]',
-        'dark:border-gray-50/[.1] dark:bg-gray-50/[.10] dark:hover:bg-gray-50/[.15]'
+        'relative w-48 h-48 cursor-pointer overflow-hidden p-4 mx-4'
       )}
     >
       <div className="flex flex-row items-center justify-center gap-2 w-full h-full">
         <Image
-          className="rounded-full object-contain"
+          className="object-contain"
           width={128}
           height={128}
           alt={alt}
@@ -30,7 +28,7 @@ const ShowcaseCard = ({
           unoptimized
         />
       </div>
-    </figure>
+    </div>
   );
 };
 
