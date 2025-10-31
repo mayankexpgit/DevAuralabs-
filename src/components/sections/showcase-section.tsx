@@ -89,19 +89,26 @@ const ShowcaseCard = ({
   return (
     <div
       className={cn(
-        'relative w-full cursor-pointer overflow-hidden p-4 rounded-2xl bg-black border border-primary/20 shadow-[0_0_15px_hsl(var(--primary)/0.5)]',
+        'w-full cursor-pointer overflow-hidden rounded-2xl bg-zinc-800/30 border border-primary/10 shadow-lg flex flex-col',
         className
       )}
     >
-        <h3 className="text-xl font-bold text-center mb-4 text-primary">{title}</h3>
-      <div className="relative flex flex-row items-center justify-center gap-2 w-full h-full aspect-square">
-        <Image
-          className="object-contain"
-          fill
-          alt={title}
-          src={img}
-          unoptimized
-        />
+      <div className="flex items-center gap-2 h-10 px-4 bg-zinc-900/50 border-b border-primary/10">
+        <span className="h-3 w-3 rounded-full bg-red-500"></span>
+        <span className="h-3 w-3 rounded-full bg-yellow-500"></span>
+        <span className="h-3 w-3 rounded-full bg-green-500"></span>
+        <p className="text-xs text-muted-foreground ml-auto">{title}</p>
+      </div>
+      <div className="relative flex-grow p-4 bg-black/20">
+        <div className="relative w-full h-full aspect-square">
+            <Image
+            className="object-contain"
+            fill
+            alt={title}
+            src={img}
+            unoptimized
+            />
+        </div>
       </div>
     </div>
   );
