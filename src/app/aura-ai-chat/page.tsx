@@ -4,8 +4,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Textarea } from '@/components/ui/textarea';
-import { Menu, Mic, X, ChevronRight, Loader2 } from 'lucide-react';
+import { Mic, ChevronRight, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import VantaFogBackground from '@/components/vanta-fog-background';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -20,6 +28,14 @@ type Message = {
   sender: 'user' | 'aura';
   courses?: AIPoweredCourseRecommendationsOutput['courses'];
 };
+
+const lastFiveChats = [
+    { id: 'chat-1', title: 'Cybersecurity Career Path' },
+    { id: 'chat-2', title: 'Website Creation Help' },
+    { id: 'chat-3', title: 'Ethical Hacking Course Details' },
+    { id: 'chat-4', title: 'Full-Stack Program vs. AI/ML' },
+    { id: 'chat-5', title: 'Project Idea Brainstorm' },
+];
 
 export default function AuraAiChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -46,14 +62,15 @@ export default function AuraAiChatPage() {
     setInput('');
     setIsLoading(true);
 
-    const result = await getCourseRecommendations({ message: text });
+    const result = await getCourseRecommendations({ interests: text, goals: '' });
     
     let aiResponse: Message;
     if (result.success && result.data) {
         aiResponse = {
             id: `aura-${Date.now()}`,
-            text: result.data.response,
+            text: result.data.courseRecommendations,
             sender: 'aura',
+            // @ts-ignore - courses might not exist on the type
             courses: result.data.courses,
         };
     } else {
@@ -85,9 +102,27 @@ export default function AuraAiChatPage() {
   const renderChatUI = () => (
      <div className="flex flex-col h-full w-full max-w-4xl mx-auto">
         <header className="flex items-center justify-between p-4 text-white">
-          <Button variant="ghost" size="icon" className="aura-glass-btn">
-            <Menu className="h-6 w-6" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12H21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 6H15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 18H9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="sr-only">Open Menu</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="bg-zinc-900/80 border-zinc-700 text-white backdrop-blur-md">
+                <DropdownMenuLabel>Recent Chats</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-zinc-700"/>
+                {lastFiveChats.map(chat => (
+                    <DropdownMenuItem key={chat.id} className="focus:bg-zinc-800 focus:text-white">
+                        {chat.title}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <h2 className="text-xl font-bold">NEW CHAT</h2>
           <Avatar className="h-9 w-9">
             <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
@@ -114,7 +149,7 @@ export default function AuraAiChatPage() {
                 className={cn(
                   'max-w-xs md:max-w-md rounded-2xl px-4 py-3',
                   message.sender === 'user'
-                    ? 'bg-green-500/80 text-white rounded-br-none'
+                    ? 'bg-white text-zinc-900 rounded-br-none'
                     : 'bg-zinc-800/80 text-zinc-200 rounded-bl-none',
                   !message.courses && 'max-w-xs md:max-w-md' 
                 )}
@@ -181,9 +216,27 @@ export default function AuraAiChatPage() {
   const renderWelcomeUI = () => (
      <div className="flex flex-col h-full w-full max-w-2xl mx-auto p-4 text-white">
         <header className="flex items-center justify-between">
-          <Button variant="ghost" size="icon" className="aura-glass-btn">
-            <Menu className="h-6 w-6" />
-          </Button>
+           <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12H21" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 6H15" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M3 18H9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span className="sr-only">Open Menu</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="bg-zinc-900/80 border-zinc-700 text-white backdrop-blur-md">
+                <DropdownMenuLabel>Recent Chats</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-zinc-700"/>
+                {lastFiveChats.map(chat => (
+                    <DropdownMenuItem key={chat.id} className="focus:bg-zinc-800 focus:text-white">
+                        {chat.title}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </header>
 
         <div className="flex-1 flex flex-col justify-center">
