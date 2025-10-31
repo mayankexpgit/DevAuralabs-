@@ -1,4 +1,6 @@
 
+'use client';
+
 import HeroSection from '@/components/sections/hero';
 import CoursesSection from '@/components/sections/courses-section';
 import SkillsSection from '@/components/sections/skills-section';
@@ -7,8 +9,12 @@ import { Separator } from '@/components/ui/separator';
 import FloatingAiButton from '@/components/floating-ai-button';
 import Footer from '@/components/layout/footer';
 import ShowcaseSection from '@/components/sections/showcase-section';
+import AdminFAB from '@/components/admin-fab';
+import { useAdmin } from '@/context/admin-context';
 
 export default function Home() {
+  const { isAdmin } = useAdmin();
+
   return (
     <div className="flex flex-col">
       <HeroSection />
@@ -22,7 +28,7 @@ export default function Home() {
         <Separator className="my-12 md:my-24 bg-white/10" />
         <ServicesSection />
       </div>
-      <FloatingAiButton />
+      {isAdmin ? <AdminFAB /> : <FloatingAiButton />}
       <Footer />
     </div>
   );

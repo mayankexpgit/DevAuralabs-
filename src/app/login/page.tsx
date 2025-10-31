@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useAdmin } from '@/context/admin-context';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -45,6 +46,8 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user } = useUser();
   const [view, setView] = useState('user'); // 'user' or 'admin'
+  const { login: adminLogin } = useAdmin();
+
 
   const adminForm = useForm<z.infer<typeof adminFormSchema>>({
     resolver: zodResolver(adminFormSchema),
@@ -55,7 +58,6 @@ export default function LoginPage() {
   });
 
   if (user) {
-    // Check for admin role would happen here in a real app after user logs in
     toast({ title: 'Login Successful', description: 'Welcome back!' });
     if (next) {
       router.push(next);
@@ -66,6 +68,7 @@ export default function LoginPage() {
 
   function onAdminSubmit(values: z.infer<typeof adminFormSchema>) {
     if (values.webId === 'DEV42NL8900' && values.password === 'Dev@adminz7') {
+      adminLogin();
       toast({
         title: 'Admin Login Successful',
         description: 'Redirecting to admin dashboard...',

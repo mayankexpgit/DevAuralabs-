@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Menu, User, ShoppingCart, LayoutGrid, BookOpen, Briefcase, Info, Sparkles, Award } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ import { useAuth, useUser } from '@/firebase';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useAdmin } from '@/context/admin-context';
 
 
 const AuraAiIcon = () => {
@@ -55,12 +56,14 @@ const socialLinks = [
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [headerClass, setHeaderClass] = useState("w-full z-50");
   
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
+  const { isAdmin, logout: adminLogout } = useAdmin();
 
 
   useEffect(() => {
@@ -77,12 +80,17 @@ export default function Navbar() {
     }
   }, [pathname, isMounted]);
 
-  const handleLogout = () => {
+  const handleUserLogout = () => {
     signOut(auth);
   };
+  
+  const handleAdminLogout = () => {
+    adminLogout();
+    router.push('/');
+  }
 
-  if (pathname === '/aura-ai-chat') {
-    return null; // Don't render the navbar on the chat page
+  if (pathname === '/aura-ai-chat' || (isAdmin && pathname.startsWith('/admin'))) {
+    return null; // Don't render the navbar on the chat page or admin pages
   }
 
   return (
@@ -129,12 +137,12 @@ export default function Navbar() {
                         ))}
                     </div>
                     {isMounted && (
-                      !user && !isUserLoading ? (
+                      !user && !isUserLoading && !isAdmin ? (
                         <Link href="/login" onClick={() => setIsOpen(false)}>
                           <Button className="w-full" variant="outline">Login</Button>
                         </Link>
                       ) : (
-                        <Button className="w-full" variant="destructive" onClick={() => { handleLogout(); setIsOpen(false); }}>
+                        <Button className="w-full" variant="destructive" onClick={() => { (isAdmin ? handleAdminLogout() : handleUserLogout()); setIsOpen(false); }}>
                           Logout
                         </Button>
                       )
@@ -167,7 +175,11 @@ export default function Navbar() {
         {/* Login/Profile Buttons - Top Right */}
         <div className="flex items-center justify-end gap-2">
           {isMounted && !isUserLoading ? (
-            user ? (
+            isAdmin ? (
+               <Button variant="destructive" onClick={handleAdminLogout}>
+                  Admin Logout
+                </Button>
+            ) : user ? (
               <>
                 <Link href="/cart" className="glass-icon-btn">
                     <ShoppingCart className="h-5 w-5" />
@@ -204,7 +216,7 @@ export default function Navbar() {
                       <Link href="/profile/settings">Settings</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout}>
+                    <DropdownMenuItem onClick={handleUserLogout}>
                       Log out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -216,7 +228,7 @@ export default function Navbar() {
               </Link>
             )
           ) : (
-            <Skeleton className="h-9 w-20" />
+            <Skeleton className="h-9 w-20 rounded-md" />
           )}
         </div>
       </div>
