@@ -97,7 +97,7 @@ const ShowcaseCard = ({
         <span className="h-3 w-3 rounded-full bg-primary"></span>
         <span className="h-3 w-3 rounded-full bg-white/50"></span>
         <span className="h-3 w-3 rounded-full bg-white/30"></span>
-        <p className="text-xs text-muted-foreground ml-auto">{title}</p>
+        <p className="text-xs text-muted-foreground ml-auto font-bold">{title}</p>
       </div>
       <div className="relative flex-grow p-4 bg-black/20">
         <div className="relative w-full h-full aspect-square">
