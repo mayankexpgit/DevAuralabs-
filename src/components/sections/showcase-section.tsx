@@ -149,8 +149,7 @@ export default function ShowcaseSection() {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
+                
             </Carousel>
         </div>
       </section>

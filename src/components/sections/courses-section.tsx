@@ -115,12 +115,7 @@ export default function CoursesSection() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          {isMounted && (
-            <>
-              <CarouselPrevious className="hidden md:flex" />
-              <CarouselNext className="hidden md:flex" />
-            </>
-          )}
+          
         </Carousel>
       </div>
         <div className="text-center mt-12">
