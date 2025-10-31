@@ -94,9 +94,9 @@ const ShowcaseCard = ({
       )}
     >
       <div className="flex items-center gap-2 h-10 px-4 bg-zinc-900/50 border-b border-primary/10">
-        <span className="h-3 w-3 rounded-full bg-red-500"></span>
-        <span className="h-3 w-3 rounded-full bg-yellow-500"></span>
-        <span className="h-3 w-3 rounded-full bg-green-500"></span>
+        <span className="h-3 w-3 rounded-full bg-primary"></span>
+        <span className="h-3 w-3 rounded-full bg-white/50"></span>
+        <span className="h-3 w-3 rounded-full bg-white/30"></span>
         <p className="text-xs text-muted-foreground ml-auto">{title}</p>
       </div>
       <div className="relative flex-grow p-4 bg-black/20">
@@ -156,7 +156,7 @@ export default function ShowcaseSection() {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious className='-left-4 hidden' />
+                <CarouselPrevious className='-left-4 hidden md:flex glass-icon-btn h-12 w-12 hover:bg-primary/20 hover:text-primary transform transition-transform hover:scale-110 active:scale-90' />
                 <CarouselNext className='-right-4 glass-icon-btn h-12 w-12 hover:bg-primary/20 hover:text-primary transform transition-transform hover:scale-110 active:scale-90' />
             </Carousel>
         </div>
