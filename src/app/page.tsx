@@ -1,3 +1,4 @@
+
 import HeroSection from '@/components/sections/hero';
 import CoursesSection from '@/components/sections/courses-section';
 import SkillsSection from '@/components/sections/skills-section';
@@ -6,12 +7,14 @@ import AiRecommendationSection from '@/components/sections/ai-recommendation-sec
 import { Separator } from '@/components/ui/separator';
 import FloatingAiButton from '@/components/floating-ai-button';
 import Footer from '@/components/layout/footer';
+import ShowcaseSection from '@/components/sections/showcase-section';
 
 export default function Home() {
   return (
     <div className="flex flex-col">
       <HeroSection />
       <div className="container mx-auto px-4">
+        <ShowcaseSection />
         <CoursesSection />
         <Separator className="my-12 md:my-24 bg-white/10" />
         <SkillsSection />
