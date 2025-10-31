@@ -1,7 +1,6 @@
 
 'use client';
 
-import { courses } from '@/lib/data';
 import CourseCard from '@/components/course-card';
 import {
   Carousel,
@@ -15,6 +14,8 @@ import { EmblaCarouselType } from 'embla-carousel-react';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { RippleEffect } from '../ui/ripple-effect';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const CIRCULAR_EFFECT_FACTOR = 10;
 
@@ -78,6 +79,10 @@ export default function CoursesSection() {
   const [api, setApi] = useState<EmblaCarouselType | undefined>();
   const transforms = useCircularEffect(api);
   const [isMounted, setIsMounted] = useState(false);
+  const firestore = useFirestore();
+
+  const coursesQuery = useMemoFirebase(() => collection(firestore, 'courses'), [firestore]);
+  const { data: courses } = useCollection(coursesQuery);
 
   useEffect(() => {
     setIsMounted(true);
@@ -100,12 +105,12 @@ export default function CoursesSection() {
           }}
         >
           <CarouselContent style={{ transformStyle: 'preserve-3d' }}>
-            {courses.map((course, index) => (
+            {courses?.map((course, index) => (
               <CarouselItem key={course.id} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/4 xl:basis-1/5">
                 <div
                   className="p-1 h-full transition-transform duration-200 ease-out"
                   style={{
-                    ...(isMounted && transforms.length && {
+                    ...(isMounted && transforms.length && transforms[index] && {
                       opacity: transforms[index].opacity,
                       transform: `scale(${transforms[index].scale}) rotateY(${transforms[index].rotateY}deg)`,
                     }),

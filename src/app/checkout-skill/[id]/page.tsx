@@ -1,6 +1,7 @@
 
-import { skills } from '@/lib/data';
-import { notFound } from 'next/navigation';
+'use client';
+
+import { notFound, useParams } from 'next/navigation';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -9,20 +10,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RippleEffect } from '@/components/ui/ripple-effect';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
 };
 
-export default function CheckoutSkillPage({ params }: { params: { id: string } }) {
-  const skill = skills.find((c) => c.id === params.id);
+export default function CheckoutSkillPage() {
+  const params = useParams();
+  const { id } = params;
+  const firestore = useFirestore();
+
+  const skillRef = useMemoFirebase(() => doc(firestore, 'skills', id as string), [firestore, id]);
+  const { data: skill, isLoading } = useDoc(skillRef);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!skill) {
     notFound();
   }
 
   const placeholder = getPlaceholderImage(skill.image);
-  const price = 499.99; // Example price
+  const price = skill.price || 499.99; // Example price
 
   return (
     <div className="container mx-auto max-w-4xl py-12 px-4">

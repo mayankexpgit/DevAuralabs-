@@ -7,13 +7,14 @@
  * Data Structure:
  * - `/users/{userId}`: Stores user profiles.
  * - `/courses/{courseId}`: Stores course information (publicly readable).
+ * - `/skills/{skillId}`: Stores skill development program information (publicly readable).
  * - `/users/{userId}/enrollments/{enrollmentId}`: Stores enrollment records for a specific user.
  * - `/users/{userId}/website_requests/{websiteRequestId}`: Stores website requests for a specific user.
  * - `/roles_admin/{userId}`: Indicates admin status.
  *
  * Key Security Decisions:
  * - Users can only manage their own enrollments and website requests.
- * - Course data is publicly readable but only writable by admins.
+ * - Course and skill data is publicly readable but only writable by admins.
  * - User listing is disallowed.
  * - Admin privileges are determined by the presence of a document in `/roles_admin/{userId}`.
  *
@@ -53,6 +54,19 @@ service cloud.firestore {
      * @principle Allows public read access with admin-only writes.
      */
     match /courses/{courseId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    
+    /**
+     * @description Allows public read access to skill data, but restricts write access to admins.
+     * @path /skills/{skillId}
+     * @allow (get, list) - Any user (signed in or not) can read skill data.
+     * @allow (create, update, delete) - User with admin privileges can create, update, and delete skill data.
+     * @deny (create, update, delete) - User without admin privileges cannot create, update, and delete skill data.
+     * @principle Allows public read access with admin-only writes.
+     */
+    match /skills/{skillId} {
       allow get, list: if true;
       allow create, update, delete: if isAdmin();
     }

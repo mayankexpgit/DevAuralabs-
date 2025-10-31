@@ -1,15 +1,22 @@
 
-import { skills } from '@/lib/data';
+'use client';
+
 import SkillCard from '@/components/skill-card';
 import { Button } from '../ui/button';
 import Link from 'next/link';
 import { RippleEffect } from '../ui/ripple-effect';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 type SkillsSectionProps = {
   hideViewMore?: boolean;
 };
 
 export default function SkillsSection({ hideViewMore = false }: SkillsSectionProps) {
+  const firestore = useFirestore();
+  const skillsQuery = useMemoFirebase(() => collection(firestore, 'skills'), [firestore]);
+  const { data: skills } = useCollection(skillsQuery);
+
   return (
     <section id="skills" className="py-12 md:py-24">
       <div className="text-center mb-12">
@@ -19,7 +26,7 @@ export default function SkillsSection({ hideViewMore = false }: SkillsSectionPro
         </p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {skills.map((skill) => (
+        {skills?.map((skill) => (
           <SkillCard key={skill.id} skill={skill} />
         ))}
       </div>

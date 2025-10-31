@@ -1,6 +1,7 @@
 
-import { courses } from '@/lib/data';
-import { notFound } from 'next/navigation';
+'use client';
+
+import { notFound, useParams } from 'next/navigation';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -9,13 +10,24 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RippleEffect } from '@/components/ui/ripple-effect';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
 };
 
-export default function CheckoutPage({ params }: { params: { id: string } }) {
-  const course = courses.find((c) => c.id === params.id);
+export default function CheckoutPage() {
+  const params = useParams();
+  const { id } = params;
+  const firestore = useFirestore();
+
+  const courseRef = useMemoFirebase(() => doc(firestore, 'courses', id as string), [firestore, id]);
+  const { data: course, isLoading } = useDoc(courseRef);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!course) {
     notFound();

@@ -7,8 +7,16 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { courses, skills } from '@/lib/data';
 import { z } from 'zod';
+import { initializeFirebase } from '@/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+
+async function getCollectionData(collectionName: string) {
+    const { firestore } = initializeFirebase();
+    const collectionRef = collection(firestore, collectionName);
+    const snapshot = await getDocs(collectionRef);
+    return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+}
 
 export const getCourses = ai.defineTool(
     {
@@ -28,9 +36,8 @@ export const getCourses = ai.defineTool(
         ),
     },
     async () => {
-        // In a real app, you would fetch this from a database.
-        // For now, we'll return the static data.
-        return courses.map(({ id, title, level, price, description, image, icon }) => ({ id, title, level, price, description, image, icon }));
+        const courses = await getCollectionData('courses');
+        return courses.map(({ id, title, level, price, description, image, icon }: any) => ({ id, title, level, price, description, image, icon }));
     }
 );
 
@@ -51,8 +58,7 @@ export const getSkills = ai.defineTool(
         ),
     },
     async () => {
-        // In a real app, you would fetch this from a database.
-        // For now, we'll return the static data.
-        return skills.map(({ id, title, progress, description, image, icon }) => ({ id, title, progress, description, image, icon }));
+        const skills = await getCollectionData('skills');
+        return skills.map(({ id, title, progress, description, image, icon }: any) => ({ id, title, progress, description, image, icon }));
     }
 );

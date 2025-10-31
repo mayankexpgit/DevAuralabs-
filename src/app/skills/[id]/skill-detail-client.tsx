@@ -5,39 +5,60 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Video, Clapperboard } from 'lucide-react';
-import type { skills } from '@/lib/data';
+import { CheckCircle, Video, Clapperboard, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useMemoFirebase, addDocumentNonBlocking, useCollection } from '@/firebase';
 import { RippleEffect } from '@/components/ui/ripple-effect';
+import { collection, serverTimestamp } from 'firebase/firestore';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
 };
 
-type Skill = (typeof skills)[0];
-
-// In a real app, this would come from the user's data
-const purchasedSkillIds = ['s1'];
+type Skill = {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  price?: number;
+};
 
 export default function SkillDetailClient({ skill }: { skill: Skill }) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
   const { user } = useUser();
+  const firestore = useFirestore();
+
+  const enrollmentsQuery = useMemoFirebase(
+    () => (user ? collection(firestore, 'users', user.uid, 'enrollments') : null),
+    [firestore, user]
+  );
+  const { data: enrollments, isLoading: enrollmentsLoading } = useCollection(enrollmentsQuery);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const isPurchased = isMounted && user && purchasedSkillIds.includes(skill.id);
-
+  const isPurchased = isMounted && user && !enrollmentsLoading && enrollments?.some(e => e.skillId === skill.id);
+  
   const handleEnrollNow = () => {
     if (!isMounted) return;
     if (!user) {
       router.push(`/signup?next=/checkout-skill/${skill.id}`);
     } else {
-      router.push(`/checkout-skill/${skill.id}`);
+      const enrollmentRef = collection(firestore, 'users', user.uid, 'enrollments');
+      addDocumentNonBlocking(enrollmentRef, {
+        skillId: skill.id,
+        type: 'skill',
+        enrollmentDate: serverTimestamp(),
+        progress: 0,
+        lastAccessed: serverTimestamp(),
+      });
+      toast({
+        title: 'Enrollment Successful!',
+        description: `You are now enrolled in ${skill.title}.`,
+      });
     }
   };
 
@@ -51,7 +72,7 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
             {placeholder && (
               <Image
                 src={placeholder.imageUrl}
-                alt={placeholder.description}
+                alt={skill.title}
                 data-ai-hint={placeholder.imageHint}
                 fill
                 className="object-cover"
@@ -73,7 +94,8 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
         </div>
         <div className="lg:col-span-2">
             <div className="glass-card p-8 sticky top-24">
-                {isPurchased ? (
+                {enrollmentsLoading && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
+                {!enrollmentsLoading && isPurchased ? (
                      <div>
                         <h2 className="text-2xl font-bold text-primary mb-6">Program Content</h2>
                         <div className="space-y-4">
@@ -90,10 +112,10 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
                             You have lifetime access to this program.
                         </div>
                   </div>
-                ) : (
+                ) : !enrollmentsLoading && (
                     <>
                         <div className="flex items-baseline gap-2 mb-6">
-                            <p className="text-3xl font-bold text-primary">$499.99</p>
+                            <p className="text-3xl font-bold text-primary">${skill.price || '499.99'}</p>
                             <p className="text-xl text-muted-foreground line-through">$599.99</p>
                         </div>
                         <p className="text-sm text-muted-foreground mb-6">Get lifetime access to this program and all future updates.</p>

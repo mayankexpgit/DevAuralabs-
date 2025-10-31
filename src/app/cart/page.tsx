@@ -1,7 +1,6 @@
 
 'use client';
 
-import { courses } from '@/lib/data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -11,35 +10,37 @@ import { Trash2, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { RippleEffect } from '@/components/ui/ripple-effect';
+import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const getPlaceholderImage = (id: string) => {
   return PlaceHolderImages.find((img) => img.id === id);
 };
 
-// Simulate items in the cart
-const initialCartItems = [
-  { ...courses[0], quantity: 1 },
-  { ...courses[2], quantity: 1 },
-];
-
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  // In a real app, you would fetch the cart from a subcollection on the user
+  const cartQuery = useMemoFirebase(() => user ? collection(firestore, `users/${user.uid}/cart`) : null, [firestore, user]);
+  const { data: cartItems, isLoading } = useCollection(cartQuery);
+  
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    // In a real app, you would fetch the cart from an API or context
   }, []);
 
   const removeItem = (id: string) => {
-    setCartItems(cartItems.filter((item) => item.id !== id));
+    // In a real app, you would remove this from Firestore
+    console.log("Remove item", id);
   };
   
-  if (!isMounted) {
+  if (!isMounted || isLoading) {
     return null; // or a loading spinner
   }
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  const subtotal = cartItems?.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0) || 0;
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + tax;
 
@@ -50,7 +51,7 @@ export default function CartPage() {
         <p className="text-lg text-muted-foreground mt-2">Review your items and proceed to checkout.</p>
       </div>
 
-      {cartItems.length > 0 ? (
+      {cartItems && cartItems.length > 0 ? (
         <div className="grid lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-6">
             {cartItems.map((item) => {
@@ -77,7 +78,7 @@ export default function CartPage() {
                       <p className="text-lg font-bold text-primary">${item.price}</p>
                     </div>
                     <div className="flex items-center justify-between mt-4">
-                      <p className="text-sm">Qty: {item.quantity}</p>
+                      <p className="text-sm">Qty: {item.quantity || 1}</p>
                       <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive" onClick={() => removeItem(item.id)}>
                         <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Remove</span>

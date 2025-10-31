@@ -76,6 +76,46 @@
         "rating"
       ]
     },
+    "Skill": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Skill",
+      "type": "object",
+      "description": "Represents a skill development program.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Skill entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the skill program."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the skill program."
+        },
+        "icon": {
+          "type": "string",
+          "description": "Lucide icon name for the skill."
+        },
+        "image": {
+          "type": "string",
+          "description": "Image ID for the skill."
+        },
+         "price": {
+          "type": "number",
+          "description": "Price of the skill program."
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "icon",
+        "image",
+        "price"
+      ]
+    },
     "Enrollment": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Enrollment",
@@ -190,6 +230,22 @@
             {
               "name": "courseId",
               "description": "The unique identifier for the course."
+            }
+          ]
+        }
+      },
+       {
+        "path": "/skills/{skillId}",
+        "definition": {
+          "entityName": "Skill",
+          "schema": {
+            "$ref": "#/backend/entities/Skill"
+          },
+          "description": "Collection of skill development programs offered by DevAura Labs.",
+          "params": [
+            {
+              "name": "skillId",
+              "description": "The unique identifier for the skill program."
             }
           ]
         }

@@ -1,10 +1,13 @@
+
 'use client';
 import {
   Auth, // Import Auth type for type hinting
   signInAnonymously,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  // Assume getAuth and app are initialized elsewhere
+  signInWithPopup,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
 } from 'firebase/auth';
 
 /** Initiate anonymous sign-in (non-blocking). */
@@ -27,3 +30,16 @@ export function initiateEmailSignIn(authInstance: Auth, email: string, password:
   signInWithEmailAndPassword(authInstance, email, password);
   // Code continues immediately. Auth state change is handled by onAuthStateChanged listener.
 }
+
+/** Initiate Google sign-in (non-blocking). */
+export function initiateGoogleSignIn(authInstance: Auth): void {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(authInstance, provider);
+}
+
+/** Initiate Facebook sign-in (non-blocking). */
+export function initiateFacebookSignIn(authInstance: Auth): void {
+    const provider = new FacebookAuthProvider();
+    signInWithPopup(authInstance, provider);
+}
+
