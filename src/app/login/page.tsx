@@ -21,12 +21,25 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import VantaBackground from '@/components/vanta-background';
 import Footer from '@/components/layout/footer';
-import { initiateEmailSignIn, useAuth, useUser } from '@/firebase';
+import { initiateEmailSignIn, useAuth, useUser, initiateGoogleSignIn, initiateFacebookSignIn } from '@/firebase';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
 });
+
+const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-1.5c-1 0-1.5.5-1.5 1.5V12h3l-.5 3h-2.5v6.95c5.05-.5 9-4.76 9-9.95z"/>
+    </svg>
+);
+
+const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+    </svg>
+);
 
 export default function LoginPage() {
   const { toast } = useToast();
@@ -74,7 +87,7 @@ export default function LoginPage() {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="currentColor"
+                  stroke="hsl(var(--primary))"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -134,6 +147,18 @@ export default function LoginPage() {
                 </Button>
               </form>
             </Form>
+            <div className="relative">
+              <Separator className="my-4 bg-white/10" />
+              <p className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-sm text-muted-foreground">OR</p>
+            </div>
+             <div className="grid grid-cols-2 gap-4">
+                <Button variant="outline" className="w-full" onClick={() => initiateGoogleSignIn(auth)}>
+                    <GoogleIcon className="mr-2 h-4 w-4"/> Google
+                </Button>
+                <Button variant="outline" className="w-full" onClick={() => initiateFacebookSignIn(auth)}>
+                    <FacebookIcon className="mr-2 h-4 w-4"/> Facebook
+                </Button>
+            </div>
             <p className="text-center text-sm text-muted-foreground">
               Don&apos;t have an account?{' '}
               <Link href={`/signup${next ? `?next=${next}` : ''}`} className="font-semibold text-primary hover:underline">
