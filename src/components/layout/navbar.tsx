@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Menu, User, ShoppingCart, LayoutGrid, BookOpen, Briefcase, Info, UserCog, Sparkles, Loader2 } from 'lucide-react';
+import { Menu, User, ShoppingCart, LayoutGrid, BookOpen, Briefcase, Info, Sparkles, Loader2, Award } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 
@@ -28,13 +28,21 @@ import type { LucideIcon } from 'lucide-react';
 import Logo from '../logo';
 import SocialIcon from '../social-icon';
 import { useAuth, useUser } from '@/firebase';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
-const navLinks: { href: string; label: string; icon: LucideIcon }[] = [
+const AuraAiIcon = () => {
+  const logoImage = PlaceHolderImages.find(p => p.id === 'ai-logo');
+  return logoImage ? <Image src={logoImage.imageUrl} alt="Aura AI" width={24} height={24} className="h-6 w-6" unoptimized/> : <Sparkles />;
+}
+
+
+const navLinks: { href: string; label: string; icon: LucideIcon | React.ComponentType }[] = [
   { href: '/', label: 'Menu', icon: LayoutGrid },
   { href: '/courses', label: 'Courses', icon: BookOpen },
   { href: '/services', label: 'Services', icon: Briefcase },
-  { href: '/aura-ai-chat', label: 'Aura AI', icon: Sparkles },
+  { href: '/aura-ai-chat', label: 'Aura AI', icon: AuraAiIcon },
   { href: '/about', label: 'About', icon: Info },
 ];
 
@@ -189,7 +197,7 @@ export default function Navbar() {
                       <Link href="/profile">Profile</Link>
                     </DropdownMenuItem>
                      <DropdownMenuItem asChild>
-                      <Link href="/profile/my-courses">My Courses</Link>
+                      <Link href="/profile/my-courses">My Learning</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/profile/settings">Settings</Link>
