@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, ShoppingCart } from 'lucide-react';
+import { CheckCircle, ShoppingCart, Video, Clapperboard } from 'lucide-react';
 import type { courses } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
@@ -18,6 +18,9 @@ const getPlaceholderImage = (id: string) => {
 
 type Course = (typeof courses)[0];
 
+// In a real app, this would come from the user's data
+const purchasedCourseIds = ['c1']; 
+
 export default function CourseDetailClient({ course }: { course: Course }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -27,6 +30,8 @@ export default function CourseDetailClient({ course }: { course: Course }) {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const isPurchased = isMounted && user && purchasedCourseIds.includes(course.id);
 
   const handleBuyNow = () => {
     if (!isMounted) return;
@@ -42,8 +47,6 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     if (!user) {
       router.push(`/signup?next=/courses/${course.id}`);
     } else {
-      // In a real app, you'd have a cart state management (e.g., Context, Redux)
-      // and an API call to add the item to the user's cart in the database.
       console.log(`Added ${course.title} to cart.`);
       toast({
         title: 'Added to Cart',
@@ -92,25 +95,46 @@ export default function CourseDetailClient({ course }: { course: Course }) {
         </div>
         <div className="lg:col-span-2">
             <div className="glass-card p-8 sticky top-24">
-                <div className="flex items-baseline gap-2 mb-6">
-                    <p className="text-3xl font-bold text-primary">${course.price}</p>
-                    {course.compareAtPrice && (
-                        <p className="text-xl text-muted-foreground line-through">${course.compareAtPrice}</p>
-                    )}
-                </div>
-                <p className="text-sm text-muted-foreground mb-6">Get lifetime access to this course and all future updates.</p>
-                <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={handleBuyNow}>
-                        Buy Now
-                    </Button>
-                    <Button size="lg" variant="outline" className="w-full relative" onClick={handleAddToCart}>
-                        <ShoppingCart className="mr-2 h-5 w-5" />
-                        Add to Cart
-                    </Button>
-                </div>
-                 <div className="mt-8 text-xs text-center text-muted-foreground">
-                    30-Day Money-Back Guarantee
-                </div>
+                {isPurchased ? (
+                  <div>
+                    <h2 className="text-2xl font-bold text-primary mb-6">Course Content</h2>
+                    <div className="space-y-4">
+                      <Button size="lg" className="w-full justify-start">
+                        <Clapperboard className="mr-2 h-5 w-5" />
+                        Join Live Class
+                      </Button>
+                      <Button size="lg" variant="outline" className="w-full justify-start">
+                         <Video className="mr-2 h-5 w-5" />
+                        Watch Recordings
+                      </Button>
+                    </div>
+                     <div className="mt-8 text-xs text-center text-muted-foreground">
+                        You have lifetime access to this course.
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-baseline gap-2 mb-6">
+                        <p className="text-3xl font-bold text-primary">${course.price}</p>
+                        {course.compareAtPrice && (
+                            <p className="text-xl text-muted-foreground line-through">${course.compareAtPrice}</p>
+                        )}
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-6">Get lifetime access to this course and all future updates.</p>
+                    <div className="flex flex-col gap-4">
+                        <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={handleBuyNow}>
+                            Buy Now
+                        </Button>
+                        <Button size="lg" variant="outline" className="w-full relative" onClick={handleAddToCart}>
+                            <ShoppingCart className="mr-2 h-5 w-5" />
+                            Add to Cart
+                        </Button>
+                    </div>
+                    <div className="mt-8 text-xs text-center text-muted-foreground">
+                        30-Day Money-Back Guarantee
+                    </div>
+                  </>
+                )}
             </div>
         </div>
       </div>

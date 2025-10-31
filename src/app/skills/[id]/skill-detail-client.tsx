@@ -5,7 +5,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Video, Clapperboard } from 'lucide-react';
 import type { skills } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
@@ -17,6 +17,9 @@ const getPlaceholderImage = (id: string) => {
 
 type Skill = (typeof skills)[0];
 
+// In a real app, this would come from the user's data
+const purchasedSkillIds = ['s1'];
+
 export default function SkillDetailClient({ skill }: { skill: Skill }) {
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
@@ -25,6 +28,8 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const isPurchased = isMounted && user && purchasedSkillIds.includes(skill.id);
 
   const handleEnrollNow = () => {
     if (!isMounted) return;
@@ -67,19 +72,40 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
         </div>
         <div className="lg:col-span-2">
             <div className="glass-card p-8 sticky top-24">
-                <div className="flex items-baseline gap-2 mb-6">
-                    <p className="text-3xl font-bold text-primary">$499.99</p>
-                    <p className="text-xl text-muted-foreground line-through">$599.99</p>
-                </div>
-                <p className="text-sm text-muted-foreground mb-6">Get lifetime access to this program and all future updates.</p>
-                <div className="flex flex-col gap-4">
-                    <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={handleEnrollNow}>
-                        Enroll Now
-                    </Button>
-                </div>
-                 <div className="mt-8 text-xs text-center text-muted-foreground">
-                    30-Day Money-Back Guarantee
-                </div>
+                {isPurchased ? (
+                     <div>
+                        <h2 className="text-2xl font-bold text-primary mb-6">Program Content</h2>
+                        <div className="space-y-4">
+                        <Button size="lg" className="w-full justify-start">
+                            <Clapperboard className="mr-2 h-5 w-5" />
+                            Join Live Mentorship
+                        </Button>
+                        <Button size="lg" variant="outline" className="w-full justify-start">
+                            <Video className="mr-2 h-5 w-5" />
+                            Access Project Files
+                        </Button>
+                        </div>
+                        <div className="mt-8 text-xs text-center text-muted-foreground">
+                            You have lifetime access to this program.
+                        </div>
+                  </div>
+                ) : (
+                    <>
+                        <div className="flex items-baseline gap-2 mb-6">
+                            <p className="text-3xl font-bold text-primary">$499.99</p>
+                            <p className="text-xl text-muted-foreground line-through">$599.99</p>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-6">Get lifetime access to this program and all future updates.</p>
+                        <div className="flex flex-col gap-4">
+                            <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={handleEnrollNow}>
+                                Enroll Now
+                            </Button>
+                        </div>
+                        <div className="mt-8 text-xs text-center text-muted-foreground">
+                            30-Day Money-Back Guarantee
+                        </div>
+                    </>
+                )}
             </div>
         </div>
       </div>
