@@ -100,10 +100,10 @@ service cloud.firestore {
      */
     match /users/{userId}/chats/{chatId} {
       /**
-       * @description Allows a user to list their own chat sessions.
+       * @description Allows a user to list their own chat sessions. Also allows an admin to list chats for the special 'admin_user' UID.
        * @path /users/{userId}/chats
-       * @allow (list) - User with UID `userId` can list their own chats.
-       * @deny (list) - User cannot list chats belonging to other users.
+       * @allow (list, create) - User with UID `userId` can list their own chats. Admins can manage the special admin chat history.
+       * @deny (list, create) - User cannot list/create chats belonging to other users.
        */
       allow list, create: if isOwner(userId) || (userId == 'admin_user' && isAdmin());
       

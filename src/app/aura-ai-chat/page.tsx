@@ -61,35 +61,36 @@ export default function AuraAiChatPage() {
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
-  // Redirect if not logged in
+  // This effect determines the active user or redirects.
   useEffect(() => {
-    if (!isUserLoading && !isAdminLoading) {
-      if (isAdmin) {
-        // Create a mock user object for admin
-        setActiveUser({
-            uid: 'admin_user',
-            displayName: 'Administrator',
-            email: 'admin@devaura.labs',
-            photoURL: "https://i.pravatar.cc/150?u=admin",
-        } as User);
-      } else if (regularUser) {
-        setActiveUser(regularUser);
-      } else {
-        router.push('/login?next=/aura-ai-chat');
-      }
-      setAuthChecked(true);
+    if (isUserLoading || isAdminLoading) {
+      return; // Wait until both auth checks are complete
     }
+
+    if (isAdmin) {
+      setActiveUser({
+          uid: 'admin_user',
+          displayName: 'Administrator',
+          email: 'admin@devaura.labs',
+          photoURL: "https://i.pravatar.cc/150?u=admin",
+      } as User);
+    } else if (regularUser) {
+      setActiveUser(regularUser);
+    } else {
+      router.push('/login?next=/aura-ai-chat');
+    }
+    setAuthChecked(true); // Mark that authentication has been checked.
   }, [regularUser, isUserLoading, isAdmin, isAdminLoading, router]);
 
   const user = activeUser;
 
-  // Fetch user's chat sessions
+  // Fetch user's chat sessions only when authentication is checked and a user is present.
   const chatSessionsQuery = useMemoFirebase(() => 
     authChecked && user ? query(collection(firestore, 'users', user.uid, 'chats'), orderBy('timestamp', 'desc')) : null
   , [firestore, user, authChecked]);
   const { data: chatHistory, isLoading: isHistoryLoading } = useCollection<ChatSession>(chatSessionsQuery);
 
-  // Fetch messages for the current chat
+  // Fetch messages for the current chat only when authentication is checked and a chat is selected.
   const messagesQuery = useMemoFirebase(() => 
     authChecked && user && currentChatId ? query(collection(firestore, 'users', user.uid, 'chats', currentChatId, 'messages'), orderBy('timestamp', 'asc')) : null
   , [firestore, user, currentChatId, authChecked]);
@@ -198,7 +199,7 @@ export default function AuraAiChatPage() {
     handleSend("Hey Aura, can you help plan a weekend trip to the mountains?");
   };
 
-  if (isUserLoading || isAdminLoading || !user || !authChecked) {
+  if (!authChecked) {
     return (
         <div className="h-screen w-full bg-black flex items-center justify-center">
             <VantaFogBackground />
