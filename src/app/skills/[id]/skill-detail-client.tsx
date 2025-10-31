@@ -102,7 +102,7 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
                             </Button>
                         </div>
                         <div className="mt-8 text-xs text-center text-muted-foreground">
-                            30-Day Money-Back Guarantee
+                            3-Day Money-Back Guarantee
                         </div>
                     </>
                 )}
