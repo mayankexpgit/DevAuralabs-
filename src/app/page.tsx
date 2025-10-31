@@ -13,8 +13,10 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <HeroSection />
-      <div className="container mx-auto px-4">
+      <div className="relative z-20 -mt-24">
         <ShowcaseSection />
+      </div>
+      <div className="container mx-auto px-4">
         <CoursesSection />
         <Separator className="my-12 md:my-24 bg-white/10" />
         <SkillsSection />
