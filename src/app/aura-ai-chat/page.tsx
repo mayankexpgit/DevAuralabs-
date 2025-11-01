@@ -199,7 +199,7 @@ export default function AuraAiChatPage() {
     handleSend("Hey Aura, can you help plan a weekend trip to the mountains?");
   };
 
-  if (!authChecked) {
+  if (!authChecked || !user) {
     return (
         <div className="h-screen w-full bg-black flex items-center justify-center">
             <VantaFogBackground />
