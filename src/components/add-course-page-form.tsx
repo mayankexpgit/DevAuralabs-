@@ -62,6 +62,7 @@ export default function AddCoursePageForm() {
       title: '',
       level: '',
       description: '',
+      price: '' as any, // Initialize price to an empty string
       currency: 'USD',
       posterUrl: '',
       screenshots: '',
