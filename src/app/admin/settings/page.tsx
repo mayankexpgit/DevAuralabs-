@@ -16,6 +16,16 @@ export default function GeneralSettingsPage() {
   const [websiteName, setWebsiteName] = useState('DevAura Labs');
   const [heroTitle, setHeroTitle] = useState('Your Gateway to Digital Mastery.');
   const [heroSubtitle, setHeroSubtitle] = useState('Unlock your potential with expert-led courses in Cybersecurity, cutting-edge Skill Development programs, and professional Website Creation services to elevate your digital presence.');
+  
+  // Footer Links State
+  const [termsUrl, setTermsUrl] = useState('#');
+  const [privacyUrl, setPrivacyUrl] = useState('#');
+  const [contactUrl, setContactUrl] = useState('#');
+  
+  // Social Links State
+  const [twitterUrl, setTwitterUrl] = useState('#');
+  const [instagramUrl, setInstagramUrl] = useState('#');
+  const [whatsappUrl, setWhatsappUrl] = useState('#');
 
 
   const handleSaveContent = () => {
@@ -24,6 +34,14 @@ export default function GeneralSettingsPage() {
     toast({
       title: 'Content Saved!',
       description: 'Your website content has been updated.',
+    });
+  };
+
+  const handleSaveLinks = () => {
+    console.log({ termsUrl, privacyUrl, contactUrl, twitterUrl, instagramUrl, whatsappUrl });
+    toast({
+        title: 'Links Saved!',
+        description: 'Your footer and social links have been updated.',
     });
   };
 
@@ -70,6 +88,91 @@ export default function GeneralSettingsPage() {
             <Button onClick={handleSaveContent}>Save Content</Button>
         </CardContent>
       </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+            <CardTitle>Footer Links</CardTitle>
+            <CardDescription>
+                Edit the URLs for the quick links in your website footer.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="terms-url">Terms URL</Label>
+                <Input 
+                    id="terms-url"
+                    value={termsUrl}
+                    onChange={(e) => setTermsUrl(e.target.value)}
+                    className="bg-background/50"
+                    placeholder="e.g., /terms-of-service"
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="privacy-url">Privacy URL</Label>
+                <Input 
+                    id="privacy-url"
+                    value={privacyUrl}
+                    onChange={(e) => setPrivacyUrl(e.target.value)}
+                    className="bg-background/50"
+                    placeholder="e.g., /privacy-policy"
+                />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="contact-url">Contact URL</Label>
+                <Input 
+                    id="contact-url"
+                    value={contactUrl}
+                    onChange={(e) => setContactUrl(e.target.value)}
+                    className="bg-background/50"
+                    placeholder="e.g., /contact-us"
+                />
+            </div>
+            <Button onClick={handleSaveLinks}>Save Footer Links</Button>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardHeader>
+            <CardTitle>Social Media Links</CardTitle>
+            <CardDescription>
+                Edit the URLs for your social media profiles.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="twitter-url">Twitter URL</Label>
+                <Input 
+                    id="twitter-url"
+                    value={twitterUrl}
+                    onChange={(e) => setTwitterUrl(e.target.value)}
+                    className="bg-background/50"
+                    placeholder="https://twitter.com/yourprofile"
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="instagram-url">Instagram URL</Label>
+                <Input 
+                    id="instagram-url"
+                    value={instagramUrl}
+                    onChange={(e) => setInstagramUrl(e.target.value)}
+                    className="bg-background/50"
+                    placeholder="https://instagram.com/yourprofile"
+                />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="whatsapp-url">WhatsApp URL</Label>
+                <Input 
+                    id="whatsapp-url"
+                    value={whatsappUrl}
+                    onChange={(e) => setWhatsappUrl(e.target.value)}
+                    className="bg-background/50"
+                    placeholder="https://wa.me/yournumber"
+                />
+            </div>
+            <Button onClick={handleSaveLinks}>Save Social Links</Button>
+        </CardContent>
+      </Card>
+
     </div>
   );
 }
