@@ -1,27 +1,29 @@
 
-'use client';
-import { notFound, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import SkillDetailClient from './skill-detail-client';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { initializeFirebase } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
-export default function SkillDetailPage() {
-  const params = useParams();
-  const { id } = params;
-  const firestore = useFirestore();
-  
-  const skillRef = useMemoFirebase(() => firestore ? doc(firestore, 'skills', id as string) : null, [firestore, id]);
-  const { data: skill, isLoading } = useDoc(skillRef);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+async function getSkill(id: string) {
+    const { firestore } = initializeFirebase();
+    const skillRef = doc(firestore, 'skills', id);
+    const skillSnap = await getDoc(skillRef);
+
+    if (!skillSnap.exists()) {
+        return null;
+    }
+
+    return { ...skillSnap.data(), id: skillSnap.id };
+}
+
+export default async function SkillDetailPage({ params }: { params: { id: string } }) {
+  const skill = await getSkill(params.id);
 
   if (!skill) {
     notFound();
   }
 
+  // @ts-ignore
   return <SkillDetailClient skill={skill} />;
 }
-
-    

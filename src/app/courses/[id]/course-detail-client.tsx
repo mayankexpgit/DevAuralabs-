@@ -176,5 +176,3 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     </div>
   );
 }
-
-    

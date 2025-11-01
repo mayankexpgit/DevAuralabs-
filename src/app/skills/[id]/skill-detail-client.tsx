@@ -126,5 +126,3 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
     </div>
   );
 }
-
-    

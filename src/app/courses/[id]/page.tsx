@@ -1,27 +1,30 @@
 
-'use client';
-import { notFound, useParams } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import CourseDetailClient from './course-detail-client';
-import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { initializeFirebase } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
-export default function CourseDetailPage() {
-  const params = useParams();
-  const { id } = params;
-  const firestore = useFirestore();
-  
-  const courseRef = useMemoFirebase(() => firestore ? doc(firestore, 'courses', id as string) : null, [firestore, id]);
-  const { data: course, isLoading } = useDoc(courseRef);
+async function getCourse(id: string) {
+    // We need to initialize firebase on the server for this to work
+    const { firestore } = initializeFirebase();
+    const courseRef = doc(firestore, 'courses', id);
+    const courseSnap = await getDoc(courseRef);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+    if (!courseSnap.exists()) {
+        return null;
+    }
+    
+    return { ...courseSnap.data(), id: courseSnap.id };
+}
+
+
+export default async function CourseDetailPage({ params }: { params: { id: string } }) {
+  const course = await getCourse(params.id);
 
   if (!course) {
     notFound();
   }
 
+  // @ts-ignore
   return <CourseDetailClient course={course} />;
 }
-
-    
