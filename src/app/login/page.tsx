@@ -70,14 +70,16 @@ export default function LoginPage() {
     },
   });
 
-  if (user) {
-    toast({ title: 'Login Successful', description: 'Welcome back!' });
-    if (next) {
-      router.push(next);
-    } else {
-      router.push('/');
+  useEffect(() => {
+    if (user) {
+      toast({ title: 'Login Successful', description: 'Welcome back!' });
+      if (next) {
+        router.push(next);
+      } else {
+        router.push('/');
+      }
     }
-  }
+  }, [user, next, router, toast]);
 
   function onAdminSubmit(values: z.infer<typeof adminFormSchema>) {
     if (values.webId === 'DEV42NL8900' && values.password === 'Dev@adminz7') {
@@ -254,3 +256,5 @@ export default function LoginPage() {
     </>
   );
 }
+
+    
