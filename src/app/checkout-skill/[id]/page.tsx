@@ -2,7 +2,6 @@
 'use client';
 
 import { notFound, useParams } from 'next/navigation';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -13,10 +12,6 @@ import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
-
-const getPlaceholderImage = (id: string) => {
-  return PlaceHolderImages.find((img) => img.id === id);
-};
 
 export default function CheckoutSkillPage() {
   const params = useParams();
@@ -35,7 +30,6 @@ export default function CheckoutSkillPage() {
     notFound();
   }
 
-  const placeholder = getPlaceholderImage(skill.image);
   const price = skill.price || 499.99; // Example price
 
   return (
@@ -49,11 +43,10 @@ export default function CheckoutSkillPage() {
           <Card className="glass-card overflow-hidden">
             <CardHeader className="p-0">
               <div className="relative aspect-video">
-                {placeholder && (
+                {skill.posterUrl && (
                   <Image
-                    src={placeholder.imageUrl}
+                    src={skill.posterUrl}
                     alt={skill.title}
-                    data-ai-hint={placeholder.imageHint}
                     fill
                     className="object-cover"
                   />

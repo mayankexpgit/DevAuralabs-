@@ -1,7 +1,6 @@
 
 'use client';
 
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import Link from 'next/link';
@@ -13,10 +12,6 @@ import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { useMemo } from 'react';
-
-const getPlaceholderImage = (id: string) => {
-  return PlaceHolderImages.find((img) => img.id === id);
-};
 
 export default function MyLearningPage() {
   const { user, isUserLoading } = useUser();
@@ -95,17 +90,15 @@ export default function MyLearningPage() {
                     <h2 className="text-2xl font-bold mb-8 flex items-center gap-2"><BookOpen/> My Courses</h2>
                     <div className="space-y-8">
                     {purchasedCourses.map((course) => {
-                        const placeholder = getPlaceholderImage(course.image);
                         const progress = getProgress(course.id);
                         const lastAccessed = getLastAccessed(course.id);
                         return (
                         <Card key={course.id} className="glass-card flex flex-col md:flex-row overflow-hidden">
                             <div className="relative w-full md:w-52 h-48 md:h-auto flex-shrink-0">
-                            {placeholder && (
+                            {course.posterUrl && (
                                 <Image
-                                src={placeholder.imageUrl}
+                                src={course.posterUrl}
                                 alt={course.title}
-                                data-ai-hint={placeholder.imageHint}
                                 fill
                                 className="object-cover"
                                 />
@@ -148,17 +141,15 @@ export default function MyLearningPage() {
                     <h2 className="text-2xl font-bold mb-8 flex items-center gap-2"><Award/> Enrolled Programs</h2>
                      <div className="space-y-8">
                     {purchasedSkills.map((skill) => {
-                        const placeholder = getPlaceholderImage(skill.image);
                         const progress = getProgress(skill.id);
                         const lastAccessed = getLastAccessed(skill.id);
                         return (
                         <Card key={skill.id} className="glass-card flex flex-col md:flex-row overflow-hidden">
                             <div className="relative w-full md:w-52 h-48 md:h-auto flex-shrink-0">
-                            {placeholder && (
+                            {skill.posterUrl && (
                                 <Image
-                                src={placeholder.imageUrl}
+                                src={skill.posterUrl}
                                 alt={skill.title}
-                                data-ai-hint={placeholder.imageHint}
                                 fill
                                 className="object-cover"
                                 />
@@ -198,5 +189,3 @@ export default function MyLearningPage() {
     </div>
   );
 }
-
-    

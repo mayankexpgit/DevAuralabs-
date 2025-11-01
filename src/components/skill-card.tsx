@@ -1,7 +1,6 @@
 
 import Image from 'next/image';
 import { Progress } from '@/components/ui/progress';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { icons } from '@/lib/data';
 import { Button } from './ui/button';
 import { RippleEffect } from './ui/ripple-effect';
@@ -13,30 +12,24 @@ type Skill = {
   icon: string;
   progress: number;
   description: string;
-  image: string;
+  posterUrl: string;
 };
 
 type SkillCardProps = {
   skill: Skill;
 };
 
-const getPlaceholderImage = (id: string) => {
-  return PlaceHolderImages.find((img) => img.id === id);
-};
-
 export default function SkillCard({ skill }: SkillCardProps) {
-  const { id, title, icon, progress, description, image } = skill;
-  const placeholder = getPlaceholderImage(image);
+  const { id, title, icon, progress, description, posterUrl } = skill;
   const Icon = icons[icon];
 
   return (
     <div className="glass-card flex flex-col">
        <div className="relative h-48 w-full">
-        {placeholder && (
+        {posterUrl && (
             <Image
-                src={placeholder.imageUrl}
-                alt={placeholder.description}
-                data-ai-hint={placeholder.imageHint}
+                src={posterUrl}
+                alt={title}
                 fill
                 className="object-cover rounded-t-2xl"
             />

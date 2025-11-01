@@ -1,7 +1,6 @@
 
 'use client';
 
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -13,10 +12,6 @@ import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
-
-const getPlaceholderImage = (id: string) => {
-  return PlaceHolderImages.find((img) => img.id === id);
-};
 
 export default function CartPage() {
   const { user } = useUser();
@@ -57,15 +52,13 @@ export default function CartPage() {
         <div className="grid lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-6">
             {cartItems.map((item) => {
-              const placeholder = getPlaceholderImage(item.image);
               return (
                 <Card key={item.id} className="glass-card flex items-center overflow-hidden">
                   <div className="relative w-32 h-32 flex-shrink-0">
-                    {placeholder && (
+                    {item.posterUrl && (
                       <Image
-                        src={placeholder.imageUrl}
+                        src={item.posterUrl}
                         alt={item.title}
-                        data-ai-hint={placeholder.imageHint}
                         fill
                         className="object-cover"
                       />

@@ -26,7 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { RippleEffect } from './ui/ripple-effect';
 
 const formSchema = z.object({
@@ -37,7 +36,7 @@ const formSchema = z.object({
     z.number().positive({ message: 'Price must be a positive number.' })
   ),
   icon: z.string().min(1, { message: 'Icon is required.' }),
-  image: z.string().min(1, { message: 'Image is required.' }),
+  posterUrl: z.string().url({ message: 'Please enter a valid URL.' }),
   progress: z.preprocess(
     (a) => parseInt(z.string().parse(a), 10),
     z.number().min(0).max(100).default(0)
@@ -55,7 +54,7 @@ export default function AddSkillPageForm() {
       description: '',
       price: undefined,
       icon: '',
-      image: '',
+      posterUrl: '',
       progress: 0,
     },
   });
@@ -80,7 +79,6 @@ export default function AddSkillPageForm() {
   }
   
   const iconNames = Object.keys(icons);
-  const imageIds = PlaceHolderImages.filter(img => img.id.startsWith('skill-')).map(img => img.id);
 
   return (
     <Form {...form}>
@@ -142,8 +140,7 @@ export default function AddSkillPageForm() {
             />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <FormField
+        <FormField
             control={form.control}
             name="icon"
             render={({ field }) => (
@@ -162,28 +159,21 @@ export default function AddSkillPageForm() {
                 <FormMessage />
                 </FormItem>
             )}
-            />
-            <FormField
-            control={form.control}
-            name="image"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Image</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                    <SelectTrigger className="bg-background/50">
-                        <SelectValue placeholder="Select an image" />
-                    </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                    {imageIds.map(id => <SelectItem key={id} value={id}>{id}</SelectItem>)}
-                    </SelectContent>
-                </Select>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-        </div>
+        />
+
+        <FormField
+          control={form.control}
+          name="posterUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Skill Poster URL</FormLabel>
+              <FormControl>
+                <Input placeholder="https://example.com/image.png" {...field} className="bg-background/50"/>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <Button type="submit" size="lg" className="w-full gradient-btn gradient-btn-1 relative">
             Create Skill Program

@@ -1,6 +1,5 @@
 
 import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
@@ -15,20 +14,15 @@ type Course = {
   price: number;
   compareAtPrice?: number;
   description: string;
-  image: string;
+  posterUrl: string;
 };
 
 type CourseCardProps = {
   course: Course;
 };
 
-const getPlaceholderImage = (id: string) => {
-  return PlaceHolderImages.find((img) => img.id === id);
-};
-
 export default function CourseCard({ course }: CourseCardProps) {
-  const { title, icon, level, price, compareAtPrice, image, id } = course;
-  const placeholder = getPlaceholderImage(image);
+  const { title, icon, level, price, compareAtPrice, posterUrl, id } = course;
   const Icon = icons[icon];
   const { getConvertedPrice } = useCurrency();
 
@@ -38,11 +32,10 @@ export default function CourseCard({ course }: CourseCardProps) {
         <div
           className="absolute inset-0"
         >
-          {placeholder && (
+          {posterUrl && (
               <Image
-                  src={placeholder.imageUrl}
-                  alt={placeholder.description}
-                  data-ai-hint={placeholder.imageHint}
+                  src={posterUrl}
+                  alt={title}
                   fill
                   className="object-cover"
               />

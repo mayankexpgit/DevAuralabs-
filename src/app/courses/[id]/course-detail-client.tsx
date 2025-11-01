@@ -1,7 +1,6 @@
 
 'use client';
 
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -14,17 +13,13 @@ import { RippleEffect } from '@/components/ui/ripple-effect';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
 
-const getPlaceholderImage = (id: string) => {
-  return PlaceHolderImages.find((img) => img.id === id);
-};
-
 type Course = {
   id: string;
   title: string;
   level: string;
   price: number;
   description: string;
-  image: string;
+  posterUrl: string;
   compareAtPrice?: number;
   startDate?: string;
   endDate?: string;
@@ -97,18 +92,15 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     });
   };
 
-  const placeholder = getPlaceholderImage(course.image);
-
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="grid lg:grid-cols-5 gap-12">
         <div className="lg:col-span-3">
           <div className="relative aspect-video rounded-2xl overflow-hidden glass-card mb-8">
-            {placeholder && (
+            {course.posterUrl && (
               <Image
-                src={placeholder.imageUrl}
+                src={course.posterUrl}
                 alt={course.title}
-                data-ai-hint={placeholder.imageHint}
                 fill
                 className="object-cover"
               />
