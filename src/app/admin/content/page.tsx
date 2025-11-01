@@ -60,9 +60,11 @@ export default function ContentListPage() {
                     <TableCell>{course.level}</TableCell>
                     <TableCell>{getConvertedPrice(course.price)}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="hover:text-primary">
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <Link href={`/admin/edit-course/${course.id}`}>
+                        <Button variant="ghost" size="icon" className="hover:text-primary">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
                       <Button
                         variant="ghost"
                         size="icon"
@@ -105,9 +107,11 @@ export default function ContentListPage() {
                     <TableCell className="font-medium">{skill.title}</TableCell>
                     <TableCell>{getConvertedPrice(skill.price)}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" className="hover:text-primary">
-                        <Edit className="h-4 w-4" />
-                      </Button>
+                      <Link href={`/admin/edit-skill/${skill.id}`}>
+                        <Button variant="ghost" size="icon" className="hover:text-primary">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      </Link>
                       <Button
                         variant="ghost"
                         size="icon"
