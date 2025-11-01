@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 
 export default function GeneralSettingsPage() {
   const { toast } = useToast();
@@ -50,7 +52,14 @@ export default function GeneralSettingsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold">General Settings</h1>
+        <div className="flex items-center gap-4">
+            <Link href="/admin">
+                <Button variant="outline" size="icon">
+                    <ArrowLeft className="h-4 w-4" />
+                </Button>
+            </Link>
+            <h1 className="text-3xl font-bold">General Settings</h1>
+      </div>
       
       <Card className="glass-card">
         <CardHeader>
