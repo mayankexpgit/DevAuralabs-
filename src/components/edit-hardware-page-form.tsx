@@ -41,6 +41,9 @@ import {
 import { useRouter } from 'next/navigation';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Separator } from './ui/separator';
+import { useCurrency } from '@/context/currency-context';
+
+const CONVERSION_RATE_USD_TO_INR = 83.5;
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -59,19 +62,22 @@ const formSchema = z.object({
   category: z.string().min(1, { message: 'Category is required.' }),
 });
 
-export default function EditHardwarePageForm({ hardware }: { hardware: z.infer<typeof formSchema> & { id: string, imageUrls: string[] }}) {
+export default function EditHardwarePageForm({ hardware }: { hardware: z.infer<typeof formSchema> & { id: string, imageUrls: string[], price: number }}) {
   const { toast } = useToast();
   const firestore = useFirestore();
   const router = useRouter();
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [updatedItemTitle, setUpdatedItemTitle] = useState('');
+  const { currency } = useCurrency();
+
+  const priceInSelectedCurrency = currency === 'INR' ? hardware.price * CONVERSION_RATE_USD_TO_INR : hardware.price;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       ...hardware,
-      price: hardware.price?.toString() as any,
-      stock: hardware.stock?.toString() as any,
+      price: priceInSelectedCurrency,
+      currency: currency || 'INR',
       imageUrls: hardware.imageUrls.map(url => ({ value: url })),
       videoUrl: hardware.videoUrl || '',
     },
@@ -84,10 +90,18 @@ export default function EditHardwarePageForm({ hardware }: { hardware: z.infer<t
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) return;
+    
+    let priceInUSD = values.price;
+    if (values.currency === 'INR') {
+        priceInUSD = values.price / CONVERSION_RATE_USD_TO_INR;
+    }
+    
     const hardwareRef = doc(firestore, 'hardware', hardware.id);
     try {
       const dataToSave = {
         ...values,
+        price: priceInUSD,
+        currency: 'USD',
         imageUrls: values.imageUrls.map(item => item.value),
       };
       await updateDoc(hardwareRef, dataToSave);

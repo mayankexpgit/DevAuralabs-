@@ -40,6 +40,8 @@ import {
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 
+const CONVERSION_RATE_USD_TO_INR = 83.5;
+
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
@@ -84,10 +86,18 @@ export default function AddHardwarePageForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) return;
+
+    let priceInUSD = values.price;
+    if (values.currency === 'INR') {
+        priceInUSD = values.price / CONVERSION_RATE_USD_TO_INR;
+    }
+
     const hardwareCol = collection(firestore, 'hardware');
     try {
       const dataToSave = {
         ...values,
+        price: priceInUSD,
+        currency: 'USD',
         imageUrls: values.imageUrls.map(item => item.value),
       };
       await addDocumentNonBlocking(hardwareCol, dataToSave);

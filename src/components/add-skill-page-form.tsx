@@ -39,6 +39,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+const CONVERSION_RATE_USD_TO_INR = 83.5;
+
 const formSchema = z.object({
   title: z.string().min(2, { message: 'Title must be at least 2 characters.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
@@ -47,6 +49,7 @@ const formSchema = z.object({
     (a) => parseFloat(z.string().parse(a)),
     z.number().positive({ message: 'Price must be a positive number.' })
   ),
+  currency: z.enum(['USD', 'INR']),
   icon: z.string().min(1, { message: 'Icon is required.' }),
   posterUrl: z.string().url({ message: 'Please enter a valid URL.' }),
 });
@@ -64,6 +67,7 @@ export default function AddSkillPageForm() {
       description: '',
       whatYoullLearn: '',
       price: undefined,
+      currency: 'INR',
       icon: '',
       posterUrl: '',
     },
@@ -71,9 +75,22 @@ export default function AddSkillPageForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) return;
+    
+    let priceInUSD = values.price;
+    if (values.currency === 'INR') {
+        priceInUSD = values.price / CONVERSION_RATE_USD_TO_INR;
+    }
+
+    const dataToSave = {
+      ...values,
+      price: priceInUSD,
+      currency: 'USD', // Always store price in USD
+      progress: 0,
+    };
+
     const skillsCol = collection(firestore, 'skills');
     try {
-      await addDocumentNonBlocking(skillsCol, { ...values, progress: 0 }); // Adding progress
+      await addDocumentNonBlocking(skillsCol, dataToSave);
       setAddedItemTitle(values.title);
       setShowSuccessDialog(true);
       form.reset();
@@ -137,19 +154,43 @@ export default function AddSkillPageForm() {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Price</FormLabel>
-                <FormControl>
-                    <Input type="number" placeholder="499.99" {...field} className="bg-background/50"/>
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-          />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FormField
+                    control={form.control}
+                    name="price"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Price</FormLabel>
+                        <FormControl>
+                            <Input type="number" placeholder="499.99" {...field} className="bg-background/50"/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Currency</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger className="bg-background/50">
+                                <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            <SelectItem value="USD">USD ($)</SelectItem>
+                            <SelectItem value="INR">INR (₹)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
+
 
           <FormField
               control={form.control}
@@ -210,3 +251,5 @@ export default function AddSkillPageForm() {
     </>
   );
 }
+
+    

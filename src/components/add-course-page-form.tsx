@@ -43,6 +43,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+const CONVERSION_RATE_USD_TO_INR = 83.5;
+
 const formSchema = z.object({
   title: z.string().min(2, { message: 'Title must be at least 2 characters.' }),
   level: z.string().min(1, { message: 'Level is required.' }),
@@ -84,9 +86,21 @@ export default function AddCoursePageForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) return;
+    
+    let priceInUSD = values.price;
+    if (values.currency === 'INR') {
+      priceInUSD = values.price / CONVERSION_RATE_USD_TO_INR;
+    }
+
+    const dataToSave = {
+      ...values,
+      price: priceInUSD,
+      currency: 'USD', // Always store price in USD
+    };
+    
     const coursesCol = collection(firestore, 'courses');
     try {
-      await addDocumentNonBlocking(coursesCol, values);
+      await addDocumentNonBlocking(coursesCol, dataToSave);
       setAddedItemTitle(values.title);
       setShowSuccessDialog(true);
       form.reset();
@@ -342,3 +356,5 @@ export default function AddCoursePageForm() {
     </>
   );
 }
+
+    

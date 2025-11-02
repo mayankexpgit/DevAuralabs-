@@ -44,6 +44,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useRouter } from 'next/navigation';
+import { useCurrency } from '@/context/currency-context';
+
+const CONVERSION_RATE_USD_TO_INR = 83.5;
 
 const formSchema = z.object({
   title: z.string().min(2, { message: 'Title must be at least 2 characters.' }),
@@ -64,12 +67,15 @@ const formSchema = z.object({
   path: ['endDate'],
 });
 
-export default function EditCoursePageForm({ course }: { course: z.infer<typeof formSchema> & { id: string }}) {
+export default function EditCoursePageForm({ course }: { course: Partial<z.infer<typeof formSchema>> & { id: string, price: number }}) {
   const { toast } = useToast();
   const firestore = useFirestore();
   const router = useRouter();
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [updatedItemTitle, setUpdatedItemTitle] = useState('');
+  const { currency } = useCurrency();
+
+  const priceInSelectedCurrency = currency === 'INR' ? course.price * CONVERSION_RATE_USD_TO_INR : course.price;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,8 +84,8 @@ export default function EditCoursePageForm({ course }: { course: z.infer<typeof 
       level: course.level || '',
       description: course.description || '',
       whatYoullLearn: course.whatYoullLearn || '',
-      price: course.price?.toString() as any || '',
-      currency: course.currency || 'INR',
+      price: priceInSelectedCurrency,
+      currency: currency || 'INR',
       posterUrl: course.posterUrl || '',
       startDate: course.startDate ? new Date(course.startDate) : undefined,
       endDate: course.endDate ? new Date(course.endDate) : undefined,
@@ -89,9 +95,21 @@ export default function EditCoursePageForm({ course }: { course: z.infer<typeof 
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) return;
+
+    let priceInUSD = values.price;
+    if (values.currency === 'INR') {
+        priceInUSD = values.price / CONVERSION_RATE_USD_TO_INR;
+    }
+
+    const dataToUpdate = {
+        ...values,
+        price: priceInUSD,
+        currency: 'USD', // Always store price in USD
+    };
+
     const courseRef = doc(firestore, 'courses', course.id);
     try {
-      await updateDoc(courseRef, values);
+      await updateDoc(courseRef, dataToUpdate);
       setUpdatedItemTitle(values.title);
       setShowSuccessDialog(true);
     } catch (error: any) {
@@ -358,3 +376,5 @@ export default function EditCoursePageForm({ course }: { course: z.infer<typeof 
     </>
   );
 }
+
+    
