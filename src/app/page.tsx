@@ -20,7 +20,9 @@ export default function Home() {
     <div className="flex flex-col">
       <HeroSection />
       <div className="relative z-20 -mt-24 md:-mt-40">
-        <ShowcaseSection />
+        <div className="md:pr-20">
+          <ShowcaseSection />
+        </div>
       </div>
       <div className="container mx-auto px-4">
         <CoursesSection />
