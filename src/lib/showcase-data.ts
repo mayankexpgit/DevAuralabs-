@@ -15,4 +15,9 @@ export const showcaseImages = [
     alt: 'Web Development',
     url: 'https://i.ibb.co/DDtWW3zw/1000496339-removebg-preview.png',
   },
+  {
+    id: 'showcase-engagement-skill',
+    alt: 'Engagement Skill',
+    url: 'https://i.ibb.co/BHBKP0Xm/Adobe-Express-file.png',
+  },
 ];
