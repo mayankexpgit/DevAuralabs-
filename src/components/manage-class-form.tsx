@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useDoc, useFirestore } from '@/firebase';
+import { useFirestore } from '@/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, PlusCircle, Trash2 } from 'lucide-react';
@@ -34,6 +34,7 @@ const formSchema = z.object({
     url: z.string().url({ message: 'Please enter a valid URL.' }),
   })).optional(),
 });
+
 
 type ManageClassFormProps = {
   content: { id: string; title: string; };
@@ -79,7 +80,12 @@ export default function ManageClassForm({ content, collectionName }: ManageClass
     if (!firestore) return;
     const classDetailsRef = doc(firestore, collectionName, content.id, 'classDetails', 'details');
     try {
-      await setDoc(classDetailsRef, values, { merge: true });
+      // Filter out empty recorded videos before saving
+      const cleanedValues = {
+        ...values,
+        recordedVideos: values.recordedVideos?.filter(v => v.title.trim() !== '' && v.url.trim() !== '')
+      };
+      await setDoc(classDetailsRef, cleanedValues, { merge: true });
       toast({
         title: 'Success!',
         description: `Class details for "${content.title}" have been updated.`,
