@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Settings, LogOut, BookCopy, Award, List, Users } from 'lucide-react';
+import { Home, Settings, LogOut, BookCopy, Award, List, Users, View } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useAdmin } from '@/context/admin-context';
@@ -15,6 +15,7 @@ const navLinks = [
   { href: '/admin/users', label: 'Users', icon: Users },
   { href: '/admin/add-course', label: 'Add Course', icon: BookCopy },
   { href: '/admin/add-skill', label: 'Add Skill', icon: Award },
+  { href: '/admin/manage-classes', label: 'Manage Classes', icon: View },
   { href: '/admin/settings', label: 'General', icon: Settings },
 ];
 

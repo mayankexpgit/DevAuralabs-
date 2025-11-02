@@ -5,12 +5,13 @@ import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Users, ArrowLeft } from 'lucide-react';
+import { Loader2, Users, ArrowLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 const providerColor: { [key: string]: string } = {
   'google.com': 'bg-red-500/20 text-red-400 border-red-500/50',
@@ -20,8 +21,8 @@ const providerColor: { [key: string]: string } = {
 
 export default function UsersPage() {
     const firestore = useFirestore();
+    const router = useRouter();
     
-    // We are fetching from the root 'users' collection
     const usersQuery = useMemoFirebase(() => 
         firestore ? query(collection(firestore, 'users'), orderBy('metadata.creationTime', 'desc')) : null, 
         [firestore]
@@ -30,6 +31,10 @@ export default function UsersPage() {
 
     const getProviderBadge = (providerId: string) => {
         return <Badge variant="outline" className={providerColor[providerId] || providerColor['password']}>{providerId.split('.')[0]}</Badge>
+    }
+    
+    const handleRowClick = (userId: string) => {
+        router.push(`/admin/users/${userId}`);
     }
 
     return (
@@ -47,7 +52,7 @@ export default function UsersPage() {
                 <Card className="glass-card">
                     <CardHeader>
                         <CardTitle>Registered Users</CardTitle>
-                        <CardDescription>A list of all users who have created an account.</CardDescription>
+                        <CardDescription>A list of all users who have created an account. Click a user to view details.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -57,18 +62,19 @@ export default function UsersPage() {
                                     <TableHead>Email</TableHead>
                                     <TableHead>Provider</TableHead>
                                     <TableHead>Joined</TableHead>
+                                    <TableHead className="text-right"></TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center h-24">
+                                        <TableCell colSpan={5} className="text-center h-24">
                                             <Loader2 className="mx-auto h-8 w-8 animate-spin" />
                                         </TableCell>
                                     </TableRow>
                                 ) : users && users.length > 0 ? (
                                     users.map((user) => (
-                                        <TableRow key={user.uid}>
+                                        <TableRow key={user.uid} onClick={() => handleRowClick(user.uid)} className="cursor-pointer">
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
@@ -85,11 +91,14 @@ export default function UsersPage() {
                                             <TableCell className="text-muted-foreground">
                                                 {user.metadata?.creationTime ? formatDistanceToNow(new Date(user.metadata.creationTime), { addSuffix: true }) : 'N/A'}
                                             </TableCell>
+                                            <TableCell className="text-right">
+                                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center h-24">
+                                        <TableCell colSpan={5} className="text-center h-24">
                                             No users found.
                                         </TableCell>
                                     </TableRow>
