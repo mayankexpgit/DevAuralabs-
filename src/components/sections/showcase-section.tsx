@@ -13,7 +13,7 @@ import {
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
-import { useCollection, useFirestore } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection } from 'firebase/firestore';
 
 const CIRCULAR_EFFECT_FACTOR = 10;
@@ -132,7 +132,8 @@ export default function ShowcaseSection() {
   );
 
   const firestore = useFirestore();
-  const { data: showcaseImages } = useCollection(firestore ? collection(firestore, 'showcase') : null);
+  const showcaseQuery = useMemoFirebase(() => firestore ? collection(firestore, 'showcase') : null, [firestore]);
+  const { data: showcaseImages } = useCollection(showcaseQuery);
 
 
   useEffect(() => {
