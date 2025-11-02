@@ -147,7 +147,7 @@ export default function ShowcaseSection() {
             >
                 <CarouselContent style={{ transformStyle: 'preserve-3d' }}>
                     {showcaseImages.map((image, index) => (
-                        <CarouselItem key={image.id} className="sm:basis-1/2 md:basis-1/2 lg:basis-1/4 flex justify-center">
+                        <CarouselItem key={image.id} className="sm:basis-1/3 md:basis-1/4 lg:basis-1/5 flex justify-center">
                             <div className="p-1 h-full w-full max-w-md"
                               style={{
                                 ...(isMounted && transforms.length > index && {

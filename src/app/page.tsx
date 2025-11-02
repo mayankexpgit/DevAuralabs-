@@ -21,7 +21,7 @@ export default function Home() {
     <div className="flex flex-col">
       <HeroSection />
       <div className="relative z-20 -mt-24 md:-mt-32">
-        <div className="md:flex md:justify-end">
+        <div className="md:flex md:justify-center">
           <div className="md:w-auto">
              <ShowcaseSection />
           </div>
