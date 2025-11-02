@@ -63,8 +63,12 @@ export default function EditSkillPageForm({ skill }: { skill: z.infer<typeof for
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      ...skill,
-      price: skill.price?.toString() as any,
+      title: skill.title || '',
+      description: skill.description || '',
+      whatYoullLearn: skill.whatYoullLearn || '',
+      price: skill.price?.toString() as any || '',
+      icon: skill.icon || '',
+      posterUrl: skill.posterUrl || '',
     },
   });
 

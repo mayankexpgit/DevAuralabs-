@@ -74,8 +74,16 @@ export default function EditCoursePageForm({ course }: { course: z.infer<typeof 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      ...course,
-      price: course.price?.toString() as any, // The form expects a string
+      title: course.title || '',
+      level: course.level || '',
+      description: course.description || '',
+      whatYoullLearn: course.whatYoullLearn || '',
+      price: course.price?.toString() as any || '',
+      currency: course.currency || 'INR',
+      posterUrl: course.posterUrl || '',
+      startDate: course.startDate ? new Date(course.startDate) : undefined,
+      endDate: course.endDate ? new Date(course.endDate) : undefined,
+      duration: course.duration || '',
     },
   });
 
