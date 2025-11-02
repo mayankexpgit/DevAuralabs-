@@ -8,9 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, ShoppingCart, Video, Clapperboard, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
-import { useUser, useFirestore, useMemoFirebase, addDocumentNonBlocking, useCollection } from '@/firebase';
+import { useUser, useFirestore, useMemoFirebase, addDocumentNonBlocking, useCollection, useDoc } from '@/firebase';
 import { RippleEffect } from '@/components/ui/ripple-effect';
-import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
 import Link from 'next/link';
 
@@ -27,6 +27,12 @@ type Course = {
   endDate?: string;
 };
 
+type ClassDetails = {
+    liveClassUrl?: string;
+    liveClassTime?: Timestamp;
+    recordedVideos?: { title: string; url: string }[];
+}
+
 export default function CourseDetailClient({ course }: { course: Course }) {
   const router = useRouter();
   const { toast } = useToast();
@@ -40,6 +46,12 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     [firestore, user]
   );
   const { data: enrollments, isLoading: enrollmentsLoading } = useCollection(enrollmentsQuery);
+  
+  const classDetailsRef = useMemoFirebase(
+    () => (firestore ? doc(firestore, 'courses', course.id, 'classDetails', 'details') : null),
+    [firestore, course.id]
+  );
+  const { data: classDetails, isLoading: classDetailsLoading } = useDoc<ClassDetails>(classDetailsRef);
 
   useEffect(() => {
     setIsMounted(true);
@@ -65,7 +77,6 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     }
     
     const cartRef = collection(firestore, 'users', user.uid, 'cart');
-    // Check if item is already in cart, if so, maybe update quantity. For now, just add.
     addDocumentNonBlocking(cartRef, {
         ...course,
         quantity: 1,
@@ -83,22 +94,44 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     });
   };
   
-  const renderContentAccessButtons = () => (
-    <div className="space-y-4">
-      <Button asChild size="lg" className="w-full justify-start">
-        <Link href={'#'} target="_blank" rel="noopener noreferrer">
-          <Clapperboard className="mr-2 h-5 w-5" />
-          Join Live Class
-        </Link>
-      </Button>
-      <Button asChild size="lg" variant="outline" className="w-full justify-start">
-        <Link href={'#'} target="_blank" rel="noopener noreferrer">
-          <Video className="mr-2 h-5 w-5" />
-          Watch Recordings
-        </Link>
-      </Button>
-    </div>
-  );
+  const renderContentAccessButtons = () => {
+    const now = new Date();
+    let showLiveButton = false;
+
+    if (classDetails?.liveClassTime) {
+        const liveTime = classDetails.liveClassTime.toDate();
+        const startTime = new Date(liveTime.getTime() - 30 * 60 * 1000); // 30 mins before
+        const endTime = new Date(liveTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours after
+        if (now >= startTime && now <= endTime) {
+            showLiveButton = true;
+        }
+    }
+
+    return (
+        <div className="space-y-4">
+        {showLiveButton && classDetails?.liveClassUrl && (
+            <Button asChild size="lg" className="w-full justify-start">
+            <Link href={classDetails.liveClassUrl} target="_blank" rel="noopener noreferrer">
+                <Clapperboard className="mr-2 h-5 w-5" />
+                Join Live Class
+            </Link>
+            </Button>
+        )}
+        {classDetails?.recordedVideos && classDetails.recordedVideos.length > 0 && (
+             <div className="space-y-2">
+                {classDetails.recordedVideos.map((video, index) => (
+                    <Button asChild size="lg" variant="outline" className="w-full justify-start" key={index}>
+                        <Link href={video.url} target="_blank" rel="noopener noreferrer">
+                        <Video className="mr-2 h-5 w-5" />
+                        {video.title}
+                        </Link>
+                    </Button>
+                ))}
+             </div>
+        )}
+        </div>
+    )
+  };
 
   return (
     <div className="container mx-auto py-12 px-4">
@@ -133,8 +166,8 @@ export default function CourseDetailClient({ course }: { course: Course }) {
         </div>
         <div className="lg:col-span-2">
             <div className="glass-card p-8 sticky top-24">
-                {enrollmentsLoading && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
-                {!enrollmentsLoading && isPurchased ? (
+                {(enrollmentsLoading || classDetailsLoading) && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
+                {!(enrollmentsLoading || classDetailsLoading) && isPurchased ? (
                   <div>
                     <h2 className="text-2xl font-bold text-primary mb-6">Course Content</h2>
                     {renderContentAccessButtons()}
@@ -142,7 +175,7 @@ export default function CourseDetailClient({ course }: { course: Course }) {
                         You have lifetime access to this course.
                     </div>
                   </div>
-                ) : !enrollmentsLoading && (
+                ) : !(enrollmentsLoading || classDetailsLoading) && (
                   <>
                     <div className="flex items-baseline gap-2 mb-6">
                         <p className="text-3xl font-bold text-primary">{getConvertedPrice(course.price)}</p>
