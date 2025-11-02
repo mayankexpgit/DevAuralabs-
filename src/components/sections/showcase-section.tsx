@@ -163,8 +163,6 @@ export default function ShowcaseSection() {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious className='-left-4 hidden md:flex glass-icon-btn h-12 w-12 hover:bg-primary/20 hover:text-primary transform transition-transform hover:scale-110 active:scale-90' />
-                <CarouselNext className='-right-4 hidden md:flex glass-icon-btn h-12 w-12 hover:bg-primary/20 hover:text-primary transform transition-transform hover:scale-110 active:scale-90' />
             </Carousel>
         </div>
       </section>
