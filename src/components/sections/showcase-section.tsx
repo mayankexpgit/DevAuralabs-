@@ -2,7 +2,6 @@
 'use client';
 
 import Image from 'next/image';
-import { showcaseImages } from '@/lib/showcase-data';
 import { cn } from '@/lib/utils';
 import {
   Carousel,
@@ -14,6 +13,8 @@ import {
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import { useCollection, useFirestore } from '@/firebase';
+import { collection } from 'firebase/firestore';
 
 const CIRCULAR_EFFECT_FACTOR = 10;
 
@@ -130,6 +131,10 @@ export default function ShowcaseSection() {
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
 
+  const firestore = useFirestore();
+  const { data: showcaseImages } = useCollection(firestore ? collection(firestore, 'showcase') : null);
+
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -149,11 +154,11 @@ export default function ShowcaseSection() {
                 className="w-full"
             >
                 <CarouselContent style={{ transformStyle: 'preserve-3d' }}>
-                    {showcaseImages.map((image, index) => (
-                        <CarouselItem key={index} className="sm:basis-1/2 md:basis-1/2 lg:basis-1/4 flex justify-center">
+                    {showcaseImages?.map((image, index) => (
+                        <CarouselItem key={image.id} className="sm:basis-1/2 md:basis-1/2 lg:basis-1/4 flex justify-center">
                             <div className="p-1 h-full w-full max-w-md"
                               style={{
-                                ...(isMounted && transforms.length && {
+                                ...(isMounted && transforms.length > index && {
                                   opacity: transforms[index].opacity,
                                   transform: `scale(${transforms[index].scale}) rotateY(${transforms[index].rotateY}deg)`,
                                 }),

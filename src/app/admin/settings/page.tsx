@@ -9,10 +9,14 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2 } from 'lucide-react';
+import { useCollection, useFirestore, addDocumentNonBlocking } from '@/firebase';
+import { collection, deleteDoc, doc } from 'firebase/firestore';
+import Image from 'next/image';
 
 export default function GeneralSettingsPage() {
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   // Content state
   const [websiteName, setWebsiteName] = useState('DevAura Labs');
@@ -33,6 +37,11 @@ export default function GeneralSettingsPage() {
   const [instagramUrl, setInstagramUrl] = useState('#');
   const [whatsappUrl, setWhatsappUrl] = useState('#');
 
+  // Showcase state
+  const { data: showcaseItems, isLoading: showcaseLoading } = useCollection(firestore ? collection(firestore, 'showcase') : null);
+  const [newShowcaseUrl, setNewShowcaseUrl] = useState('');
+  const [newShowcaseAlt, setNewShowcaseAlt] = useState('');
+
   const handleSaveContent = () => {
     // In a real app, you'd save these values to your database.
     console.log({ websiteName, heroTitle, heroSubtitle, termsContent, privacyContent, contactInfo });
@@ -49,6 +58,49 @@ export default function GeneralSettingsPage() {
         description: 'Your social links have been updated.',
     });
   };
+  
+  const handleAddShowcaseItem = async () => {
+    if (!newShowcaseUrl || !newShowcaseAlt || !firestore) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please provide both an image URL and a title.',
+      });
+      return;
+    }
+    try {
+      await addDocumentNonBlocking(collection(firestore, 'showcase'), { url: newShowcaseUrl, alt: newShowcaseAlt });
+      toast({
+        title: 'Showcase Item Added!',
+        description: 'The new item has been added to your showcase.',
+      });
+      setNewShowcaseUrl('');
+      setNewShowcaseAlt('');
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to add showcase item.',
+      });
+    }
+  };
+
+  const handleDeleteShowcaseItem = async (id: string) => {
+    if (!firestore) return;
+    try {
+      await deleteDoc(doc(firestore, 'showcase', id));
+      toast({
+        title: 'Showcase Item Deleted!',
+        description: 'The item has been removed from your showcase.',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to delete showcase item.',
+      });
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -60,6 +112,56 @@ export default function GeneralSettingsPage() {
             </Link>
             <h1 className="text-3xl font-bold">General Settings</h1>
       </div>
+
+       <Card className="glass-card">
+        <CardHeader>
+          <CardTitle>Showcase Settings</CardTitle>
+          <CardDescription>Manage the images displayed in the homepage showcase carousel.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="space-y-4">
+            <Label>Current Showcase Items</Label>
+            {showcaseLoading ? (
+              <p>Loading showcase items...</p>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {showcaseItems?.map(item => (
+                  <div key={item.id} className="relative group">
+                    <Image src={item.url} alt={item.alt} width={150} height={150} className="rounded-md object-cover aspect-square" unoptimized/>
+                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="destructive" size="icon" onClick={() => handleDeleteShowcaseItem(item.id)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                     <p className="text-xs text-center mt-1 truncate" title={item.alt}>{item.alt}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="space-y-4 pt-4 border-t border-white/10">
+             <Label>Add New Showcase Item</Label>
+             <div className="flex flex-col sm:flex-row gap-4">
+                <Input 
+                    placeholder="Image URL"
+                    value={newShowcaseUrl}
+                    onChange={(e) => setNewShowcaseUrl(e.target.value)}
+                    className="bg-background/50 flex-1"
+                />
+                <Input 
+                    placeholder="Image Title/Alt Text"
+                    value={newShowcaseAlt}
+                    onChange={(e) => setNewShowcaseAlt(e.target.value)}
+                    className="bg-background/50 flex-1"
+                />
+             </div>
+             <Button onClick={handleAddShowcaseItem} disabled={!newShowcaseUrl || !newShowcaseAlt}>
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Item
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       
       <Card className="glass-card">
         <CardHeader>
