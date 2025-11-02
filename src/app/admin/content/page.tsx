@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, doc, deleteDoc } from 'firebase/firestore';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Video } from 'lucide-react';
 import { useCurrency } from '@/context/currency-context';
 import Link from 'next/link';
 import {
@@ -165,6 +165,17 @@ export default function ContentListPage() {
               </TableBody>
             </Table>
           </CardContent>
+        </Card>
+        
+        <Card className="glass-card">
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Video /> Manage Classes</CardTitle>
+                <CardDescription>Manage live and recorded class URLs for your courses and skill programs.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground mb-4">This section will allow you to add and update class links for your content.</p>
+                <Button variant="outline">Manage Class URLs</Button>
+            </CardContent>
         </Card>
 
         <AlertDialogContent>
