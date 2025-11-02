@@ -13,8 +13,7 @@ import {
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { showcaseImages } from '@/lib/showcase-data';
 
 const CIRCULAR_EFFECT_FACTOR = 10;
 
@@ -130,11 +129,6 @@ export default function ShowcaseSection() {
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
 
-  const firestore = useFirestore();
-  const showcaseQuery = useMemoFirebase(() => firestore ? collection(firestore, 'showcase') : null, [firestore]);
-  const { data: showcaseImages } = useCollection(showcaseQuery);
-
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -154,7 +148,7 @@ export default function ShowcaseSection() {
                 className="w-full"
             >
                 <CarouselContent style={{ transformStyle: 'preserve-3d' }}>
-                    {showcaseImages?.map((image, index) => (
+                    {showcaseImages.map((image, index) => (
                         <CarouselItem key={image.id} className="sm:basis-1/2 md:basis-1/2 lg:basis-1/4 flex justify-center">
                             <div className="p-1 h-full w-full max-w-md"
                               style={{
