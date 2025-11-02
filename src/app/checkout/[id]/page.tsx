@@ -12,6 +12,7 @@ import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
+import { Loader2 } from 'lucide-react';
 
 export default function CheckoutPage() {
   const params = useParams();
@@ -19,11 +20,11 @@ export default function CheckoutPage() {
   const firestore = useFirestore();
   const { getConvertedPrice } = useCurrency();
 
-  const courseRef = useMemoFirebase(() => firestore ? doc(firestore, 'courses', id as string) : null, [firestore, id]);
+  const courseRef = useMemoFirebase(() => firestore && id ? doc(firestore, 'courses', id as string) : null, [firestore, id]);
   const { data: course, isLoading } = useDoc(courseRef);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
   if (!course) {

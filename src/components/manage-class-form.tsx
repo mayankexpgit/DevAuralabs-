@@ -3,7 +3,7 @@
 
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import {
   Form,
   FormControl,
@@ -15,8 +15,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { useFirestore } from '@/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { useDoc, useFirestore } from '@/firebase';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon, PlusCircle, Trash2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
@@ -24,23 +24,19 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { RippleEffect } from './ui/ripple-effect';
 import { Separator } from './ui/separator';
+import { useEffect } from 'react';
 
 const formSchema = z.object({
   liveClassUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   liveClassTime: z.date().optional(),
-  recordedVideoTitle: z.string().optional(),
-  recordedVideoUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
+  recordedVideos: z.array(z.object({
+    title: z.string().min(1, { message: 'Title cannot be empty.' }),
+    url: z.string().url({ message: 'Please enter a valid URL.' }),
+  })).optional(),
 });
 
 type ManageClassFormProps = {
-  content: {
-    id: string;
-    title: string;
-    liveClassUrl?: string;
-    liveClassTime?: { toDate: () => Date };
-    recordedVideoTitle?: string;
-    recordedVideoUrl?: string;
-  };
+  content: { id: string; title: string; };
   collectionName: 'courses' | 'skills';
 };
 
@@ -51,23 +47,39 @@ export default function ManageClassForm({ content, collectionName }: ManageClass
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      liveClassUrl: content.liveClassUrl || '',
-      liveClassTime: content.liveClassTime?.toDate(),
-      recordedVideoTitle: content.recordedVideoTitle || '',
-      recordedVideoUrl: content.recordedVideoUrl || '',
+      liveClassUrl: '',
+      liveClassTime: undefined,
+      recordedVideos: [{ title: '', url: '' }],
     },
   });
 
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: 'recordedVideos',
+  });
+
+  useEffect(() => {
+    const fetchClassDetails = async () => {
+      if (!firestore) return;
+      const classDetailsRef = doc(firestore, collectionName, content.id, 'classDetails', 'details');
+      const classDetailsSnap = await getDoc(classDetailsRef);
+      if (classDetailsSnap.exists()) {
+        const data = classDetailsSnap.data();
+        form.reset({
+          liveClassUrl: data.liveClassUrl || '',
+          liveClassTime: data.liveClassTime?.toDate(),
+          recordedVideos: data.recordedVideos && data.recordedVideos.length > 0 ? data.recordedVideos : [{ title: '', url: '' }],
+        });
+      }
+    };
+    fetchClassDetails();
+  }, [firestore, collectionName, content.id, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!firestore) return;
-    const contentRef = doc(firestore, collectionName, content.id);
+    const classDetailsRef = doc(firestore, collectionName, content.id, 'classDetails', 'details');
     try {
-      await updateDoc(contentRef, {
-        liveClassUrl: values.liveClassUrl,
-        liveClassTime: values.liveClassTime,
-        recordedVideoTitle: values.recordedVideoTitle,
-        recordedVideoUrl: values.recordedVideoUrl,
-      });
+      await setDoc(classDetailsRef, values, { merge: true });
       toast({
         title: 'Success!',
         description: `Class details for "${content.title}" have been updated.`,
@@ -119,10 +131,9 @@ export default function ManageClassForm({ content, collectionName }: ManageClass
                             onSelect={field.onChange}
                             initialFocus
                         />
-                        {/* Basic Time input - can be improved with a dedicated time picker component */}
                         <input
                             type="time"
-                            className="w-full p-2 border-t"
+                            className="w-full p-2 border-t bg-background text-foreground"
                             value={field.value ? format(field.value, 'HH:mm') : ''}
                             onChange={(e) => {
                                 const newTime = e.target.value.split(':');
@@ -157,35 +168,56 @@ export default function ManageClassForm({ content, collectionName }: ManageClass
 
         <div>
             <h3 className="text-lg font-semibold mb-4">Recorded Videos</h3>
-            <div className="space-y-4 p-4 border rounded-md border-white/10">
-                <FormField
-                control={form.control}
-                name="recordedVideoTitle"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Recording Title</FormLabel>
-                    <FormControl>
-                        <Input placeholder="e.g., Week 1 - Introduction to Networks" {...field} className="bg-background/50"/>
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
-                 <FormField
-                control={form.control}
-                name="recordedVideoUrl"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Recording URL</FormLabel>
-                    <FormControl>
-                        <Input placeholder="https://youtube.com/watch?v=..." {...field} className="bg-background/50"/>
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-                />
+            <div className="space-y-6">
+              {fields.map((field, index) => (
+                <div key={field.id} className="space-y-4 p-4 border rounded-md border-white/10 relative">
+                    <FormField
+                    control={form.control}
+                    name={`recordedVideos.${index}.title`}
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Recording Title</FormLabel>
+                        <FormControl>
+                            <Input placeholder="e.g., Week 1 - Introduction" {...field} className="bg-background/50"/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name={`recordedVideos.${index}.url`}
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Recording URL</FormLabel>
+                        <FormControl>
+                            <Input placeholder="https://youtube.com/watch?v=..." {...field} className="bg-background/50"/>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-3 -right-3 h-7 w-7"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
+                </div>
+              ))}
             </div>
-            <Button variant="ghost" size="sm" className="mt-2 text-primary">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="mt-4 text-primary"
+              onClick={() => append({ title: '', url: '' })}
+            >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Another Recording
             </Button>

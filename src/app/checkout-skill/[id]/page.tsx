@@ -12,6 +12,7 @@ import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
+import { Loader2 } from 'lucide-react';
 
 export default function CheckoutSkillPage() {
   const params = useParams();
@@ -19,11 +20,11 @@ export default function CheckoutSkillPage() {
   const firestore = useFirestore();
   const { getConvertedPrice } = useCurrency();
 
-  const skillRef = useMemoFirebase(() => firestore ? doc(firestore, 'skills', id as string) : null, [firestore, id]);
+  const skillRef = useMemoFirebase(() => firestore && id ? doc(firestore, 'skills', id as string) : null, [firestore, id]);
   const { data: skill, isLoading } = useDoc(skillRef);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
   if (!skill) {
