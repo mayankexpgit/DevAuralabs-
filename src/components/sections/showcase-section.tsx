@@ -7,8 +7,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '@/components/ui/carousel';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
@@ -108,7 +106,7 @@ const ShowcaseCard = ({
         <p className="text-xs text-muted-foreground ml-auto font-bold">{title}</p>
       </div>
       <div className="relative flex-grow p-4 bg-black/20">
-        <div className="relative w-full h-full aspect-square">
+        <div className="relative w-full h-full aspect-square p-4">
             <Image
             className="object-contain"
             fill
