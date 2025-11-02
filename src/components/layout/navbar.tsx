@@ -115,7 +115,7 @@ export default function Navbar() {
         isDemo: true,
         displayName: 'Demo User',
         email: 'demo@devaura.labs',
-        photoURL: 'https://i.pravatar.cc/150?u=demo-user'
+        photoURL: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhU1f1x2Jn2LPIdLjfUCzHuqChIWFoTaByxJYw4ZrXCCkAYYuOlYiFdEl4Z7BujUvLrhk&usqp=CAU'
       }
     }
     return user;
