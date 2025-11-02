@@ -10,15 +10,16 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, deleteDoc, doc } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CartPage() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { getConvertedPrice } = useCurrency();
+  const { toast } = useToast();
 
-  // In a real app, you would fetch the cart from a subcollection on the user
   const cartQuery = useMemoFirebase(() => user ? collection(firestore, `users/${user.uid}/cart`) : null, [firestore, user]);
   const { data: cartItems, isLoading } = useCollection(cartQuery);
   
@@ -28,9 +29,21 @@ export default function CartPage() {
     setIsMounted(true);
   }, []);
 
-  const removeItem = (id: string) => {
-    // In a real app, you would remove this from Firestore
-    console.log("Remove item", id);
+  const removeItem = async (id: string) => {
+    if (!user || !firestore) return;
+    try {
+      await deleteDoc(doc(firestore, `users/${user.uid}/cart`, id));
+      toast({
+        title: 'Item Removed',
+        description: 'The item has been removed from your cart.',
+      });
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to remove item from cart.',
+      });
+    }
   };
   
   if (!isMounted || isLoading) {
@@ -40,6 +53,14 @@ export default function CartPage() {
   const subtotal = cartItems?.reduce((acc, item) => acc + item.price * (item.quantity || 1), 0) || 0;
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + tax;
+
+  const getCheckoutUrl = (item: any) => {
+    if(item.level) { // It's a course
+      return `/checkout/${item.id}`;
+    }
+    // It's a hardware item or something else
+    return `/checkout/hardware/${item.id}`;
+  }
 
   return (
     <div className="container mx-auto max-w-5xl py-12 px-4">
@@ -55,10 +76,10 @@ export default function CartPage() {
               return (
                 <Card key={item.id} className="glass-card flex items-center overflow-hidden">
                   <div className="relative w-32 h-32 flex-shrink-0">
-                    {item.posterUrl && (
+                    {(item.posterUrl || item.imageUrl) && (
                       <Image
-                        src={item.posterUrl}
-                        alt={item.title}
+                        src={item.posterUrl || item.imageUrl}
+                        alt={item.title || item.name}
                         fill
                         className="object-cover"
                       />
@@ -67,8 +88,8 @@ export default function CartPage() {
                   <CardContent className="p-4 flex-grow">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="text-lg font-bold">{item.title}</h3>
-                        <p className="text-sm text-muted-foreground">{item.level}</p>
+                        <h3 className="text-lg font-bold">{item.title || item.name}</h3>
+                        <p className="text-sm text-muted-foreground">{item.level || item.category}</p>
                       </div>
                       <p className="text-lg font-bold text-primary">{getConvertedPrice(item.price)}</p>
                     </div>
@@ -105,7 +126,7 @@ export default function CartPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                <Link href={`/checkout/${cartItems[0].id}`} className="w-full">
+                <Link href={getCheckoutUrl(cartItems[0])} className="w-full">
                   <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative">
                     Proceed to Checkout
                     <RippleEffect />
@@ -120,10 +141,16 @@ export default function CartPage() {
           <ShoppingBag className="mx-auto h-24 w-24 text-muted-foreground" />
           <h2 className="mt-6 text-2xl font-bold">Your cart is empty</h2>
           <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
-          <div className="mt-6">
+          <div className="mt-6 flex justify-center gap-4">
             <Link href="/courses">
                 <Button className="gradient-btn gradient-btn-2 relative">
                     Explore Courses
+                    <RippleEffect />
+                </Button>
+            </Link>
+            <Link href="/hardware">
+                <Button className="gradient-btn gradient-btn-1 relative">
+                    Browse Hardware
                     <RippleEffect />
                 </Button>
             </Link>
