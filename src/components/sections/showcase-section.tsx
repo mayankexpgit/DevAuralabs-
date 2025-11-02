@@ -7,7 +7,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
 } from '@/components/ui/carousel';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { EmblaCarouselType } from 'embla-carousel-react';
@@ -162,7 +161,6 @@ export default function ShowcaseSection() {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselNext className="static -translate-y-0 -translate-x-1/2 left-1/2 mt-4" />
             </Carousel>
         </div>
       </section>
