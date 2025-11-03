@@ -2,54 +2,44 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { useUser } from '@/firebase';
+import { signOut, getAuth } from 'firebase/auth';
 
 interface AdminContextType {
   isAdmin: boolean;
   isLoading: boolean;
-  login: () => void;
   logout: () => void;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-const ADMIN_STORAGE_KEY = 'dev-aura-admin-session';
+const ADMIN_EMAIL = 'admin9961@gmail.com';
 
 export function AdminProvider({ children }: { children: ReactNode }) {
+  const { user, isUserLoading } = useUser();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const storedValue = localStorage.getItem(ADMIN_STORAGE_KEY);
-      if (storedValue === 'true') {
+    // We are loading if the user auth state is still loading.
+    setIsLoading(isUserLoading);
+    if (!isUserLoading) {
+      // Once user auth state is resolved, determine admin status.
+      if (user && user.email === ADMIN_EMAIL) {
         setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
       }
-    } catch (error) {
-      console.warn('Could not read admin session from localStorage:', error);
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
-
-  const login = () => {
-    try {
-      localStorage.setItem(ADMIN_STORAGE_KEY, 'true');
-      setIsAdmin(true);
-    } catch (error) {
-      console.error('Could not save admin session to localStorage:', error);
-    }
-  };
+  }, [user, isUserLoading]);
 
   const logout = () => {
-    try {
-      localStorage.removeItem(ADMIN_STORAGE_KEY);
-      setIsAdmin(false);
-    } catch (error) {
-      console.error('Could not remove admin session from localStorage:', error);
-    }
+    const auth = getAuth();
+    signOut(auth);
+    setIsAdmin(false);
   };
 
-  const value = { isAdmin, isLoading, login, logout };
+  const value = { isAdmin, isLoading, login: () => {}, logout };
 
   return (
     <AdminContext.Provider value={value}>
