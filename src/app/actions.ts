@@ -50,33 +50,9 @@ export async function applyPromoCode(code: string, userId: string): Promise<{ su
         return { success: false, message: 'Please enter a promo code.' };
     }
     
-    // In demo mode, don't check for user-specific redemptions
-    if (userId === 'demo_user') {
-        const { firestore } = initializeFirebase();
-        const promoCodesRef = collection(firestore, 'promo_codes');
-        const q = query(promoCodesRef, where('code', '==', code.toUpperCase()));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-            return { success: false, message: 'Invalid promo code.' };
-        }
-        const promoDoc = querySnapshot.docs[0];
-        const promoData = promoDoc.data();
-        if (!promoData.isActive) {
-            return { success: false, message: 'This promo code is no longer active.' };
-        }
-        return {
-            success: true,
-            discount: promoData.discount,
-            message: `Success! ${promoData.discount}% discount applied.`,
-            codeId: promoDoc.id,
-        };
-    }
-
     const { firestore } = initializeFirebase();
     const promoCodesRef = collection(firestore, 'promo_codes');
     const q = query(promoCodesRef, where('code', '==', code.toUpperCase()));
-
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
@@ -88,6 +64,16 @@ export async function applyPromoCode(code: string, userId: string): Promise<{ su
 
     if (!promoData.isActive) {
         return { success: false, message: 'This promo code is no longer active.' };
+    }
+    
+    // In demo mode, don't check for user-specific redemptions
+    if (userId === 'demo_user') {
+        return {
+            success: true,
+            discount: promoData.discount,
+            message: `Success! ${promoData.discount}% discount applied.`,
+            codeId: promoDoc.id,
+        };
     }
 
     const redemptionsRef = collection(firestore, `promo_codes/${promoDoc.id}/redemptions`);
