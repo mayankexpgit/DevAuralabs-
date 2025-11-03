@@ -31,10 +31,16 @@ export async function createRazorpayOrder(amount: number, currency: string, isDe
     });
 
     const options = {
-        amount: amount * 100, // amount in the smallest currency unit
+        amount: Math.round(amount * 100), // amount in the smallest currency unit, rounded to nearest integer
         currency,
         receipt: `receipt_order_${randomBytes(10).toString('hex')}`,
     };
+    
+    if (options.amount < 100) { // Razorpay minimum is 1 INR or 1 USD
+        console.error('Order amount is too low:', options.amount);
+        return { success: false, error: 'The final amount is too low to process the payment.' };
+    }
+
 
     try {
         const order = await razorpay.orders.create(options);
@@ -66,7 +72,7 @@ export async function applyPromoCode(code: string, userId: string): Promise<{ su
         return { success: false, message: 'This promo code is no longer active.' };
     }
     
-    // In demo mode, don't check for user-specific redemptions
+    // In demo mode, don't check for user-specific redemptions but check total limit.
     if (userId === 'demo_user') {
         const totalRedemptionsSnapshot = await getDocs(collection(firestore, `promo_codes/${promoDoc.id}/redemptions`));
         if (totalRedemptionsSnapshot.size >= promoData.limit) {
