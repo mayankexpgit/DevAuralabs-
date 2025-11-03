@@ -48,10 +48,15 @@ export default function AuraAiChatPage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const logoImage = PlaceHolderImages.find(p => p.id === 'ai-logo');
   const router = useRouter();
+
+  // Speech Recognition state
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const recognitionRef = useRef<any>(null);
+
 
   const { user: regularUser, isUserLoading } = useUser();
   const { isAdmin, isLoading: isAdminLoading } = useAdmin();
@@ -82,6 +87,55 @@ export default function AuraAiChatPage() {
   }, [regularUser, isUserLoading, isAdmin, isAdminLoading, router]);
 
   const user = activeUser;
+  
+  // Speech Recognition Setup
+  useEffect(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = (event: any) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        setTranscript(finalTranscript);
+        setInput(input + finalTranscript + interimTranscript);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error("Speech recognition error", event.error);
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+    }
+  }, [input]);
+
+  const handleListen = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      setInput('');
+      setTranscript('');
+      recognitionRef.current?.start();
+      setIsListening(true);
+    }
+  };
+
 
   // Fetch user's chat sessions only when authentication is checked and a user is present.
   const chatSessionsQuery = useMemoFirebase(() => 
@@ -189,19 +243,6 @@ export default function AuraAiChatPage() {
     setIsSending(false);
   };
   
-  const startListening = () => {
-    setIsListening(true);
-    setTimeout(() => {
-        setInput("Hey Aura, can you help plan a weekend trip to the mountains?");
-        setIsListening(false);
-    }, 2500);
-  };
-
-  const stopListening = () => {
-    setIsListening(false);
-    handleSend("Hey Aura, can you help plan a weekend trip to the mountains?");
-  };
-
   if (!authChecked || !user) {
     return (
         <div className="h-screen w-full bg-black flex items-center justify-center">
@@ -322,14 +363,12 @@ export default function AuraAiChatPage() {
               rows={1}
               disabled={isSending}
             />
-            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening} disabled={isSending}>
-              <Mic className="h-5 w-5" />
+            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={handleListen} disabled={isSending}>
+              <Mic className={cn("h-5 w-5", isListening && "text-red-500")} />
             </Button>
             <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={() => handleSend()} disabled={isSending || !input.trim()}>
                 {isSending ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
-                ) : isListening ? (
-                    <Mic className="h-5 w-5" />
                 ) : (
                     <ChevronRight className="h-6 w-6" />
                 )}
@@ -385,14 +424,12 @@ export default function AuraAiChatPage() {
               rows={1}
               disabled={isSending}
             />
-            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={startListening} disabled={isSending}>
-              <Mic className="h-5 w-5" />
+            <Button size="icon" className="absolute right-12 bottom-2 aura-glass-btn h-8 w-8" onClick={handleListen} disabled={isSending}>
+              <Mic className={cn("h-5 w-5", isListening && "text-red-500")} />
             </Button>
-            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={isListening ? stopListening : () => handleSend()} disabled={isSending || !input.trim()}>
+            <Button size="icon" className={cn("absolute right-2 bottom-2 aura-send-btn", isListening && "listening-btn-glow")} onClick={() => handleSend()} disabled={isSending || !input.trim()}>
                  {isSending ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
-                ) : isListening ? (
-                    <Mic className="h-5 w-5" />
                 ) : (
                     <ChevronRight className="h-6 w-6" />
                 )}
