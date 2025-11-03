@@ -25,30 +25,48 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setIsLoading(isUserLoading);
     if (!isUserLoading) {
-      const sessionIsAdmin = sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
-      if (sessionIsAdmin || (user && user.email === ADMIN_EMAIL)) {
-        setIsAdmin(true);
-        sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-      } else {
+      try {
+        const sessionIsAdmin = sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+        if (sessionIsAdmin) {
+          setIsAdmin(true);
+        } else {
+          // Fallback to check if a logged-in Firebase user is the admin
+          if (user && user.email === ADMIN_EMAIL) {
+            setIsAdmin(true);
+            sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+          } else {
+            setIsAdmin(false);
+            sessionStorage.removeItem(ADMIN_SESSION_KEY);
+          }
+        }
+      } catch (error) {
+        console.warn('Could not access sessionStorage:', error);
         setIsAdmin(false);
-        sessionStorage.removeItem(ADMIN_SESSION_KEY);
       }
     }
   }, [user, isUserLoading]);
 
   const login = () => {
-    sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-    setIsAdmin(true);
+    try {
+      sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+      setIsAdmin(true);
+    } catch (error) {
+      console.error('Could not save admin session to sessionStorage:', error);
+    }
   };
   
   const logout = () => {
-    const auth = getAuth();
-    // Also sign out firebase user if logged in as admin
-    if (user && user.email === ADMIN_EMAIL) {
-        signOut(auth);
+    try {
+      // Also sign out firebase user if they happen to be the admin
+      if (user && user.email === ADMIN_EMAIL) {
+          const auth = getAuth();
+          signOut(auth);
+      }
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      setIsAdmin(false);
+    } catch (error) {
+      console.error('Could not remove admin session from sessionStorage:', error);
     }
-    sessionStorage.removeItem(ADMIN_SESSION_KEY);
-    setIsAdmin(false);
   };
 
   const value = { isAdmin, isLoading, login, logout };
