@@ -6,13 +6,14 @@ import Image from 'next/image';
 import Script from 'next/script';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
 import { Loader2 } from 'lucide-react';
-import { createRazorpayOrder } from '@/app/actions';
+import { createRazorpayOrder, applyPromoCode, recordPromoCodeRedemption } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 
@@ -22,16 +23,56 @@ export default function CheckoutSkillPage() {
   const params = useParams();
   const { id } = params;
   const firestore = useFirestore();
-  const { currency, getConvertedPrice } = useCurrency();
+  const { currency } = useCurrency();
   const { user } = useUser();
   const { toast } = useToast();
+
   const [isPaying, setIsPaying] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [appliedPromo, setAppliedPromo] = useState<{ codeId: string; discount: number } | null>(null);
+  const [isApplyingCode, setIsApplyingCode] = useState(false);
 
   const skillRef = useMemoFirebase(() => firestore && id ? doc(firestore, 'skills', id as string) : null, [firestore, id]);
   const { data: skill, isLoading } = useDoc(skillRef);
 
+  const getPriceInSelectedCurrency = (price: number) => {
+    return currency === 'INR' ? price * CONVERSION_RATE_USD_TO_INR : price;
+  };
+
+  const formatPrice = (price: number) => {
+    if (currency === 'INR') {
+      return `₹${price.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+    return `$${price.toFixed(2)}`;
+  };
+  
+  const price = skill?.price || 499.99;
+  const originalPrice = getPriceInSelectedCurrency(price);
+  const discountAmount = originalPrice * (discount / 100);
+  const finalPrice = originalPrice - discountAmount;
+
+  const handleApplyPromoCode = async () => {
+    if (!promoCode.trim() || !user) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Please enter a code.' });
+        return;
+    }
+    setIsApplyingCode(true);
+    const result = await applyPromoCode(promoCode, user.uid);
+    setIsApplyingCode(false);
+
+    if (result.success && result.discount && result.codeId) {
+        setDiscount(result.discount);
+        setAppliedPromo({ codeId: result.codeId, discount: result.discount });
+        toast({ title: 'Success!', description: result.message });
+    } else {
+        setDiscount(0);
+        setAppliedPromo(null);
+        toast({ variant: 'destructive', title: 'Error', description: result.message });
+    }
+  };
+
   const handlePayment = async () => {
-    const price = skill.price || 499.99;
     if (!skill || !user) {
         toast({ variant: 'destructive', title: 'Error', description: 'Skill or user not found.' });
         return;
@@ -39,8 +80,7 @@ export default function CheckoutSkillPage() {
 
     setIsPaying(true);
 
-    const priceInSelectedCurrency = currency === 'INR' ? price * CONVERSION_RATE_USD_TO_INR : price;
-    const result = await createRazorpayOrder(priceInSelectedCurrency, currency);
+    const result = await createRazorpayOrder(finalPrice, currency);
 
     if (!result.success || !result.order) {
         toast({ variant: 'destructive', title: 'Payment Error', description: result.error });
@@ -58,8 +98,11 @@ export default function CheckoutSkillPage() {
       description: `Payment for ${skill.title}`,
       image: 'https://i.ibb.co/20tFWD4P/IMG-20251019-191415-1.png',
       order_id: order.id,
-      handler: function (response: any) {
+      handler: async function (response: any) {
         toast({ title: 'Payment Successful!', description: `Payment ID: ${response.razorpay_payment_id}` });
+        if (appliedPromo) {
+           await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
+        }
         setIsPaying(false);
       },
       prefill: {
@@ -70,6 +113,7 @@ export default function CheckoutSkillPage() {
       notes: {
         skillId: skill.id,
         userId: user.uid,
+        promoCode: appliedPromo ? promoCode : 'N/A',
       },
       theme: {
         color: '#5222d0',
@@ -94,8 +138,6 @@ export default function CheckoutSkillPage() {
     notFound();
   }
 
-  const price = skill.price || 499.99; 
-
   return (
     <>
       <Script
@@ -109,7 +151,7 @@ export default function CheckoutSkillPage() {
         </div>
         <div className="grid md:grid-cols-2 gap-12">
           <div>
-            <Card className="glass-card overflow-hidden">
+            <Card className="glass-card overflow-hidden mb-8">
               <CardHeader className="p-0">
                 <div className="relative aspect-video">
                   {skill.posterUrl && (
@@ -125,25 +167,55 @@ export default function CheckoutSkillPage() {
               <CardContent className="p-6">
                 <h2 className="text-2xl font-bold">{skill.title}</h2>
                 <p className="text-muted-foreground mt-2">{skill.description}</p>
-                <Separator className="my-4 bg-white/10" />
-                <div className="flex justify-between items-center font-bold">
-                  <span className="text-muted-foreground">Price</span>
-                  <span className="text-primary text-xl">{getConvertedPrice(price)}</span>
-                </div>
               </CardContent>
             </Card>
+
+             <Card className="glass-card">
+                <CardHeader>
+                    <CardTitle>Apply Promo Code</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex gap-2">
+                        <Input 
+                            placeholder="Enter code" 
+                            value={promoCode}
+                            onChange={(e) => setPromoCode(e.target.value)}
+                            disabled={!!appliedPromo}
+                            className="bg-background/50"
+                        />
+                        <Button onClick={handleApplyPromoCode} disabled={isApplyingCode || !!appliedPromo}>
+                            {isApplyingCode ? <Loader2 className="h-4 w-4 animate-spin"/> : 'Apply'}
+                        </Button>
+                    </div>
+                </CardContent>
+             </Card>
+
           </div>
           <div>
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle>Confirm Order</CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">You are about to enroll in the program: <span className="font-bold text-foreground">"{skill.title}"</span>. Click the button below to proceed to payment.</p>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Original Price</span>
+                  <span>{formatPrice(originalPrice)}</span>
+                </div>
+                {discount > 0 && (
+                    <div className="flex justify-between text-green-400">
+                        <span className="text-muted-foreground">Discount ({discount}%)</span>
+                        <span>- {formatPrice(discountAmount)}</span>
+                    </div>
+                )}
+                <Separator className="my-2 bg-white/10" />
+                <div className="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span>{formatPrice(finalPrice)}</span>
+                </div>
               </CardContent>
               <CardFooter>
                 <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={handlePayment} disabled={isPaying}>
-                  {isPaying ? <Loader2 className="animate-spin" /> : `Pay ${getConvertedPrice(price)}`}
+                  {isPaying ? <Loader2 className="animate-spin" /> : `Pay ${formatPrice(finalPrice)}`}
                   {!isPaying && <RippleEffect />}
                 </Button>
               </CardFooter>
