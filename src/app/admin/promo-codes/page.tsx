@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, TicketPercent, Copy, Trash2 } from 'lucide-react';
+import { ArrowLeft, TicketPercent, Copy, Trash2, Users, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Switch } from '@/components/ui/switch';
@@ -23,22 +23,95 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { addDocumentNonBlocking, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection, serverTimestamp, deleteDoc, doc, updateDoc, setDoc, query, where } from 'firebase/firestore';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { formatDistanceToNow } from 'date-fns';
 
 type PromoCode = {
   id: string;
   code: string;
-  discount: string;
+  discount: number;
   limit: number;
   isActive: boolean;
+  createdAt: any;
 };
+
+type Redemption = {
+  id: string;
+  userId: string;
+  redemptionDate: any;
+};
+
+function RedeemedUsersList({ promoCodeId }: { promoCodeId: string }) {
+  const firestore = useFirestore();
+  const redemptionsQuery = useMemoFirebase(
+    () => firestore ? collection(firestore, `promo_codes/${promoCodeId}/redemptions`) : null,
+    [firestore, promoCodeId]
+  );
+  const { data: redemptions, isLoading: redemptionsLoading } = useCollection<Redemption>(redemptionsQuery);
+
+  const userIds = redemptions?.map(r => r.userId) || [];
+  const usersQuery = useMemoFirebase(
+    () => firestore && userIds.length > 0 ? query(collection(firestore, 'users'), where('__name__', 'in', userIds)) : null,
+    [firestore, userIds]
+  );
+  const { data: users, isLoading: usersLoading } = useCollection(usersQuery);
+
+  const isLoading = redemptionsLoading || usersLoading;
+
+  return (
+    <div className="max-h-96 overflow-y-auto">
+      {isLoading && <div className="flex justify-center p-4"><Loader2 className="animate-spin" /></div>}
+      {!isLoading && users && redemptions && users.length > 0 ? (
+        <ul className="space-y-4">
+          {users.map(user => {
+            const redemption = redemptions.find(r => r.userId === user.id);
+            return (
+              <li key={user.id} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Avatar>
+                    <AvatarImage src={user.photoURL} />
+                    <AvatarFallback>{user.displayName?.[0] || 'U'}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">{user.displayName}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {redemption?.redemptionDate ? formatDistanceToNow(redemption.redemptionDate.toDate(), { addSuffix: true }) : ''}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        !isLoading && <p className="text-center text-muted-foreground py-8">No one has redeemed this code yet.</p>
+      )}
+    </div>
+  );
+}
 
 export default function PromoCodesPage() {
   const { toast } = useToast();
+  const firestore = useFirestore();
+
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState('10');
   const [userLimit, setUserLimit] = useState('100');
   
-  const [existingCodes, setExistingCodes] = useState<PromoCode[]>([]);
+  const promoCodesQuery = useMemoFirebase(() => firestore ? collection(firestore, 'promo_codes') : null, [firestore]);
+  const { data: existingCodes, isLoading: codesLoading } = useCollection<PromoCode>(promoCodesQuery);
+
   const [codeToDelete, setCodeToDelete] = useState<PromoCode | null>(null);
 
   const generateCode = () => {
@@ -55,61 +128,90 @@ export default function PromoCodesPage() {
     });
   };
 
-  const handleSaveCode = () => {
-    if (!promoCode) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Please enter or generate a code first.',
-      });
+  const handleSaveCode = async () => {
+    if (!promoCode || !firestore) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Please enter or generate a code first.' });
       return;
     }
 
-    if (existingCodes.some(c => c.code === promoCode)) {
-      toast({
-        variant: 'destructive',
-        title: 'Duplicate Code',
-        description: 'This promo code already exists.',
-      });
+    if (existingCodes?.some(c => c.code === promoCode)) {
+      toast({ variant: 'destructive', title: 'Duplicate Code', description: 'This promo code already exists.' });
       return;
     }
     
-    const newCode: PromoCode = {
-      id: new Date().toISOString(),
+    const newCode = {
       code: promoCode,
-      discount: `${discount}%`,
+      discount: parseInt(discount),
       limit: parseInt(userLimit),
       isActive: true,
+      createdAt: serverTimestamp(),
     };
     
-    // In a real app, you'd save this to Firestore.
-    setExistingCodes(prev => [newCode, ...prev]);
+    try {
+      await addDocumentNonBlocking(collection(firestore, 'promo_codes'), newCode);
+      toast({
+        title: 'Promo Code Saved!',
+        description: `Code "${promoCode}" with a ${discount}% discount has been saved.`,
+      });
+      setPromoCode('');
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to save promo code.' });
+    }
+  };
+
+  const handleToggleActive = async (id: string, currentStatus: boolean) => {
+    if (!firestore) return;
+    const codeRef = doc(firestore, 'promo_codes', id);
+    try {
+      await updateDoc(codeRef, { isActive: !currentStatus });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to update code status.' });
+    }
+  };
+
+  const handleDeleteCode = async () => {
+    if (!codeToDelete || !firestore) return;
+    try {
+      await deleteDoc(doc(firestore, 'promo_codes', codeToDelete.id));
+      toast({
+        title: 'Code Deleted',
+        description: `Promo code "${codeToDelete.code}" has been removed.`,
+      });
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to delete code.' });
+    } finally {
+      setCodeToDelete(null);
+    }
+  };
+
+  // This is a temporary function to simulate a user redeeming a code.
+  const simulateRedemption = async (promoCodeId: string) => {
+    if (!firestore) return;
+    // In a real app, you would use the actual logged-in user's ID.
+    const mockUserId = 'mock_user_' + Math.random().toString(36).substr(2, 5);
+    const mockUserDisplayName = 'Demo User ' + Math.random().toString(36).substr(2, 3);
+    const mockUserEmail = `${mockUserId}@example.com`;
     
-    toast({
-      title: 'Promo Code Saved!',
-      description: `Code "${promoCode}" with a ${discount}% discount has been saved.`,
-    });
+    const redemptionRef = doc(firestore, `promo_codes/${promoCodeId}/redemptions`, mockUserId);
+    const userRef = doc(firestore, 'users', mockUserId);
+    
+    try {
+      // Create a mock user for demonstration
+      await setDoc(userRef, {
+        displayName: mockUserDisplayName,
+        email: mockUserEmail,
+        photoURL: `https://api.pravatar.cc/150?u=${mockUserId}`
+      });
 
-    // Reset generator fields
-    setPromoCode('');
-  };
-
-  const handleToggleActive = (id: string) => {
-    setExistingCodes(prev =>
-      prev.map(c => (c.id === id ? { ...c, isActive: !c.isActive } : c))
-    );
-  };
-
-  const handleDeleteCode = () => {
-    if (!codeToDelete) return;
-    setExistingCodes(prev => prev.filter(c => c.id !== codeToDelete.id));
-    toast({
-      title: 'Code Deleted',
-      description: `Promo code "${codeToDelete.code}" has been removed.`,
-    });
-    setCodeToDelete(null);
-  };
-
+      await setDoc(redemptionRef, {
+        userId: mockUserId,
+        redemptionDate: serverTimestamp(),
+      });
+      toast({ title: 'Simulated Redemption', description: `A demo user redeemed the code.` });
+    } catch (error) {
+       toast({ variant: 'destructive', title: 'Error', description: 'Failed to simulate redemption.' });
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -192,29 +294,54 @@ export default function PromoCodesPage() {
                     <TableHead>Code</TableHead>
                     <TableHead>Discount</TableHead>
                     <TableHead>Usage Limit</TableHead>
+                    <TableHead>Redeemed</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {existingCodes.length > 0 ? (
+                  {codesLoading ? (
+                     <TableRow>
+                      <TableCell colSpan={6} className="text-center h-24">
+                        <Loader2 className="h-6 w-6 animate-spin mx-auto" />
+                      </TableCell>
+                    </TableRow>
+                  ) : existingCodes && existingCodes.length > 0 ? (
                     existingCodes.map(c => (
                       <TableRow key={c.id}>
                         <TableCell className="font-mono">{c.code}</TableCell>
-                        <TableCell>{c.discount}</TableCell>
+                        <TableCell>{c.discount}%</TableCell>
                         <TableCell>{c.limit}</TableCell>
+                        <TableCell>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                               <Button variant="link" className="p-0 h-auto flex items-center gap-1 text-primary">
+                                <Users className="h-4 w-4" /> 
+                                View
+                               </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Redeemed By</DialogTitle>
+                                <DialogDescription>Users who have redeemed the code <strong className="font-mono">{c.code}</strong>.</DialogDescription>
+                              </DialogHeader>
+                              <RedeemedUsersList promoCodeId={c.id} />
+                            </DialogContent>
+                          </Dialog>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Switch
                               checked={c.isActive}
-                              onCheckedChange={() => handleToggleActive(c.id)}
+                              onCheckedChange={() => handleToggleActive(c.id, c.isActive)}
                             />
                             <Badge variant={c.isActive ? 'default' : 'destructive'}>
                               {c.isActive ? 'Active' : 'Disabled'}
                             </Badge>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right space-x-1">
+                          <Button variant="ghost" size="sm" onClick={() => simulateRedemption(c.id)}>Simulate Use</Button>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setCodeToDelete(c)}>
                               <Trash2 className="h-4 w-4" />
@@ -225,7 +352,7 @@ export default function PromoCodesPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                      <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
                         No promo codes have been created yet.
                       </TableCell>
                     </TableRow>
@@ -253,3 +380,5 @@ export default function PromoCodesPage() {
     </div>
   );
 }
+
+    
