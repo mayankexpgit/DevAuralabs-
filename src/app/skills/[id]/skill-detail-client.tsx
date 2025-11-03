@@ -54,7 +54,7 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
     setIsMounted(true);
   }, []);
 
-  const isPurchased = isMounted && (isDemoMode || (user && !enrollmentsLoading && enrollments?.some(e => e.skillId === skill.id)));
+  const isPurchased = isMounted && user && !enrollmentsLoading && enrollments?.some(e => e.skillId === skill.id);
 
   const learningPoints = skill.whatYoullLearn?.split('\n').filter(point => point.trim() !== '') || [];
   
@@ -109,6 +109,9 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
     );
   };
 
+  const shouldShowContent = isPurchased || (isDemoMode && isPurchased);
+  const shouldShowBuyButtons = !isPurchased || isDemoMode;
+
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="grid lg:grid-cols-5 gap-12">
@@ -140,7 +143,7 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
         <div className="lg:col-span-2">
             <div className="glass-card p-8 sticky top-24">
                 {(enrollmentsLoading || classDetailsLoading) && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
-                {!(enrollmentsLoading || classDetailsLoading) && isPurchased ? (
+                {!(enrollmentsLoading || classDetailsLoading) && shouldShowContent && !isDemoMode ? (
                      <div>
                         <h2 className="text-2xl font-bold text-primary mb-6">Program Content</h2>
                         {renderContentAccessButtons()}
@@ -148,7 +151,7 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
                             You have lifetime access to this program.
                         </div>}
                   </div>
-                ) : !(enrollmentsLoading || classDetailsLoading) && (
+                ) : !(enrollmentsLoading || classDetailsLoading) && shouldShowBuyButtons ? (
                     <>
                         <div className="flex items-baseline gap-2 mb-6">
                             <p className="text-3xl font-bold text-primary">{getConvertedPrice(price)}</p>
@@ -161,11 +164,11 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
                                 <RippleEffect />
                             </Button>
                         </div>
-                        <div className="mt-8 text-xs text-center text-muted-foreground">
+                        {!isDemoMode && <div className="mt-8 text-xs text-center text-muted-foreground">
                             3-Day Money-Back Guarantee
-                        </div>
+                        </div>}
                     </>
-                )}
+                ): null}
             </div>
         </div>
       </div>
