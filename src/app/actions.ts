@@ -49,6 +49,29 @@ export async function applyPromoCode(code: string, userId: string): Promise<{ su
     if (!code) {
         return { success: false, message: 'Please enter a promo code.' };
     }
+    
+    // In demo mode, don't check for user-specific redemptions
+    if (userId === 'demo_user') {
+        const { firestore } = initializeFirebase();
+        const promoCodesRef = collection(firestore, 'promo_codes');
+        const q = query(promoCodesRef, where('code', '==', code.toUpperCase()));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return { success: false, message: 'Invalid promo code.' };
+        }
+        const promoDoc = querySnapshot.docs[0];
+        const promoData = promoDoc.data();
+        if (!promoData.isActive) {
+            return { success: false, message: 'This promo code is no longer active.' };
+        }
+        return {
+            success: true,
+            discount: promoData.discount,
+            message: `Success! ${promoData.discount}% discount applied.`,
+            codeId: promoDoc.id,
+        };
+    }
 
     const { firestore } = initializeFirebase();
     const promoCodesRef = collection(firestore, 'promo_codes');
@@ -96,6 +119,11 @@ export async function recordPromoCodeRedemption(promoCodeId: string, userId: str
         console.error('Promo code ID or User ID is missing.');
         return { success: false, message: 'Failed to record redemption: Missing information.' };
     }
+     // In demo mode, don't record redemptions to the database.
+    if (userId === 'demo_user') {
+        console.log('Skipping redemption recording for demo user.');
+        return { success: true, message: 'Demo redemption not recorded.' };
+    }
     const { firestore } = initializeFirebase();
     const redemptionRef = doc(firestore, 'promo_codes', promoCodeId, 'redemptions', userId);
 
@@ -123,6 +151,12 @@ export async function enrollUserInContent(userId: string, contentId: string, con
     if (!userId || !contentId || !contentType) {
         return { success: false, message: 'Missing required information for enrollment.' };
     }
+    
+    // Do not create enrollments for the demo user.
+    if (userId === 'demo_user') {
+        console.log('Skipping enrollment for demo user.');
+        return { success: true, message: 'Enrollment skipped for demo user.' };
+    }
 
     const { firestore } = initializeFirebase();
     const enrollmentRef = collection(firestore, `users/${userId}/enrollments`);
@@ -143,3 +177,5 @@ export async function enrollUserInContent(userId: string, contentId: string, con
         return { success: false, message: 'Failed to enroll user.' };
     }
 }
+
+    

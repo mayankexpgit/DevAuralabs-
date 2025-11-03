@@ -60,7 +60,7 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
   
   const handleEnrollNow = () => {
     if (!isMounted || !firestore) return;
-    if (!user) {
+    if (!user && !isDemoMode) {
       router.push(`/signup?next=/checkout-skill/${skill.id}`);
     } else {
       router.push(`/checkout-skill/${skill.id}`);
@@ -109,7 +109,7 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
     );
   };
 
-  const shouldShowContent = isPurchased || (isDemoMode && isPurchased);
+  const shouldShowContent = isPurchased && !isDemoMode;
   const shouldShowBuyButtons = !isPurchased || isDemoMode;
 
   return (
@@ -143,13 +143,13 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
         <div className="lg:col-span-2">
             <div className="glass-card p-8 sticky top-24">
                 {(enrollmentsLoading || classDetailsLoading) && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
-                {!(enrollmentsLoading || classDetailsLoading) && shouldShowContent && !isDemoMode ? (
+                {!(enrollmentsLoading || classDetailsLoading) && shouldShowContent ? (
                      <div>
                         <h2 className="text-2xl font-bold text-primary mb-6">Program Content</h2>
                         {renderContentAccessButtons()}
-                        {!isDemoMode && <div className="mt-8 text-xs text-center text-muted-foreground">
+                        <div className="mt-8 text-xs text-center text-muted-foreground">
                             You have lifetime access to this program.
-                        </div>}
+                        </div>
                   </div>
                 ) : !(enrollmentsLoading || classDetailsLoading) && shouldShowBuyButtons ? (
                     <>
@@ -175,3 +175,5 @@ export default function SkillDetailClient({ skill }: { skill: Skill }) {
     </div>
   );
 }
+
+    

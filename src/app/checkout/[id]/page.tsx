@@ -7,7 +7,6 @@ import Script from 'next/script';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { RippleEffect } from '@/components/ui/ripple-effect';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
@@ -18,17 +17,39 @@ import { createRazorpayOrder, applyPromoCode, recordPromoCodeRedemption, enrollU
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useDemoUser } from '@/context/demo-user-context';
+import type { User } from 'firebase/auth';
 
 const CONVERSION_RATE_USD_TO_INR = 83.5;
+
+const getDemoUser = (): User => ({
+  uid: 'demo_user',
+  email: 'demo@devaura.labs',
+  displayName: 'Demo User',
+  photoURL: '',
+  phoneNumber: '555-555-5555',
+  emailVerified: true,
+  isAnonymous: false,
+  metadata: {},
+  providerData: [],
+  providerId: 'demo',
+  tenantId: null,
+  delete: async () => {},
+  getIdToken: async () => '',
+  getIdTokenResult: async () => ({} as any),
+  reload: async () => {},
+  toJSON: () => ({}),
+});
 
 export default function CheckoutPage() {
   const params = useParams();
   const { id } = params;
   const firestore = useFirestore();
   const { currency } = useCurrency();
-  const { user } = useUser();
+  const { user: realUser } = useUser();
   const { toast } = useToast();
   const { isDemoMode } = useDemoUser();
+  
+  const user = isDemoMode ? getDemoUser() : realUser;
   
   const [isPaying, setIsPaying] = useState(false);
   const [promoCode, setPromoCode] = useState('');
@@ -112,7 +133,10 @@ export default function CheckoutPage() {
       image: 'https://i.ibb.co/20tFWD4P/IMG-20251019-191415-1.png',
       order_id: order.id,
       handler: async function (response: any) {
-        await enrollUserInContent(user.uid, course.id, 'course');
+        // In demo mode, we don't record enrollment.
+        if (!isDemoMode) {
+          await enrollUserInContent(user.uid, course.id, 'course');
+        }
         if (appliedPromo) {
            await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
         }
@@ -148,7 +172,7 @@ export default function CheckoutPage() {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
-  if (!course) {
+  if (!course || (!realUser && !isDemoMode)) {
     notFound();
   }
 
@@ -240,3 +264,5 @@ export default function CheckoutPage() {
     </>
   );
 }
+
+    

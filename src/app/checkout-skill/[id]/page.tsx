@@ -17,17 +17,39 @@ import { createRazorpayOrder, applyPromoCode, recordPromoCodeRedemption, enrollU
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useDemoUser } from '@/context/demo-user-context';
+import type { User } from 'firebase/auth';
 
 const CONVERSION_RATE_USD_TO_INR = 83.5;
+
+const getDemoUser = (): User => ({
+  uid: 'demo_user',
+  email: 'demo@devaura.labs',
+  displayName: 'Demo User',
+  photoURL: '',
+  phoneNumber: '555-555-5555',
+  emailVerified: true,
+  isAnonymous: false,
+  metadata: {},
+  providerData: [],
+  providerId: 'demo',
+  tenantId: null,
+  delete: async () => {},
+  getIdToken: async () => '',
+  getIdTokenResult: async () => ({} as any),
+  reload: async () => {},
+  toJSON: () => ({}),
+});
 
 export default function CheckoutSkillPage() {
   const params = useParams();
   const { id } = params;
   const firestore = useFirestore();
   const { currency } = useCurrency();
-  const { user } = useUser();
+  const { user: realUser } = useUser();
   const { toast } = useToast();
   const { isDemoMode } = useDemoUser();
+
+  const user = isDemoMode ? getDemoUser() : realUser;
 
   const [isPaying, setIsPaying] = useState(false);
   const [promoCode, setPromoCode] = useState('');
@@ -111,7 +133,9 @@ export default function CheckoutSkillPage() {
       image: 'https://i.ibb.co/20tFWD4P/IMG-20251019-191415-1.png',
       order_id: order.id,
       handler: async function (response: any) {
-        await enrollUserInContent(user.uid, skill.id, 'skill');
+        if (!isDemoMode) {
+          await enrollUserInContent(user.uid, skill.id, 'skill');
+        }
         if (appliedPromo) {
            await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
         }
@@ -147,7 +171,7 @@ export default function CheckoutSkillPage() {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
-  if (!skill) {
+  if (!skill || (!realUser && !isDemoMode)) {
     notFound();
   }
 
@@ -239,3 +263,5 @@ export default function CheckoutSkillPage() {
     </>
   );
 }
+
+    

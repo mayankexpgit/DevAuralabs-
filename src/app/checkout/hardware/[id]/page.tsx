@@ -17,18 +17,40 @@ import { createRazorpayOrder, applyPromoCode, recordPromoCodeRedemption } from '
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useDemoUser } from '@/context/demo-user-context';
+import type { User } from 'firebase/auth';
 
 const CONVERSION_RATE_USD_TO_INR = 83.5;
+
+const getDemoUser = (): User => ({
+  uid: 'demo_user',
+  email: 'demo@devaura.labs',
+  displayName: 'Demo User',
+  photoURL: '',
+  phoneNumber: '555-555-5555',
+  emailVerified: true,
+  isAnonymous: false,
+  metadata: {},
+  providerData: [],
+  providerId: 'demo',
+  tenantId: null,
+  delete: async () => {},
+  getIdToken: async () => '',
+  getIdTokenResult: async () => ({} as any),
+  reload: async () => {},
+  toJSON: () => ({}),
+});
 
 export default function CheckoutHardwarePage() {
   const params = useParams();
   const { id } = params;
   const firestore = useFirestore();
   const { currency } = useCurrency();
-  const { user } = useUser();
+  const { user: realUser } = useUser();
   const { toast } = useToast();
   const { isDemoMode } = useDemoUser();
   
+  const user = isDemoMode ? getDemoUser() : realUser;
+
   const [isPaying, setIsPaying] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState(0);
@@ -110,7 +132,6 @@ export default function CheckoutHardwarePage() {
       image: 'https://i.ibb.co/20tFWD4P/IMG-20251019-191415-1.png',
       order_id: order.id,
       handler: async function (response: any) {
-        // Hardware purchases don't create enrollments, just record the promo if used.
         if (appliedPromo) {
            await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
         }
@@ -146,7 +167,7 @@ export default function CheckoutHardwarePage() {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
-  if (!hardware) {
+  if (!hardware || (!realUser && !isDemoMode)) {
     notFound();
   }
 
@@ -238,3 +259,5 @@ export default function CheckoutHardwarePage() {
     </>
   );
 }
+
+    

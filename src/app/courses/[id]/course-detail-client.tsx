@@ -65,7 +65,7 @@ export default function CourseDetailClient({ course }: { course: Course }) {
 
   const handleBuyNow = () => {
     if (!isMounted || !firestore) return;
-    if (!user) {
+    if (!user && !isDemoMode) {
       router.push(`/signup?next=/checkout/${course.id}`);
     } else {
       router.push(`/checkout/${course.id}`);
@@ -73,7 +73,16 @@ export default function CourseDetailClient({ course }: { course: Course }) {
   };
 
   const handleAddToCart = () => {
-    if (!isMounted || !user || !firestore) {
+    if (!isMounted || !firestore) return;
+    if (!user) {
+        if(isDemoMode) {
+             toast({
+                variant: 'destructive',
+                title: 'Action Not Available',
+                description: 'Adding to cart is disabled in demo mode. Please proceed with "Buy Now" to test the payment flow.',
+            });
+            return;
+        }
       router.push(`/signup?next=/courses/${course.id}`);
       return;
     }
@@ -135,7 +144,7 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     )
   };
 
-  const shouldShowContent = isPurchased || (isDemoMode && isPurchased);
+  const shouldShowContent = isPurchased && !isDemoMode;
   const shouldShowBuyButtons = !isPurchased || isDemoMode;
 
 
@@ -174,13 +183,13 @@ export default function CourseDetailClient({ course }: { course: Course }) {
             <div className="glass-card p-8 sticky top-24">
                 {(enrollmentsLoading || classDetailsLoading) && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
                 
-                {!(enrollmentsLoading || classDetailsLoading) && shouldShowContent && !isDemoMode ? (
+                {!(enrollmentsLoading || classDetailsLoading) && shouldShowContent ? (
                   <div>
                     <h2 className="text-2xl font-bold text-primary mb-6">Course Content</h2>
                     {renderContentAccessButtons()}
-                     {!isDemoMode && <div className="mt-8 text-xs text-center text-muted-foreground">
+                     <div className="mt-8 text-xs text-center text-muted-foreground">
                         You have lifetime access to this course.
-                    </div>}
+                    </div>
                   </div>
                 ) : !(enrollmentsLoading || classDetailsLoading) && shouldShowBuyButtons ? (
                   <>
@@ -212,3 +221,5 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     </div>
   );
 }
+
+    

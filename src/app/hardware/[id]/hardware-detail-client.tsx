@@ -11,7 +11,7 @@ import { useUser, useFirestore, addDocumentNonBlocking } from '@/firebase';
 import { RippleEffect } from '@/components/ui/ripple-effect';
 import { collection, serverTimestamp } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Carousel,
   CarouselContent,
@@ -19,7 +19,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/components/ui/carousel';
-import { Separator } from '@/components/ui/separator';
+import { useDemoUser } from '@/context/demo-user-context';
 
 type Hardware = {
   id: string;
@@ -51,6 +51,7 @@ export default function HardwareDetailClient({ hardware }: { hardware: Hardware 
   const { user } = useUser();
   const firestore = useFirestore();
   const { getConvertedPrice } = useCurrency();
+  const { isDemoMode } = useDemoUser();
 
   useEffect(() => {
     setIsMounted(true);
@@ -58,7 +59,7 @@ export default function HardwareDetailClient({ hardware }: { hardware: Hardware 
 
   const handleBuyNow = () => {
     if (!isMounted || !firestore) return;
-    if (!user) {
+    if (!user && !isDemoMode) {
       router.push(`/signup?next=/checkout/hardware/${hardware.id}`);
     } else {
       router.push(`/checkout/hardware/${hardware.id}`);
@@ -66,7 +67,16 @@ export default function HardwareDetailClient({ hardware }: { hardware: Hardware 
   };
 
   const handleAddToCart = () => {
-    if (!isMounted || !user || !firestore) {
+     if (!isMounted || !firestore) return;
+    if (!user) {
+        if(isDemoMode) {
+             toast({
+                variant: 'destructive',
+                title: 'Action Not Available',
+                description: 'Adding to cart is disabled in demo mode. Please proceed with "Buy Now" to test the payment flow.',
+            });
+            return;
+        }
       router.push(`/signup?next=/hardware/${hardware.id}`);
       return;
     }
