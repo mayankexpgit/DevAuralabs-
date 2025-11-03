@@ -45,9 +45,9 @@ export default function CheckoutHardwarePage() {
   const { id } = params;
   const firestore = useFirestore();
   const { currency } = useCurrency();
-  const { user: realUser } = useUser();
+  const { user: realUser, isUserLoading } = useUser();
   const { toast } = useToast();
-  const { isDemoMode } = useDemoUser();
+  const { isDemoMode, isLoading: isDemoLoading } = useDemoUser();
   
   const user = isDemoMode ? getDemoUser() : realUser;
 
@@ -58,7 +58,7 @@ export default function CheckoutHardwarePage() {
   const [isApplyingCode, setIsApplyingCode] = useState(false);
 
   const hardwareRef = useMemoFirebase(() => firestore && id ? doc(firestore, 'hardware', id as string) : null, [firestore, id]);
-  const { data: hardware, isLoading } = useDoc(hardwareRef);
+  const { data: hardware, isLoading: isHardwareLoading } = useDoc(hardwareRef);
 
   const getPriceInSelectedCurrency = (price: number) => {
     return currency === 'INR' ? price * CONVERSION_RATE_USD_TO_INR : price;
@@ -163,11 +163,13 @@ export default function CheckoutHardwarePage() {
     rzp.open();
   };
 
+  const isLoading = isHardwareLoading || isUserLoading || isDemoLoading;
+
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
-  if (!hardware || (!realUser && !isDemoMode)) {
+  if (!hardware || (!user && !isDemoMode)) {
     notFound();
   }
 
@@ -259,5 +261,3 @@ export default function CheckoutHardwarePage() {
     </>
   );
 }
-
-    

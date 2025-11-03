@@ -45,9 +45,9 @@ export default function CheckoutSkillPage() {
   const { id } = params;
   const firestore = useFirestore();
   const { currency } = useCurrency();
-  const { user: realUser } = useUser();
+  const { user: realUser, isUserLoading } = useUser();
   const { toast } = useToast();
-  const { isDemoMode } = useDemoUser();
+  const { isDemoMode, isLoading: isDemoLoading } = useDemoUser();
 
   const user = isDemoMode ? getDemoUser() : realUser;
 
@@ -58,7 +58,7 @@ export default function CheckoutSkillPage() {
   const [isApplyingCode, setIsApplyingCode] = useState(false);
 
   const skillRef = useMemoFirebase(() => firestore && id ? doc(firestore, 'skills', id as string) : null, [firestore, id]);
-  const { data: skill, isLoading } = useDoc(skillRef);
+  const { data: skill, isLoading: isSkillLoading } = useDoc(skillRef);
 
   const getPriceInSelectedCurrency = (price: number) => {
     return currency === 'INR' ? price * CONVERSION_RATE_USD_TO_INR : price;
@@ -133,11 +133,11 @@ export default function CheckoutSkillPage() {
       image: 'https://i.ibb.co/20tFWD4P/IMG-20251019-191415-1.png',
       order_id: order.id,
       handler: async function (response: any) {
-        if (!isDemoMode) {
-          await enrollUserInContent(user.uid, skill.id, 'skill');
-        }
         if (appliedPromo) {
            await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
+        }
+        if (!isDemoMode) {
+          await enrollUserInContent(user.uid, skill.id, 'skill');
         }
         toast({ title: 'Payment Successful!', description: `You are now enrolled in ${skill.title}. Payment ID: ${response.razorpay_payment_id}` });
         setIsPaying(false);
@@ -167,11 +167,13 @@ export default function CheckoutSkillPage() {
     rzp.open();
   };
 
+  const isLoading = isSkillLoading || isUserLoading || isDemoLoading;
+
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
-  if (!skill || (!realUser && !isDemoMode)) {
+  if (!skill || (!user && !isDemoMode)) {
     notFound();
   }
 
@@ -263,5 +265,3 @@ export default function CheckoutSkillPage() {
     </>
   );
 }
-
-    

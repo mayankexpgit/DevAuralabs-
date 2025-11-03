@@ -15,7 +15,7 @@ import { useCurrency } from '@/context/currency-context';
 import { Loader2 } from 'lucide-react';
 import { createRazorpayOrder, applyPromoCode, recordPromoCodeRedemption, enrollUserInContent } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDemoUser } from '@/context/demo-user-context';
 import type { User } from 'firebase/auth';
 
@@ -45,9 +45,9 @@ export default function CheckoutPage() {
   const { id } = params;
   const firestore = useFirestore();
   const { currency } = useCurrency();
-  const { user: realUser } = useUser();
+  const { user: realUser, isUserLoading } = useUser();
   const { toast } = useToast();
-  const { isDemoMode } = useDemoUser();
+  const { isDemoMode, isLoading: isDemoLoading } = useDemoUser();
   
   const user = isDemoMode ? getDemoUser() : realUser;
   
@@ -59,7 +59,7 @@ export default function CheckoutPage() {
 
 
   const courseRef = useMemoFirebase(() => firestore && id ? doc(firestore, 'courses', id as string) : null, [firestore, id]);
-  const { data: course, isLoading } = useDoc(courseRef);
+  const { data: course, isLoading: isCourseLoading } = useDoc(courseRef);
 
   const getPriceInSelectedCurrency = (price: number) => {
     return currency === 'INR' ? price * CONVERSION_RATE_USD_TO_INR : price;
@@ -133,12 +133,12 @@ export default function CheckoutPage() {
       image: 'https://i.ibb.co/20tFWD4P/IMG-20251019-191415-1.png',
       order_id: order.id,
       handler: async function (response: any) {
+        if (appliedPromo) {
+           await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
+        }
         // In demo mode, we don't record enrollment.
         if (!isDemoMode) {
           await enrollUserInContent(user.uid, course.id, 'course');
-        }
-        if (appliedPromo) {
-           await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
         }
         toast({ title: 'Payment Successful!', description: `You are now enrolled in ${course.title}. Payment ID: ${response.razorpay_payment_id}` });
         setIsPaying(false);
@@ -168,11 +168,13 @@ export default function CheckoutPage() {
     rzp.open();
   };
 
+  const isLoading = isCourseLoading || isUserLoading || isDemoLoading;
+
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
-
-  if (!course || (!realUser && !isDemoMode)) {
+  
+  if (!course || (!user && !isDemoMode)) {
     notFound();
   }
 
@@ -264,5 +266,3 @@ export default function CheckoutPage() {
     </>
   );
 }
-
-    
