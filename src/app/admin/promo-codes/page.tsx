@@ -7,14 +7,39 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, TicketPercent, Copy } from 'lucide-react';
+import { ArrowLeft, TicketPercent, Copy, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
+type PromoCode = {
+  id: string;
+  code: string;
+  discount: string;
+  limit: number;
+  isActive: boolean;
+};
 
 export default function PromoCodesPage() {
   const { toast } = useToast();
   const [promoCode, setPromoCode] = useState('');
   const [discount, setDiscount] = useState('10');
   const [userLimit, setUserLimit] = useState('100');
+  
+  const [existingCodes, setExistingCodes] = useState<PromoCode[]>([]);
+  const [codeToDelete, setCodeToDelete] = useState<PromoCode | null>(null);
 
   const generateCode = () => {
     const code = `DEVAURA${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
@@ -32,24 +57,59 @@ export default function PromoCodesPage() {
 
   const handleSaveCode = () => {
     if (!promoCode) {
-         toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Please enter or generate a code first.',
-        });
-        return;
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Please enter or generate a code first.',
+      });
+      return;
     }
+
+    if (existingCodes.some(c => c.code === promoCode)) {
+      toast({
+        variant: 'destructive',
+        title: 'Duplicate Code',
+        description: 'This promo code already exists.',
+      });
+      return;
+    }
+    
+    const newCode: PromoCode = {
+      id: new Date().toISOString(),
+      code: promoCode,
+      discount: `${discount}%`,
+      limit: parseInt(userLimit),
+      isActive: true,
+    };
+    
     // In a real app, you'd save this to Firestore.
-    console.log({
-        code: promoCode,
-        discount: `${discount}%`,
-        limit: parseInt(userLimit),
-    });
+    setExistingCodes(prev => [newCode, ...prev]);
+    
     toast({
-        title: 'Promo Code Saved!',
-        description: `Code "${promoCode}" with a ${discount}% discount and a limit of ${userLimit} users has been saved.`,
+      title: 'Promo Code Saved!',
+      description: `Code "${promoCode}" with a ${discount}% discount has been saved.`,
     });
+
+    // Reset generator fields
+    setPromoCode('');
   };
+
+  const handleToggleActive = (id: string) => {
+    setExistingCodes(prev =>
+      prev.map(c => (c.id === id ? { ...c, isActive: !c.isActive } : c))
+    );
+  };
+
+  const handleDeleteCode = () => {
+    if (!codeToDelete) return;
+    setExistingCodes(prev => prev.filter(c => c.id !== codeToDelete.id));
+    toast({
+      title: 'Code Deleted',
+      description: `Promo code "${codeToDelete.code}" has been removed.`,
+    });
+    setCodeToDelete(null);
+  };
+
 
   return (
     <div className="space-y-8">
@@ -119,16 +179,77 @@ export default function PromoCodesPage() {
         </CardContent>
       </Card>
       
-       <Card className="glass-card">
-        <CardHeader>
-          <CardTitle>Existing Promo Codes</CardTitle>
-          <CardDescription>This is a placeholder for where existing codes would be listed and managed.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <p className="text-muted-foreground">Feature coming soon.</p>
-        </CardContent>
-      </Card>
-
+       <AlertDialog>
+        <Card className="glass-card">
+          <CardHeader>
+            <CardTitle>Existing Promo Codes</CardTitle>
+            <CardDescription>List of all created discount codes.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Discount</TableHead>
+                    <TableHead>Usage Limit</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {existingCodes.length > 0 ? (
+                    existingCodes.map(c => (
+                      <TableRow key={c.id}>
+                        <TableCell className="font-mono">{c.code}</TableCell>
+                        <TableCell>{c.discount}</TableCell>
+                        <TableCell>{c.limit}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={c.isActive}
+                              onCheckedChange={() => handleToggleActive(c.id)}
+                            />
+                            <Badge variant={c.isActive ? 'default' : 'destructive'}>
+                              {c.isActive ? 'Active' : 'Disabled'}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="text-destructive" onClick={() => setCodeToDelete(c)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
+                        No promo codes have been created yet.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+          </CardContent>
+        </Card>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the promo code{' '}
+              <strong className="font-mono">{codeToDelete?.code}</strong>. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setCodeToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteCode} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
