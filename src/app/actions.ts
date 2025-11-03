@@ -18,7 +18,7 @@ export async function getCourseRecommendations(input: AIPoweredCourseRecommendat
 }
 
 export async function createRazorpayOrder(amount: number, currency: string, isDemoMode: boolean) {
-    const keyId = isDemoMode ? process.env.RAZORPAY_KEY_ID_TEST : process.env.RAZORPAY_KEY_ID_LIVE;
+    const keyId = isDemoMode ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_LIVE;
     const keySecret = isDemoMode ? process.env.RAZORPAY_KEY_SECRET_TEST : process.env.RAZORPAY_KEY_SECRET_LIVE;
 
     if (!keyId || !keySecret) {
@@ -68,6 +68,10 @@ export async function applyPromoCode(code: string, userId: string): Promise<{ su
     
     // In demo mode, don't check for user-specific redemptions
     if (userId === 'demo_user') {
+        const totalRedemptionsSnapshot = await getDocs(collection(firestore, `promo_codes/${promoDoc.id}/redemptions`));
+        if (totalRedemptionsSnapshot.size >= promoData.limit) {
+            return { success: false, message: 'This promo code has reached its usage limit.' };
+        }
         return {
             success: true,
             discount: promoData.discount,
@@ -163,5 +167,3 @@ export async function enrollUserInContent(userId: string, contentId: string, con
         return { success: false, message: 'Failed to enroll user.' };
     }
 }
-
-    
