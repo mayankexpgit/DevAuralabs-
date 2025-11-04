@@ -20,7 +20,6 @@ export async function getCourseRecommendations(input: AIPoweredCourseRecommendat
 
 export async function createRazorpayOrder(amount: number, currency: string) {
     const isProduction = process.env.NODE_ENV === 'production';
-    // Use NEXT_PUBLIC_ for test keys as they are public, but server-only for live keys.
     const keyId = isProduction ? process.env.RAZORPAY_KEY_ID_LIVE : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
     const keySecret = isProduction ? process.env.RAZORPAY_KEY_SECRET_LIVE : process.env.RAZORPAY_KEY_SECRET_TEST;
 
@@ -34,7 +33,6 @@ export async function createRazorpayOrder(amount: number, currency: string) {
         key_secret: keySecret,
     });
     
-    // Amount should be an integer in the smallest currency unit.
     const amountInSmallestUnit = Math.round(amount * 100);
 
     if (amountInSmallestUnit < 100 && currency === 'INR') { // Minimum 1 INR
@@ -78,7 +76,6 @@ export async function applyPromoCode(code: string, userId: string): Promise<{ su
         return { success: false, message: 'This promo code is no longer active.' };
     }
     
-    // In demo mode, don't check for user-specific redemptions but check total limit.
     if (userId === 'demo_user') {
         const totalRedemptionsSnapshot = await getDocs(collection(firestore, `promo_codes/${promoDoc.id}/redemptions`));
         if (totalRedemptionsSnapshot.size >= promoData.limit) {
@@ -94,13 +91,11 @@ export async function applyPromoCode(code: string, userId: string): Promise<{ su
 
     const redemptionsRef = collection(firestore, `promo_codes/${promoDoc.id}/redemptions`);
     
-    // Check total redemptions
     const redemptionsSnapshot = await getDocs(redemptionsRef);
     if (redemptionsSnapshot.size >= promoData.limit) {
         return { success: false, message: 'This promo code has reached its usage limit.' };
     }
 
-    // Check if user has already redeemed
     const userRedemptionRef = doc(redemptionsRef, userId);
     const userRedemptionSnap = await getDoc(userRedemptionRef);
     if (userRedemptionSnap.exists()) {
@@ -121,8 +116,7 @@ export async function recordPromoCodeRedemption(promoCodeId: string, userId: str
         console.error('Promo code ID or User ID is missing.');
         return { success: false, message: 'Failed to record redemption: Missing information.' };
     }
-     // In demo mode, don't record redemptions to the database.
-    if (userId === 'demo_user') {
+     if (userId === 'demo_user') {
         console.log('Skipping redemption recording for demo user.');
         return { success: true, message: 'Demo redemption not recorded.' };
     }
@@ -133,7 +127,6 @@ export async function recordPromoCodeRedemption(promoCodeId: string, userId: str
         await runTransaction(firestore, async (transaction) => {
             const redemptionSnap = await transaction.get(redemptionRef);
             if (redemptionSnap.exists()) {
-                // User has already redeemed it, maybe in a race condition.
                 console.log(`User ${userId} already redeemed code ${promoCodeId}.`);
                 return;
             }
@@ -154,66 +147,27 @@ export async function enrollUserInContent(userId: string, contentId: string, con
         return { success: false, message: 'Missing required information for enrollment.' };
     }
     
-    // Do not create enrollments for the demo user.
     if (userId === 'demo_user') {
         console.log('Skipping enrollment for demo user.');
         return { success: true, message: 'Enrollment skipped for demo user.' };
     }
 
     const { firestore } = initializeFirebase();
-    // Use the contentId as the document ID for efficient lookup in security rules.
     const enrollmentRef = doc(firestore, `users/${userId}/enrollments`, contentId);
 
     const newEnrollment = {
         userId: userId,
-        [`${contentType}Id`]: contentId, // e.g., courseId: 'abc' or skillId: 'xyz'
+        [`${contentType}Id`]: contentId,
         type: contentType,
         enrollmentDate: serverTimestamp(),
         progress: 0,
     };
 
     try {
-        // Use setDoc since we are defining the document ID ourselves.
         await setDoc(enrollmentRef, newEnrollment);
         return { success: true, message: 'Enrollment successful.' };
     } catch (error) {
         console.error('Error creating enrollment:', error);
         return { success: false, message: 'Failed to enroll user.' };
     }
-}
-
-export async function getClassDetails(userId: string, contentId: string, contentType: 'courses' | 'skills') {
-    if (!userId || !contentId || !contentType) {
-        return { success: false, error: 'Missing required information.' };
-    }
-
-    const { firestore } = initializeFirebase();
-
-    // Step 1: Verify enrollment
-    const enrollmentRef = doc(firestore, 'users', userId, 'enrollments', contentId);
-    const enrollmentSnap = await getDoc(enrollmentRef);
-
-    if (!enrollmentSnap.exists()) {
-        // This check can be even more robust by checking admin status as well.
-        return { success: false, error: 'User is not enrolled in this content.' };
-    }
-
-    // Step 2: Fetch class details since user is verified
-    const classDetailsRef = doc(firestore, contentType, contentId, 'classDetails', 'details');
-    const classDetailsSnap = await getDoc(classDetailsRef);
-
-    if (!classDetailsSnap.exists()) {
-        return { success: true, data: null }; // No details found, but not an error
-    }
-
-    const classData = classDetailsSnap.data();
-    
-    // Firestore Timestamps are not directly serializable for client components.
-    // Convert them to ISO strings before returning.
-    const serializableData = { ...classData };
-    if (serializableData.liveClassTime instanceof Timestamp) {
-        serializableData.liveClassTime = serializableData.liveClassTime.toDate().toISOString();
-    }
-
-    return { success: true, data: serializableData };
 }

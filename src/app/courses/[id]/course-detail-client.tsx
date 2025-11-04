@@ -8,13 +8,12 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, ShoppingCart, Video, Clapperboard, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
-import { useUser, useFirestore, useMemoFirebase, addDocumentNonBlocking, useCollection } from '@/firebase';
+import { useUser, useFirestore, useMemoFirebase, addDocumentNonBlocking, useCollection, useDoc } from '@/firebase';
 import { RippleEffect } from '@/components/ui/ripple-effect';
-import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
 import Link from 'next/link';
 import { useDemoUser } from '@/context/demo-user-context';
-import { getClassDetails } from '@/app/actions';
 
 type Course = {
   id: string;
@@ -31,7 +30,7 @@ type Course = {
 
 type ClassDetails = {
     liveClassUrl?: string;
-    liveClassTime?: string; 
+    liveClassTime?: string | Timestamp; 
     recordedVideos?: { title: string; url: string }[];
 }
 
@@ -43,8 +42,7 @@ export default function CourseDetailClient({ course }: { course: Course }) {
   const firestore = useFirestore();
   const { getConvertedPrice } = useCurrency();
   const { isDemoMode } = useDemoUser();
-  const [classDetails, setClassDetails] = useState<ClassDetails | null>(null);
-  const [isFetchingDetails, setIsFetchingDetails] = useState(false);
+  
 
   const enrollmentsQuery = useMemoFirebase(
     () => (user && firestore ? collection(firestore, 'users', user.uid, 'enrollments') : null),
@@ -58,20 +56,11 @@ export default function CourseDetailClient({ course }: { course: Course }) {
   
   const isPurchased = isMounted && user && !enrollmentsLoading && enrollments?.some(e => e.courseId === course.id);
 
-  useEffect(() => {
-      if (isPurchased && user && !isDemoMode) {
-          setIsFetchingDetails(true);
-          getClassDetails(user.uid, course.id, 'courses')
-              .then(result => {
-                  if (result.success) {
-                      setClassDetails(result.data);
-                  } else {
-                      console.error("Failed to fetch class details:", result.error);
-                  }
-              })
-              .finally(() => setIsFetchingDetails(false));
-      }
-  }, [isPurchased, user, course.id, isDemoMode]);
+  const classDetailsRef = useMemoFirebase(
+      () => isPurchased && firestore ? doc(firestore, 'courses', course.id, 'classDetails', 'details') : null,
+      [isPurchased, firestore, course.id]
+  )
+  const {data: classDetails, isLoading: isFetchingDetails} = useDoc<ClassDetails>(classDetailsRef);
 
 
   const learningPoints = course.whatYoullLearn?.split('\n').filter(point => point.trim() !== '') || [];
@@ -123,9 +112,9 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     let showLiveButton = false;
 
     if (classDetails?.liveClassTime) {
-        const liveTime = new Date(classDetails.liveClassTime);
-        const startTime = new Date(liveTime.getTime() - 30 * 60 * 1000); // 30 mins before
-        const endTime = new Date(liveTime.getTime() + 2 * 60 * 60 * 1000); // 2 hours after
+        const liveTime = classDetails.liveClassTime instanceof Timestamp ? classDetails.liveClassTime.toDate() : new Date(classDetails.liveClassTime);
+        const startTime = new Date(liveTime.getTime() - 30 * 60 * 1000); 
+        const endTime = new Date(liveTime.getTime() + 2 * 60 * 60 * 1000); 
         if (now >= startTime && now <= endTime) {
             showLiveButton = true;
         }
