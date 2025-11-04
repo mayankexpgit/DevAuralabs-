@@ -21,6 +21,17 @@ service cloud.firestore {
       allow read: if true;
       allow write: if get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin';
     }
+    
+    // Sub-collections with specific read access
+    match /courses/{courseId}/classDetails/details {
+      allow get: if request.auth != null && (get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin' || exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments?courseId=${courseId}));
+      allow write: if get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /skills/{skillId}/classDetails/details {
+      allow get: if request.auth != null && (get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin' || exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments?skillId=${skillId}));
+      allow write: if get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin';
+    }
 
     // User-specific data
     match /users/{userId}/{document=**} {
