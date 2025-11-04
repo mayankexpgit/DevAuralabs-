@@ -18,12 +18,11 @@ export async function getCourseRecommendations(input: AIPoweredCourseRecommendat
 }
 
 export async function createRazorpayOrder(amount: number, currency: string) {
-    const isProduction = process.env.NODE_ENV === 'production';
-    const keyId = isProduction ? process.env.RAZORPAY_KEY_ID_LIVE : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
-    const keySecret = isProduction ? process.env.RAZORPAY_KEY_SECRET_LIVE : process.env.RAZORPAY_KEY_SECRET_TEST;
+    const keyId = process.env.RAZORPAY_KEY_ID_LIVE;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET_LIVE;
 
     if (!keyId || !keySecret) {
-        console.error('Razorpay API keys not configured for mode:', isProduction ? 'Live' : 'Test');
+        console.error('Razorpay Live API keys not configured.');
         return { success: false, error: 'Payment service is not configured. Please contact support.' };
     }
 
@@ -168,50 +167,5 @@ export async function enrollUserInContent(userId: string, contentId: string, con
     } catch (error) {
         console.error('Error creating enrollment:', error);
         return { success: false, message: 'Failed to enroll user.' };
-    }
-}
-
-export async function getClassDetails(contentId: string, contentType: 'courses' | 'skills', userId: string) {
-    const { firestore } = initializeFirebase();
-
-    // 1. Check if user is admin
-    const adminRef = doc(firestore, 'privates', userId);
-    const adminSnap = await getDoc(adminRef);
-    const isAdmin = adminSnap.exists();
-
-    // 2. Check for enrollment if not admin
-    let isEnrolled = false;
-    if (!isAdmin) {
-        const enrollmentRef = doc(firestore, 'users', userId, 'enrollments', contentId);
-        const enrollmentSnap = await getDoc(enrollmentRef);
-        isEnrolled = enrollmentSnap.exists();
-    }
-
-    // 3. If not admin and not enrolled, deny access
-    if (!isAdmin && !isEnrolled) {
-        return { success: false, error: 'You are not enrolled in this content.' };
-    }
-
-    // 4. Fetch class details if authorized
-    try {
-        const classDetailsRef = doc(firestore, contentType, contentId, 'classDetails', 'details');
-        const classDetailsSnap = await getDoc(classDetailsRef);
-
-        if (!classDetailsSnap.exists()) {
-            return { success: true, data: null }; // No details found, but access is allowed
-        }
-
-        const data = classDetailsSnap.data();
-         // Serialize Timestamps
-        const serializableData = { ...data };
-        if (serializableData.liveClassTime instanceof Timestamp) {
-            serializableData.liveClassTime = serializableData.liveClassTime.toDate().toISOString();
-        }
-
-        return { success: true, data: serializableData };
-
-    } catch (error) {
-        console.error('Error fetching class details:', error);
-        return { success: false, error: 'Failed to fetch class details.' };
     }
 }
