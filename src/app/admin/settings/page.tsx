@@ -59,7 +59,7 @@ export default function GeneralSettingsPage() {
   }, [contentData]);
 
   const handleSaveSettings = async () => {
-    if (!firestore) return;
+    if (!firestore || !contentRef) return;
     setIsSaving(true);
     const dataToSave = {
       websiteName,
