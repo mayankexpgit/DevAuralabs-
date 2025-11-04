@@ -8,12 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, ShoppingCart, Video, Clapperboard, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
-import { useUser, useFirestore, useMemoFirebase, addDocumentNonBlocking, useCollection, useDoc } from '@/firebase';
+import { useUser, useFirestore, useMemoFirebase, addDocumentNonBlocking, useCollection } from '@/firebase';
 import { RippleEffect } from '@/components/ui/ripple-effect';
-import { collection, doc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
 import Link from 'next/link';
 import { useDemoUser } from '@/context/demo-user-context';
+import { getClassDetails } from '@/app/actions';
 
 type Course = {
   id: string;
@@ -30,7 +31,7 @@ type Course = {
 
 type ClassDetails = {
     liveClassUrl?: string;
-    liveClassTime?: string; // Changed from Timestamp
+    liveClassTime?: string; 
     recordedVideos?: { title: string; url: string }[];
 }
 
@@ -42,6 +43,8 @@ export default function CourseDetailClient({ course }: { course: Course }) {
   const firestore = useFirestore();
   const { getConvertedPrice } = useCurrency();
   const { isDemoMode } = useDemoUser();
+  const [classDetails, setClassDetails] = useState<ClassDetails | null>(null);
+  const [isFetchingDetails, setIsFetchingDetails] = useState(false);
 
   const enrollmentsQuery = useMemoFirebase(
     () => (user && firestore ? collection(firestore, 'users', user.uid, 'enrollments') : null),
@@ -49,17 +52,27 @@ export default function CourseDetailClient({ course }: { course: Course }) {
   );
   const { data: enrollments, isLoading: enrollmentsLoading } = useCollection(enrollmentsQuery);
   
-  const classDetailsRef = useMemoFirebase(
-    () => (firestore ? doc(firestore, 'courses', course.id, 'classDetails', 'details') : null),
-    [firestore, course.id]
-  );
-  const { data: classDetails, isLoading: classDetailsLoading } = useDoc<ClassDetails>(classDetailsRef);
-
   useEffect(() => {
     setIsMounted(true);
   }, []);
   
   const isPurchased = isMounted && user && !enrollmentsLoading && enrollments?.some(e => e.courseId === course.id);
+
+  useEffect(() => {
+      if (isPurchased && user && !isDemoMode) {
+          setIsFetchingDetails(true);
+          getClassDetails(user.uid, course.id, 'courses')
+              .then(result => {
+                  if (result.success) {
+                      setClassDetails(result.data);
+                  } else {
+                      console.error("Failed to fetch class details:", result.error);
+                  }
+              })
+              .finally(() => setIsFetchingDetails(false));
+      }
+  }, [isPurchased, user, course.id, isDemoMode]);
+
 
   const learningPoints = course.whatYoullLearn?.split('\n').filter(point => point.trim() !== '') || [];
 
@@ -118,6 +131,10 @@ export default function CourseDetailClient({ course }: { course: Course }) {
         }
     }
 
+    if (isFetchingDetails) {
+        return <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
+    }
+
     return (
         <div className="space-y-4">
         {showLiveButton && classDetails?.liveClassUrl && (
@@ -139,6 +156,9 @@ export default function CourseDetailClient({ course }: { course: Course }) {
                     </Button>
                 ))}
              </div>
+        )}
+        {!showLiveButton && (!classDetails?.recordedVideos || classDetails.recordedVideos.length === 0) && (
+            <p className="text-muted-foreground text-center">No class materials are available at this time.</p>
         )}
         </div>
     )
@@ -181,9 +201,9 @@ export default function CourseDetailClient({ course }: { course: Course }) {
         </div>
         <div className="lg:col-span-2">
             <div className="glass-card p-8 sticky top-24">
-                {(enrollmentsLoading || classDetailsLoading) && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
+                {(enrollmentsLoading) && <div className="flex justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>}
                 
-                {!(enrollmentsLoading || classDetailsLoading) && shouldShowContent ? (
+                {!enrollmentsLoading && shouldShowContent ? (
                   <div>
                     <h2 className="text-2xl font-bold text-primary mb-6">Course Content</h2>
                     {renderContentAccessButtons()}
@@ -191,7 +211,7 @@ export default function CourseDetailClient({ course }: { course: Course }) {
                         You have lifetime access to this course.
                     </div>
                   </div>
-                ) : !(enrollmentsLoading || classDetailsLoading) && shouldShowBuyButtons ? (
+                ) : !enrollmentsLoading && shouldShowBuyButtons ? (
                   <>
                     <div className="flex items-baseline gap-2 mb-6">
                         <p className="text-3xl font-bold text-primary">{getConvertedPrice(course.price)}</p>
@@ -221,5 +241,3 @@ export default function CourseDetailClient({ course }: { course: Course }) {
     </div>
   );
 }
-
-    

@@ -5,7 +5,8 @@ import { aiPoweredCourseRecommendations, AIPoweredCourseRecommendationsInput } f
 import Razorpay from 'razorpay';
 import { randomBytes } from 'crypto';
 import { initializeFirebase } from '@/firebase/server';
-import { collection, query, where, getDocs, doc, getDoc, runTransaction, serverTimestamp, addDoc, setDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, runTransaction, serverTimestamp, addDoc, setDoc, Timestamp } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth/lib/firebase-auth-compat-pro';
 
 export async function getCourseRecommendations(input: AIPoweredCourseRecommendationsInput) {
     try {
@@ -175,4 +176,40 @@ export async function enrollUserInContent(userId: string, contentId: string, con
         console.error('Error creating enrollment:', error);
         return { success: false, message: 'Failed to enroll user.' };
     }
+}
+
+export async function getClassDetails(userId: string, contentId: string, contentType: 'courses' | 'skills') {
+    if (!userId || !contentId || !contentType) {
+        return { success: false, error: 'Missing required information.' };
+    }
+
+    const { firestore } = initializeFirebase();
+
+    // Step 1: Verify enrollment
+    const enrollmentRef = doc(firestore, 'users', userId, 'enrollments', contentId);
+    const enrollmentSnap = await getDoc(enrollmentRef);
+
+    if (!enrollmentSnap.exists()) {
+        // This check can be even more robust by checking admin status as well.
+        return { success: false, error: 'User is not enrolled in this content.' };
+    }
+
+    // Step 2: Fetch class details since user is verified
+    const classDetailsRef = doc(firestore, contentType, contentId, 'classDetails', 'details');
+    const classDetailsSnap = await getDoc(classDetailsRef);
+
+    if (!classDetailsSnap.exists()) {
+        return { success: true, data: null }; // No details found, but not an error
+    }
+
+    const classData = classDetailsSnap.data();
+    
+    // Firestore Timestamps are not directly serializable for client components.
+    // Convert them to ISO strings before returning.
+    const serializableData = { ...classData };
+    if (serializableData.liveClassTime instanceof Timestamp) {
+        serializableData.liveClassTime = serializableData.liveClassTime.toDate().toISOString();
+    }
+
+    return { success: true, data: serializableData };
 }
