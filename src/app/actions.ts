@@ -24,7 +24,8 @@ export async function createRazorpayOrder(amount: number, currency: string) {
     const keySecret = isProduction ? process.env.RAZORPAY_KEY_SECRET_LIVE : process.env.RAZORPAY_KEY_SECRET_TEST;
 
     if (!keyId || !keySecret) {
-        throw new Error('Razorpay API keys are not configured for the current mode.');
+        console.error('Razorpay API keys not configured for mode:', isProduction ? 'Live' : 'Test');
+        return { success: false, error: 'Payment service is not configured. Please contact support.' };
     }
 
     const razorpay = new Razorpay({
@@ -32,11 +33,8 @@ export async function createRazorpayOrder(amount: number, currency: string) {
         key_secret: keySecret,
     });
     
-    // Razorpay expects the amount in the smallest currency unit (e.g., paise for INR, cents for USD)
-    // It must be an integer.
     const amountInSmallestUnit = Math.round(amount * 100);
 
-    // Razorpay has a minimum amount (e.g., 100 for 1 INR)
     if (amountInSmallestUnit < 100) {
         console.error('Order amount is too low:', amountInSmallestUnit);
         return { success: false, error: 'The final amount is too low to process the payment.' };
