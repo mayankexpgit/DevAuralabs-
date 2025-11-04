@@ -35,8 +35,8 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const adminFormSchema = z.object({
-  id: z.string().min(1, { message: 'Web ID is required.' }),
-  key: z.string().min(1, { message: 'Password is required.' }),
+  email: z.string().email({ message: 'A valid email is required.' }),
+  password: z.string().min(1, { message: 'Password is required.' }),
 });
 
 export default function LoginPage() {
@@ -60,8 +60,8 @@ export default function LoginPage() {
   const adminForm = useForm<z.infer<typeof adminFormSchema>>({
     resolver: zodResolver(adminFormSchema),
     defaultValues: {
-      id: '',
-      key: '',
+      email: '',
+      password: '',
     },
   });
 
@@ -81,8 +81,8 @@ export default function LoginPage() {
     }
   }, [user, isAdmin, next, router, toast]);
 
-  function onAdminSubmit(values: z.infer<typeof adminFormSchema>) {
-    const success = adminLogin(values.id, values.key);
+  async function onAdminSubmit(values: z.infer<typeof adminFormSchema>) {
+    const success = await adminLogin(values.email, values.password);
     if (!success) {
         toast({
             variant: 'destructive',
@@ -126,12 +126,12 @@ export default function LoginPage() {
           <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-4">
               <FormField
               control={adminForm.control}
-              name="id"
+              name="email"
               render={({ field }) => (
                   <FormItem>
-                  <FormLabel>Web ID</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                      <Input type="text" placeholder="Enter your Web ID" {...field} className="bg-background/50"/>
+                      <Input type="email" placeholder="admin@example.com" {...field} className="bg-background/50"/>
                   </FormControl>
                   <FormMessage />
                   </FormItem>
@@ -139,7 +139,7 @@ export default function LoginPage() {
               />
               <FormField
               control={adminForm.control}
-              name="key"
+              name="password"
               render={({ field }) => (
                   <FormItem>
                   <FormLabel>Password</FormLabel>

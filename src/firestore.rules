@@ -11,34 +11,34 @@ service cloud.firestore {
     // Public collections
     match /showcase/{showcaseId} {
       allow read, list: if true;
-      allow write: if request.auth != null && isAdmin();
+      allow write: if isAdmin();
     }
     match /courses/{courseId} {
       allow read: if true;
-      allow write: if request.auth != null && isAdmin();
+      allow write: if isAdmin();
     }
      match /skills/{skillId} {
       allow read: if true;
-      allow write: if request.auth != null && isAdmin();
+      allow write: if isAdmin();
     }
     match /hardware/{hardwareId} {
       allow read: if true;
-      allow write: if request.auth != null && isAdmin();
+      allow write: if isAdmin();
     }
     match /settings/{docId} {
       allow read: if true;
-      allow write: if request.auth != null && isAdmin();
+      allow write: if isAdmin();
     }
     
     // Sub-collections with specific read access for enrolled users
     match /courses/{courseId}/classDetails/details {
-      allow get: if (request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(courseId))) || (request.auth != null && isAdmin());
-      allow write: if request.auth != null && isAdmin();
+      allow get: if (request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(courseId))) || isAdmin();
+      allow write: if isAdmin();
     }
 
     match /skills/{skillId}/classDetails/details {
-      allow get: if (request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(skillId))) || (request.auth != null && isAdmin());
-      allow write: if request.auth != null && isAdmin();
+      allow get: if (request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(skillId))) || isAdmin();
+      allow write: if isAdmin();
     }
 
     // User-specific data
@@ -53,13 +53,13 @@ service cloud.firestore {
 
     // Website requests can be created by anyone, but only managed by admins
     match /website_requests/{requestId} {
-       allow read, write: if request.auth != null && isAdmin();
+       allow read, write: if isAdmin();
        allow create: if true;
     }
 
     // Promo codes can only be managed by admins
     match /promo_codes/{codeId}/{document=**} {
-       allow read, write: if request.auth != null && isAdmin();
+       allow read, write: if isAdmin();
     }
   }
 }
