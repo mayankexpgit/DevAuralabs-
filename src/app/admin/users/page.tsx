@@ -23,14 +23,16 @@ export default function UsersPage() {
     const firestore = useFirestore();
     const router = useRouter();
     
+    // Correctly query the 'users' collection. This collection should contain all user documents.
     const usersQuery = useMemoFirebase(() => 
-        firestore ? query(collection(firestore, 'users'), orderBy('metadata.creationTime', 'desc')) : null, 
+        firestore ? query(collection(firestore, 'users'), orderBy('displayName')) : null, 
         [firestore]
     );
     const { data: users, isLoading } = useCollection(usersQuery);
 
-    const getProviderBadge = (providerId: string) => {
-        return <Badge variant="outline" className={providerColor[providerId] || providerColor['password']}>{providerId.split('.')[0]}</Badge>
+    const getProviderBadge = (user: any) => {
+        const providerId = user.providerData?.[0]?.providerId || 'password';
+        return <Badge variant="outline" className={cn(providerColor[providerId] || providerColor['password'])}>{providerId.split('.')[0]}</Badge>
     }
     
     const handleRowClick = (userId: string) => {
@@ -74,7 +76,7 @@ export default function UsersPage() {
                                     </TableRow>
                                 ) : users && users.length > 0 ? (
                                     users.map((user) => (
-                                        <TableRow key={user.uid} onClick={() => handleRowClick(user.uid)} className="cursor-pointer">
+                                        <TableRow key={user.id} onClick={() => handleRowClick(user.id)} className="cursor-pointer">
                                             <TableCell>
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
@@ -86,7 +88,7 @@ export default function UsersPage() {
                                             </TableCell>
                                             <TableCell>{user.email}</TableCell>
                                             <TableCell>
-                                                {getProviderBadge(user.providerData?.[0]?.providerId)}
+                                                {getProviderBadge(user)}
                                             </TableCell>
                                             <TableCell className="text-muted-foreground">
                                                 {user.metadata?.creationTime ? formatDistanceToNow(new Date(user.metadata.creationTime), { addSuffix: true }) : 'N/A'}
@@ -111,5 +113,3 @@ export default function UsersPage() {
         </div>
     );
 }
-
-    
