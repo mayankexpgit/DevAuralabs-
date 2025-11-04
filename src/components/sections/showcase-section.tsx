@@ -32,13 +32,15 @@ export default function ShowcaseSection() {
           <CarouselContent className="-ml-4">
             {showcaseImages.map((image, index) => (
               <CarouselItem key={index} className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 pl-4">
-                <div className="relative aspect-square w-full h-full overflow-hidden rounded-lg">
-                  <Image
-                    src={image.url}
-                    alt={image.alt}
-                    fill
-                    className="object-contain"
-                  />
+                <div className="glass-card p-4">
+                  <div className="relative aspect-square w-full h-full overflow-hidden rounded-lg">
+                    <Image
+                      src={image.url}
+                      alt={image.alt}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                 </div>
               </CarouselItem>
             ))}
