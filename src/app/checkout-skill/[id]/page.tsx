@@ -116,7 +116,7 @@ export default function CheckoutSkillPage() {
 
     setIsPaying(true);
 
-    const result = await createRazorpayOrder(finalPrice, currency, isDemoMode);
+    const result = await createRazorpayOrder(finalPrice, currency);
 
     if (!result.success || !result.order) {
         toast({ variant: 'destructive', title: 'Payment Error', description: result.error });
@@ -126,9 +126,10 @@ export default function CheckoutSkillPage() {
 
     const order = result.order;
 
-    const razorpayKeyId = isDemoMode 
-        ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST 
-        : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_LIVE;
+    const isProduction = process.env.NODE_ENV === 'production';
+    const razorpayKeyId = isProduction 
+        ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_LIVE
+        : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
 
     if (!razorpayKeyId) {
         toast({ variant: 'destructive', title: 'Configuration Error', description: 'Razorpay Key ID is not set for the current mode.' });

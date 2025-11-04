@@ -17,9 +17,10 @@ export async function getCourseRecommendations(input: AIPoweredCourseRecommendat
     }
 }
 
-export async function createRazorpayOrder(amount: number, currency: string, isDemoMode: boolean) {
-    const keyId = isDemoMode ? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_LIVE;
-    const keySecret = isDemoMode ? process.env.RAZORPAY_KEY_SECRET_TEST : process.env.RAZORPAY_KEY_SECRET_LIVE;
+export async function createRazorpayOrder(amount: number, currency: string) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const keyId = isProduction ? process.env.RAZORPAY_KEY_ID_LIVE : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
+    const keySecret = isProduction ? process.env.RAZORPAY_KEY_SECRET_LIVE : process.env.RAZORPAY_KEY_SECRET_TEST;
 
     if (!keyId || !keySecret) {
         throw new Error('Razorpay API keys are not configured for the current mode.');
