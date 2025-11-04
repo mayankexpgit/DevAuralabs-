@@ -24,12 +24,18 @@ service cloud.firestore {
     
     // Sub-collections with specific read access
     match /courses/{courseId}/classDetails/details {
-      allow get: if request.auth != null && (get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin' || exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(courseId)));
+      allow get: if request.auth != null && (
+          (exists(/databases/$(database)/documents/privates/$(request.auth.uid)) && get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin') ||
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(courseId))
+      );
       allow write: if get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin';
     }
 
     match /skills/{skillId}/classDetails/details {
-      allow get: if request.auth != null && (get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin' || exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(skillId)));
+      allow get: if request.auth != null && (
+          (exists(/databases/$(database)/documents/privates/$(request.auth.uid)) && get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin') ||
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(skillId))
+      );
       allow write: if get(/databases/$(database)/documents/privates/$(request.auth.uid)).data.role == 'admin';
     }
 
