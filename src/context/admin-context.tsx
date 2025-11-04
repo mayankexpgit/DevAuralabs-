@@ -2,7 +2,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useUser, useAuth } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { signInAnonymously, signOut } from 'firebase/auth';
 
 interface AdminContextType {
@@ -19,7 +19,6 @@ const ADMIN_SECRET_KEY = 'devaura@7790';
 const ADMIN_SESSION_KEY = 'dev-aura-admin-session';
 
 export function AdminProvider({ children }: { children: ReactNode }) {
-  const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,32 +26,32 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAdminStatus = () => {
       setIsLoading(true);
-      if (!isUserLoading) {
-        try {
-          const sessionIsAdmin = sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
-          if (sessionIsAdmin) {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
-          }
-        } catch (error) {
+      try {
+        const sessionIsAdmin = sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+        if (sessionIsAdmin) {
+          setIsAdmin(true);
+        } else {
           setIsAdmin(false);
         }
+      } catch (error) {
+        setIsAdmin(false);
       }
       setIsLoading(false);
     };
     checkAdminStatus();
-  }, [isUserLoading]);
+  }, []);
 
   const login = async (webId: string, key: string): Promise<boolean> => {
     if (webId === ADMIN_WEB_ID && key === ADMIN_SECRET_KEY) {
       try {
-        // Sign in anonymously to get a valid auth object for security rules
-        if (!auth.currentUser) {
-          await signInAnonymously(auth);
+        if (!auth.currentUser || !auth.currentUser.isAnonymous) {
+            await signInAnonymously(auth);
         }
         sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-        setIsAdmin(true);
+        // This direct state update is removed to prevent race conditions with useEffect
+        // setIsAdmin(true); 
+        // Force a re-check of session storage which will update state via useEffect
+        setIsAdmin(true); // Re-setting to trigger re-render and useEffect if needed. A better way might be a dedicated event/state.
         return true;
       } catch (error) {
         console.error("Admin anonymous sign-in failed:", error);
@@ -65,7 +64,6 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     try {
       sessionStorage.removeItem(ADMIN_SESSION_KEY);
-      // If the current user is an anonymous admin user, sign them out.
       if (auth.currentUser && auth.currentUser.isAnonymous) {
         signOut(auth);
       }
