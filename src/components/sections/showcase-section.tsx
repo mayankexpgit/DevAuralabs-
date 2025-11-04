@@ -5,10 +5,16 @@ import Image from 'next/image';
 import { useRef, useEffect, useState, useCallback } from 'react';
 import Autoplay from 'embla-carousel-autoplay';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
-import { showcaseImages } from '@/lib/showcase-data';
 import { cn } from '@/lib/utils';
+import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { collection } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function ShowcaseSection() {
+    const firestore = useFirestore();
+    const showcaseQuery = useMemoFirebase(() => firestore ? collection(firestore, 'showcase') : null, [firestore]);
+    const { data: showcaseImages, isLoading } = useCollection(showcaseQuery);
+
     const autoplay = useRef(
         Autoplay({ delay: 3000, stopOnInteraction: true })
     );
@@ -33,14 +39,29 @@ export default function ShowcaseSection() {
         emblaApi.on('reInit', onSelect);
     }, [emblaApi, onSelect]);
 
+    if (isLoading) {
+        return (
+            <section id="showcase" className="py-12 md:py-16 w-full">
+                <div className="flex flex-col items-center">
+                    <Skeleton className="relative aspect-video w-full h-full rounded-lg border-2 border-dashed border-primary/50 p-2 max-w-4xl" />
+                    <Skeleton className="mt-4 h-8 w-48 rounded-full" />
+                </div>
+            </section>
+        );
+    }
+
+    if (!showcaseImages || showcaseImages.length === 0) {
+        return null;
+    }
+
     return (
         <section id="showcase" className="py-12 md:py-16 w-full">
             <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex -ml-4">
                     {showcaseImages.map((image, index) => (
-                        <div key={index} className="flex-[0_0_100%] pl-4">
+                        <div key={image.id || index} className="flex-[0_0_100%] pl-4">
                             <div className="flex flex-col items-center">
-                                <div className="relative aspect-video w-full h-full overflow-hidden rounded-lg border-2 border-dashed border-primary/50 p-2">
+                                <div className="relative aspect-video w-full h-full overflow-hidden rounded-lg border-2 border-dashed border-primary/50 p-2 max-w-4xl mx-auto">
                                     <Image
                                         src={image.url}
                                         alt={image.alt}
