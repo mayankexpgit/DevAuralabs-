@@ -36,7 +36,7 @@ const ShowcaseCard = ({
         <p className="text-xs text-muted-foreground ml-auto font-bold">{title}</p>
       </div>
       <div className="relative flex-grow p-4 bg-black/20">
-        <div className="relative w-full h-full aspect-square p-4">
+        <div className="relative w-full h-full aspect-square">
             <Image
             className="object-contain"
             fill
