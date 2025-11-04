@@ -19,8 +19,8 @@ export async function getCourseRecommendations(input: AIPoweredCourseRecommendat
 
 export async function createRazorpayOrder(amount: number, currency: string) {
     const isProduction = process.env.NODE_ENV === 'production';
-    const keyId = isProduction ? process.env.RAZORPAY_KEY_ID : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
-    const keySecret = isProduction ? process.env.RAZORPAY_KEY_SECRET : process.env.RAZORPAY_KEY_SECRET_TEST;
+    const keyId = isProduction ? process.env.RAZORPAY_KEY_ID_LIVE : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
+    const keySecret = isProduction ? process.env.RAZORPAY_KEY_SECRET_LIVE : process.env.RAZORPAY_KEY_SECRET_TEST;
 
     if (!keyId || !keySecret) {
         console.error('Razorpay API keys not configured for mode:', isProduction ? 'Live' : 'Test');
