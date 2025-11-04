@@ -31,18 +31,22 @@ export async function createRazorpayOrder(amount: number, currency: string) {
         key_id: keyId,
         key_secret: keySecret,
     });
-
-    const options = {
-        amount: Math.round(amount * 100), // amount in the smallest currency unit, rounded to nearest integer
-        currency,
-        receipt: `receipt_order_${randomBytes(10).toString('hex')}`,
-    };
     
-    if (options.amount < 100) { // Razorpay minimum is 1 INR or 1 USD
-        console.error('Order amount is too low:', options.amount);
+    // Razorpay expects the amount in the smallest currency unit (e.g., paise for INR, cents for USD)
+    // It must be an integer.
+    const amountInSmallestUnit = Math.round(amount * 100);
+
+    // Razorpay has a minimum amount (e.g., 100 for 1 INR)
+    if (amountInSmallestUnit < 100) {
+        console.error('Order amount is too low:', amountInSmallestUnit);
         return { success: false, error: 'The final amount is too low to process the payment.' };
     }
 
+    const options = {
+        amount: amountInSmallestUnit,
+        currency,
+        receipt: `receipt_order_${randomBytes(10).toString('hex')}`,
+    };
 
     try {
         const order = await razorpay.orders.create(options);
