@@ -35,8 +35,8 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const adminFormSchema = z.object({
-  id: z.string().min(1, { message: 'Admin ID is required.' }),
-  key: z.string().min(1, { message: 'Secret Key is required.' }),
+  id: z.string().min(1, { message: 'Web ID is required.' }),
+  key: z.string().min(1, { message: 'Password is required.' }),
 });
 
 export default function LoginPage() {
@@ -129,9 +129,9 @@ export default function LoginPage() {
               name="id"
               render={({ field }) => (
                   <FormItem>
-                  <FormLabel>Admin ID</FormLabel>
+                  <FormLabel>Web ID</FormLabel>
                   <FormControl>
-                      <Input type="text" placeholder="Enter your Admin ID" {...field} className="bg-background/50"/>
+                      <Input type="text" placeholder="Enter your Web ID" {...field} className="bg-background/50"/>
                   </FormControl>
                   <FormMessage />
                   </FormItem>
@@ -142,7 +142,7 @@ export default function LoginPage() {
               name="key"
               render={({ field }) => (
                   <FormItem>
-                  <FormLabel>Secret Key</FormLabel>
+                  <FormLabel>Password</FormLabel>
                    <FormControl>
                         <div className="relative">
                           <Input type={showPassword ? 'text' : 'password'} placeholder="••••••••" {...field} className="bg-background/50 pr-10"/>

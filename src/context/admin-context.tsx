@@ -13,7 +13,7 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-const ADMIN_ID = 'admin';
+const ADMIN_ID = 'MAYANK90LM8';
 const ADMIN_KEY = 'devaura@7790';
 const ADMIN_SESSION_KEY = 'dev-aura-admin-session';
 
