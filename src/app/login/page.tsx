@@ -35,8 +35,8 @@ const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const adminFormSchema = z.object({
-  email: z.string().email({ message: 'A valid email is required.' }),
-  secretKey: z.string().min(1, { message: 'Password is required.' }),
+  webId: z.string().min(1, { message: 'A Web ID is required.' }),
+  password: z.string().min(1, { message: 'Password is required.' }),
 });
 
 export default function LoginPage() {
@@ -60,8 +60,8 @@ export default function LoginPage() {
   const adminForm = useForm<z.infer<typeof adminFormSchema>>({
     resolver: zodResolver(adminFormSchema),
     defaultValues: {
-      email: 'admindevaura22@gmail.com',
-      secretKey: '',
+      webId: '',
+      password: '',
     },
   });
 
@@ -69,7 +69,7 @@ export default function LoginPage() {
     if (isAdmin) {
         toast({ title: 'Admin Login Successful', description: 'Welcome, Administrator.' });
         router.push('/admin');
-    } else if (user && user.email !== 'admindevaura22@gmail.com') {
+    } else if (user) {
         toast({ title: 'Login Successful', description: 'Welcome back!' });
         if (next) {
             router.push(next);
@@ -80,7 +80,7 @@ export default function LoginPage() {
   }, [user, isAdmin, next, router, toast]);
 
   async function onAdminSubmit(values: z.infer<typeof adminFormSchema>) {
-    const success = await adminLogin(values.email, values.secretKey);
+    const success = await adminLogin(values.webId, values.password);
     if (!success) {
         toast({
             variant: 'destructive',
@@ -123,12 +123,12 @@ export default function LoginPage() {
           <form onSubmit={adminForm.handleSubmit(onAdminSubmit)} className="space-y-4">
               <FormField
               control={adminForm.control}
-              name="email"
+              name="webId"
               render={({ field }) => (
                   <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Web ID</FormLabel>
                   <FormControl>
-                      <Input placeholder="Enter your admin email" {...field} className="bg-background/50"/>
+                      <Input placeholder="Enter your Web ID" {...field} className="bg-background/50"/>
                   </FormControl>
                   <FormMessage />
                   </FormItem>
@@ -136,7 +136,7 @@ export default function LoginPage() {
               />
               <FormField
               control={adminForm.control}
-              name="secretKey"
+              name="password"
               render={({ field }) => (
                   <FormItem>
                   <FormLabel>Password</FormLabel>

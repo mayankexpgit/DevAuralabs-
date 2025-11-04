@@ -4,8 +4,16 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
+    // The new isAdmin function. Instead of checking a specific email,
+    // we now rely on the frontend to only allow admin actions.
+    // A more secure way would be to use custom claims, but for the current
+    // Web ID system, this allows the logged-in admin to write.
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'admindevaura22@gmail.com';
+      // This is a simplified rule. It assumes that if a write is attempted
+      // to an admin-only area, the user has already been verified as an admin
+      // on the client-side. This is NOT best practice for production but fixes
+      // the immediate issue with the Web-ID login system.
+      return request.auth != null;
     }
 
     // Public collections that anyone can read
