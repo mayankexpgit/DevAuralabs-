@@ -6,7 +6,6 @@ import Razorpay from 'razorpay';
 import { randomBytes } from 'crypto';
 import { initializeFirebase } from '@/firebase/server';
 import { collection, query, where, getDocs, doc, getDoc, runTransaction, serverTimestamp, addDoc, setDoc, Timestamp } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth/lib/firebase-auth-compat-pro';
 
 export async function getCourseRecommendations(input: AIPoweredCourseRecommendationsInput) {
     try {
