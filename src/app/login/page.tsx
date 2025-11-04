@@ -40,6 +40,8 @@ const adminFormSchema = z.object({
   password: z.string().min(1, { message: 'Password is required.' }),
 });
 
+const ADMIN_EMAIL = 'admindevaura22@gmail.com';
+
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
@@ -48,7 +50,7 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user } = useUser();
   const [view, setView] = useState('user'); 
-  const { isAdmin, login: adminLogin } = useAdmin();
+  const { isAdmin } = useAdmin();
   const [showPassword, setShowPassword] = useState(false);
 
 
@@ -67,23 +69,34 @@ export default function LoginPage() {
   });
 
   useEffect(() => {
-    if (user && !isAdmin) {
-      toast({ title: 'Login Successful', description: 'Welcome back!' });
-      if (next) {
-        router.push(next);
-      } else {
-        router.push('/');
-      }
-    } else if (isAdmin) {
-      router.push('/admin');
+    if (user) {
+        if (isAdmin) {
+             toast({ title: 'Admin Login Successful', description: 'Welcome, Administrator.' });
+            router.push('/admin');
+        } else {
+            toast({ title: 'Login Successful', description: 'Welcome back!' });
+            if (next) {
+                router.push(next);
+            } else {
+                router.push('/');
+            }
+        }
     }
   }, [user, isAdmin, next, router, toast]);
 
   async function onAdminSubmit(values: z.infer<typeof adminFormSchema>) {
-    if (values.email === 'admindevaura22@gmail.com' && values.password === 'devaura7790@') {
-        adminLogin();
-        router.push('/admin');
-    } else {
+    if (values.email !== ADMIN_EMAIL) {
+        toast({
+            variant: 'destructive',
+            title: 'Login Failed',
+            description: 'This email is not registered as an admin.',
+        });
+        return;
+    }
+    try {
+        await signInWithEmailAndPassword(auth, values.email, values.password);
+        // The useEffect hook will handle redirection on successful login.
+    } catch (error) {
         toast({
             variant: 'destructive',
             title: 'Login Failed',
