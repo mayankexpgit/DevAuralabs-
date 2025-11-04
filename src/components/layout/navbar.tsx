@@ -29,7 +29,8 @@ import { useState, useEffect } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import Logo from '../logo';
 import SocialIcon from '../social-icon';
-import { useAuth, useUser } from '@/firebase';
+import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -80,6 +81,9 @@ export default function Navbar() {
   const { currency, setCurrency } = useCurrency();
   const { isDemoMode, endDemoMode } = useDemoUser();
 
+  const firestore = useFirestore();
+  const contentRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'content') : null, [firestore]);
+  const { data: contentData } = useDoc(contentRef);
 
   useEffect(() => {
     setIsMounted(true);

@@ -10,7 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, Loader2 } from "lucide-react";
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -20,14 +22,10 @@ const formSchema = z.object({
 
 export default function ContactPage() {
   const { toast } = useToast();
+  const firestore = useFirestore();
+  const contentRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'content') : null, [firestore]);
+  const { data: contentData, isLoading } = useDoc(contentRef);
   
-  // In a real app, this would be fetched from the database
-  const contactInfo = {
-    email: 'support@devaura.labs',
-    phone: '+1 (555) 123-4567',
-    address: '123 Tech Avenue, Silicon Valley, CA 94043'
-  };
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -46,6 +44,10 @@ export default function ContactPage() {
     form.reset();
   }
 
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-primary" /></div>;
+  }
+
   return (
     <div className="container mx-auto max-w-5xl py-20 px-4">
       <div className="text-center mb-12">
@@ -61,15 +63,15 @@ export default function ContactPage() {
                 <CardContent className="space-y-6">
                     <div className="flex items-center gap-4">
                         <Mail className="h-6 w-6 text-primary"/>
-                        <a href={`mailto:${contactInfo.email}`} className="hover:underline">{contactInfo.email}</a>
+                        <a href={`mailto:${contentData?.contactEmail}`} className="hover:underline">{contentData?.contactEmail}</a>
                     </div>
                     <div className="flex items-center gap-4">
                         <Phone className="h-6 w-6 text-primary"/>
-                        <span>{contactInfo.phone}</span>
+                        <span>{contentData?.contactPhone}</span>
                     </div>
                     <div className="flex items-start gap-4">
                         <MapPin className="h-6 w-6 text-primary mt-1"/>
-                        <span>{contactInfo.address}</span>
+                        <span>{contentData?.contactAddress}</span>
                     </div>
                 </CardContent>
             </Card>

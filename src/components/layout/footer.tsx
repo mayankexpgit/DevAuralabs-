@@ -1,7 +1,11 @@
 
+'use client';
+
 import Link from 'next/link';
 import Logo from '@/components/logo';
 import SocialIcon from '@/components/social-icon';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 const quickLinks = [
   { href: '/terms', label: 'Terms' },
@@ -9,13 +13,17 @@ const quickLinks = [
   { href: '/contact-us', label: 'Contact' },
 ];
 
-const socialLinks = [
-  { name: 'Twitter', href: '#' },
-  { name: 'Instagram', href: '#' },
-  { name: 'WhatsApp', href: '#' },
-];
-
 export default function Footer() {
+  const firestore = useFirestore();
+  const contentRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'content') : null, [firestore]);
+  const { data: contentData } = useDoc(contentRef);
+
+  const socialLinks = [
+    { name: 'Twitter', href: contentData?.twitterUrl || '#' },
+    { name: 'Instagram', href: contentData?.instagramUrl || '#' },
+    { name: 'WhatsApp', href: contentData?.whatsappUrl || '#' },
+  ];
+
   return (
     <footer className="bg-transparent">
       <div className="container mx-auto px-4 py-8">
@@ -25,7 +33,7 @@ export default function Footer() {
                 <Logo />
             </div>
             <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} DevAura Labs. All rights reserved.
+              &copy; {new Date().getFullYear()} {contentData?.websiteName || 'DevAura Labs'}. All rights reserved.
             </p>
           </div>
           <div className="flex items-center gap-6">

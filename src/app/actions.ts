@@ -20,6 +20,7 @@ export async function getCourseRecommendations(input: AIPoweredCourseRecommendat
 
 export async function createRazorpayOrder(amount: number, currency: string) {
     const isProduction = process.env.NODE_ENV === 'production';
+    // Use NEXT_PUBLIC_ for test keys as they are public, but server-only for live keys.
     const keyId = isProduction ? process.env.RAZORPAY_KEY_ID_LIVE : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID_TEST;
     const keySecret = isProduction ? process.env.RAZORPAY_KEY_SECRET_LIVE : process.env.RAZORPAY_KEY_SECRET_TEST;
 
@@ -33,9 +34,10 @@ export async function createRazorpayOrder(amount: number, currency: string) {
         key_secret: keySecret,
     });
     
+    // Amount should be an integer in the smallest currency unit.
     const amountInSmallestUnit = Math.round(amount * 100);
 
-    if (amountInSmallestUnit < 100) {
+    if (amountInSmallestUnit < 100 && currency === 'INR') { // Minimum 1 INR
         console.error('Order amount is too low:', amountInSmallestUnit);
         return { success: false, error: 'The final amount is too low to process the payment.' };
     }

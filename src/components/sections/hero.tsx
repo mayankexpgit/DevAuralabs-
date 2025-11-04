@@ -7,8 +7,16 @@ import { TypeAnimation } from 'react-type-animation';
 import Logo from '@/components/logo';
 import { RippleEffect } from '@/components/ui/ripple-effect';
 import VantaGlobeBackground from '../vanta-globe-background';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 export default function HeroSection() {
+  const firestore = useFirestore();
+  const contentRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'content') : null, [firestore]);
+  const { data: contentData, isLoading } = useDoc(contentRef);
+
+  const heroTitle = contentData?.heroTitle || 'Your Gateway to Digital Mastery.';
+  const heroSubtitle = contentData?.heroSubtitle || 'Unlock your potential with expert-led courses in Cybersecurity, cutting-edge Skill Development programs, and professional Website Creation services to elevate your digital presence.';
 
   return (
     <section className="relative w-full h-screen min-h-[500px] flex items-center justify-center text-center overflow-hidden">
@@ -40,10 +48,10 @@ export default function HeroSection() {
         </div>
         
         <p className="text-xl md:text-2xl font-bold mb-8 text-primary">
-          Your Gateway to Digital Mastery.
+          {heroTitle}
         </p>
         <p className="max-w-2xl mx-auto text-muted-foreground md:text-xl mb-12">
-          Unlock your potential with expert-led courses in Cybersecurity, cutting-edge Skill Development programs, and professional Website Creation services to elevate your digital presence.
+          {heroSubtitle}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/courses">
