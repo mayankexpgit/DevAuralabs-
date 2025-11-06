@@ -2,9 +2,24 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useDoc, useFirestore, useMemoFirebase } from "@/firebase";
+import { doc } from "firebase/firestore";
+import { Loader2 } from "lucide-react";
+import DOMPurify from 'isomorphic-dompurify';
+import { marked } from 'marked';
 
 export default function TermsPage() {
-  
+  const firestore = useFirestore();
+  const contentRef = useMemoFirebase(() => firestore ? doc(firestore, 'settings', 'content') : null, [firestore]);
+  const { data: contentData, isLoading } = useDoc(contentRef);
+
+  const getRenderedHTML = (markdown: string | undefined) => {
+    if (!markdown) return '';
+    const dirtyHtml = marked.parse(markdown);
+    const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+    return cleanHtml;
+  }
+
   return (
     <div className="container mx-auto max-w-4xl py-20 px-4">
       <Card className="glass-card">
@@ -12,67 +27,16 @@ export default function TermsPage() {
           <CardTitle className="text-3xl font-bold">Terms & Policies</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="prose prose-invert lg:prose-lg max-w-none text-muted-foreground space-y-8">
-
-            <section>
-              <h2 className="text-2xl font-bold text-foreground">Introduction</h2>
-              <p>Welcome to DevAura Labs (“we”, “our”, “us”). Our endeavor is to offer world-class Cybersecurity Courses, Skill Development Programs, and Certified Hardware Devices that would help learners and professionals enrich their technical capabilities.</p>
-              <p>By using or accessing our website (www.devauralabs.xyz), you accept the following policies, terms, and conditions.</p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-foreground">Refund & Cancellation Policy</h2>
-              <h3 className="text-xl font-bold text-foreground mt-4">For Courses and Skill Programs:</h3>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>We offer a 24-hour money-back guarantee. If you are not satisfied with the course or skill program, you can request a full refund within 24 hours of your purchase. No refunds will be issued after the 24-hour period has passed.</li>
-                <li>In case of a double payment or technical glitch, kindly get in touch with us within 7 working days for resolution.</li>
-              </ul>
-              <h3 className="text-xl font-bold text-foreground mt-4">Hardware Devices:</h3>
-              <ul className="list-disc pl-5 space-y-2">
-                  <li>Refunds or replacements are available only for defective or damaged products reported within 7 days of delivery.</li>
-                  <li>Initiate a return by sending an email with proof of purchase, along with product images.</li>
-                  <li>Returning goods may be at the expense of the customer unless the product is defective.</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-foreground">Terms & Conditions</h2>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>All contents, materials, and videos of this course are the intellectual property of DevAura Labs and must not be shared or resold. Unauthorized distribution or reproduction of course content will result in legal action.</li>
-                <li>Hardware device specifications and availability are subject to change without prior notice.</li>
-                <li>DevAura Labs reserves the right to modify or discontinue courses or products at any time.</li>
-              </ul>
-              <p className="mt-4">By continuing to utilize our website, you hereby acknowledge that you have read, understood, and agreed to these terms.</p>
-            </section>
-            
-            <section>
-              <h2 className="text-2xl font-bold text-foreground">Payment Policy</h2>
-               <ul className="list-disc pl-5 space-y-2">
-                  <li>We use Razorpay as our trusted payment partner.</li>
-                  <li>Your financial data is handled with advanced security and encryption measures.</li>
-                  <li>The accepted modes of payment are Credit/Debit Cards, UPI, Net Banking, and Wallets.</li>
-               </ul>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold text-foreground">Disclaimer</h2>
-              <p>DevAura Labs is an independent education and technology platform. While we work to provide accurate and timely training, we cannot be held responsible for career, financial, or business decisions you make based on information supplied in our content.</p>
-            </section>
-
-             <section>
-              <h2 className="text-2xl font-bold text-foreground">Contact Information</h2>
-              <p>For questions, refunds, or concerns, please reach out to:</p>
-               <div className="not-prose text-muted-foreground mt-4 space-y-2 p-4 border border-muted rounded-lg">
-                <p><span className="font-semibold text-foreground">DevAura Labs</span></p>
-                <p><strong>Email:</strong> support@devauralabs.xyz</p>
-                <p><strong>Phone:</strong> +91-62078-85443</p>
-                <p><strong>Address:</strong> [Your business address or registered office address]</p>
-                <p><strong>Business Hours:</strong> Monday – Saturday (10:00 AM – 6:00 PM)</p>
+          {isLoading ? (
+             <div className="flex justify-center items-center h-64">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
               </div>
-            </section>
-
-            <p className="text-center pt-8">&copy; {new Date().getFullYear()} DevAura Labs. All Rights Reserved.</p>
-          </div>
+          ) : (
+            <div 
+              className="prose prose-invert lg:prose-lg max-w-none text-muted-foreground prose-headings:text-foreground prose-strong:text-foreground"
+              dangerouslySetInnerHTML={{ __html: getRenderedHTML(contentData?.termsContent) }}
+            />
+          )}
         </CardContent>
       </Card>
     </div>
