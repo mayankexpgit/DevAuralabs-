@@ -24,7 +24,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-bold text-foreground">Refund & Cancellation Policy</h2>
               <h3 className="text-xl font-bold text-foreground mt-4">For Courses and Skill Programs:</h3>
               <ul className="list-disc pl-5 space-y-2">
-                <li>No refund will be made once a course has been purchased and access is provided to it.</li>
+                <li>We offer a 24-hour money-back guarantee. If you are not satisfied with the course or skill program, you can request a full refund within 24 hours of your purchase. No refunds will be issued after the 24-hour period has passed.</li>
                 <li>In case of a double payment or technical glitch, kindly get in touch with us within 7 working days for resolution.</li>
               </ul>
               <h3 className="text-xl font-bold text-foreground mt-4">Hardware Devices:</h3>
@@ -66,6 +66,7 @@ export default function TermsPage() {
                 <p><span className="font-semibold text-foreground">DevAura Labs</span></p>
                 <p><strong>Email:</strong> support@devauralabs.xyz</p>
                 <p><strong>Phone:</strong> +91-62078-85443</p>
+                <p><strong>Address:</strong> [Your business address or registered office address]</p>
                 <p><strong>Business Hours:</strong> Monday – Saturday (10:00 AM – 6:00 PM)</p>
               </div>
             </section>
