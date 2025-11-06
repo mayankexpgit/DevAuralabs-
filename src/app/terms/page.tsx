@@ -33,7 +33,7 @@ export default function TermsPage() {
               </div>
           ) : (
             <div 
-              className="prose prose-invert lg:prose-lg max-w-none text-muted-foreground prose-headings:text-foreground prose-strong:text-foreground"
+              className="prose prose-invert lg:prose-lg max-w-none"
               dangerouslySetInnerHTML={{ __html: getRenderedHTML(contentData?.termsContent) }}
             />
           )}
