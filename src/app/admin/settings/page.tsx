@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { z } from 'zod';
@@ -62,9 +61,94 @@ export default function SettingsPage() {
       twitterUrl: '',
       instagramUrl: '',
       whatsappUrl: '',
-      termsContent: '',
-      privacyContent: '',
-      returnRefundPolicyContent: '',
+      termsContent: `
+# Terms of Service for DevAura Labs
+
+**Last Updated: [Date]**
+
+Welcome to DevAura Labs! These terms and conditions outline the rules and regulations for the use of our website and services.
+
+## 1. Introduction
+By accessing this website, we assume you accept these terms and conditions. Do not continue to use DevAura Labs if you do not agree to all of the terms and conditions stated on this page.
+
+## 2. Intellectual Property Rights
+Other than the content you own, under these Terms, DevAura Labs and/or its licensors own all the intellectual property rights and materials contained in this Website. You are granted a limited license only for purposes of viewing the material contained on this website.
+
+## 3. User Accounts
+When you create an account with us, you must provide us with information that is accurate, complete, and current at all times. Failure to do so constitutes a breach of the Terms, which may result in immediate termination of your account on our Service.
+
+## 4. Purchases
+If you wish to purchase any product or service made available through the Service ("Purchase"), you may be asked to supply certain information relevant to your Purchase including, without limitation, your credit card number, the expiration date of your credit card, your billing address, and your shipping information.
+
+## 5. Termination
+We may terminate or suspend your account immediately, without prior notice or liability, for any reason whatsoever, including without limitation if you breach the Terms.
+
+## 6. Governing Law
+These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions.
+
+## 7. Changes to Terms
+We reserve the right, at our sole discretion, to modify or replace these Terms at any time.
+
+## 8. Contact Us
+If you have any questions about these Terms, please contact us at [Your Contact Email].
+`,
+      privacyContent: `
+# Privacy Policy for DevAura Labs
+
+**Last Updated: [Date]**
+
+DevAura Labs ("us", "we", or "our") operates the [Your Website URL] website (the "Service"). This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service.
+
+## 1. Information Collection and Use
+We collect several different types of information for various purposes to provide and improve our Service to you.
+
+### Types of Data Collected
+* **Personal Data:** While using our Service, we may ask you to provide us with certain personally identifiable information that can be used to contact or identify you ("Personal Data"). This may include, but is not limited to: Email address, First name and last name, Phone number, Cookies and Usage Data.
+* **Usage Data:** We may also collect information on how the Service is accessed and used ("Usage Data").
+
+## 2. Use of Data
+DevAura Labs uses the collected data for various purposes:
+* To provide and maintain the Service
+* To notify you about changes to our Service
+* To provide customer care and support
+* To provide analysis or valuable information so that we can improve the Service
+
+## 3. Data Security
+The security of your data is important to us, but remember that no method of transmission over the Internet, or method of electronic storage is 100% secure.
+
+## 4. Your Data Protection Rights
+You have certain data protection rights. DevAura Labs aims to take reasonable steps to allow you to correct, amend, delete, or limit the use of your Personal Data.
+
+## 5. Changes to This Privacy Policy
+We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
+
+## 6. Contact Us
+If you have any questions about this Privacy Policy, please contact us.
+`,
+      returnRefundPolicyContent: `
+# Return & Refund Policy for DevAura Labs
+
+**Last Updated: [Date]**
+
+Thank you for shopping at DevAura Labs. We appreciate the fact that you like to buy the stuff we build. We also want to make sure you have a rewarding experience while you’re exploring, evaluating, and purchasing our products.
+
+## Digital Products (Courses & Skill Programs)
+We offer a **3-Day Money-Back Guarantee** on all our digital courses and skill development programs.
+
+### Eligibility for a Refund:
+* You are eligible for a full refund if you request it within **3 days** of the purchase date.
+* To be eligible, you must not have completed more than **20%** of the course content.
+* Refund requests must be submitted to our support team via email.
+
+### How to Request a Refund:
+Please contact our support team at [Your Support Email] with your purchase details and the reason for your request. We will process your request within 5-7 business days.
+
+## Hardware Products
+Due to the nature of custom-built hardware, all sales of physical products are final once the product has been shipped. If you receive a damaged or defective product, please contact us within 48 hours of delivery to arrange for a repair or replacement.
+
+## Contact Us
+If you have any questions about our Returns and Refunds Policy, please contact us.
+`,
     }
   });
 
@@ -281,5 +365,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    
