@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { useDemoUser } from '@/context/demo-user-context';
 import type { User } from 'firebase/auth';
+import Link from 'next/link';
 
 const CONVERSION_RATE_USD_TO_INR = 83.5;
 
@@ -262,11 +263,14 @@ export default function CheckoutHardwarePage() {
                   <span>{formatPrice(finalPrice)}</span>
                 </div>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex-col items-center gap-4">
                 <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={handlePayment} disabled={isPaying}>
                   {isPaying ? <Loader2 className="animate-spin" /> : `Pay ${formatPrice(finalPrice)}`}
                   {!isPaying && <RippleEffect />}
                 </Button>
+                <Link href="/refund-policy" className="text-xs text-muted-foreground hover:text-primary transition-colors" target="_blank">
+                    View our Refund Policy
+                </Link>
               </CardFooter>
             </Card>
           </div>

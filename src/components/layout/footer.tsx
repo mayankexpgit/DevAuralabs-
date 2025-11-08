@@ -10,7 +10,6 @@ import { doc } from 'firebase/firestore';
 const quickLinks = [
   { href: '/terms', label: 'Terms' },
   { href: '/privacy', label: 'Privacy' },
-  { href: '/refund-policy', label: 'Refund Policy' },
   { href: '/contact-us', label: 'Contact' },
 ];
 
@@ -60,5 +59,3 @@ export default function Footer() {
     </footer>
   );
 }
-
-    
