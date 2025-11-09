@@ -4,19 +4,10 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
   
-    // The new isAdmin function. Instead of checking a specific email,
-    // we now rely on the frontend to only allow admin actions.
-    // A more secure way would be to use custom claims, but for the current
-    // Web ID system, this allows the logged-in admin to write.
     function isAdmin() {
-      // This is a simplified rule. It assumes that if a write is attempted
-      // to an admin-only area, the user has already been verified as an admin
-      // on the client-side. This is NOT best practice for production but fixes
-      // the immediate issue with the Web-ID login system.
       return request.auth != null;
     }
 
-    // Public collections that anyone can read
     match /showcase/{showcaseId} {
       allow read, list: if true;
       allow write: if isAdmin();
@@ -38,7 +29,6 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    // Sub-collections with specific read access for enrolled users
     match /courses/{courseId}/classDetails/details {
       allow get: if (request.auth != null && exists(/databases/$(database)/documents/users/$(request.auth.uid)/enrollments/$(courseId))) || isAdmin();
       allow write: if isAdmin();
@@ -50,22 +40,23 @@ service cloud.firestore {
     }
 
     // User-specific data
-    match /users/{userId}/{document=**} {
+    match /users/{userId} {
+      allow list: if isAdmin();
       allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      match /{document=**} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      }
     }
     
-    // Admin-only collections (privates collection is no longer needed)
     match /privates/{userId} {
         allow read, write: if false; // This collection is deprecated
     }
 
-    // Website requests can be created by anyone, but only managed by admins
     match /website_requests/{requestId} {
-       allow read, write: if isAdmin();
+       allow read, write, list: if isAdmin();
        allow create: if true;
     }
 
-    // Promo codes can only be managed by admins
     match /promo_codes/{codeId}/{document=**} {
        allow read, write: if isAdmin();
     }
