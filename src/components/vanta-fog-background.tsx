@@ -58,7 +58,10 @@ const VantaFogBackground = () => {
     initVanta();
 
     return () => {
-      if (vantaEffect) vantaEffect.destroy();
+      if (vantaEffect) {
+        vantaEffect.destroy();
+        setVantaEffect(null);
+      }
     };
   }, [vantaEffect]);
 
