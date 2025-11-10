@@ -271,7 +271,7 @@ export default function CheckoutPage() {
                   {isPaying ? <Loader2 className="animate-spin" /> : `Pay ${formatPrice(finalPrice)}`}
                   {!isPaying && <RippleEffect />}
                 </Button>
-                <Link href="/refund-policy" className="text-xs text-muted-foreground hover:text-primary transition-colors" target="_blank">
+                <Link href="/refund-policy" className="text-xs text-muted-foreground hover:text-primary transition-colors">
                     View our Refund Policy
                 </Link>
               </CardFooter>
