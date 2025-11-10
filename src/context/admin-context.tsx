@@ -3,7 +3,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useUser, useAuth } from '@/firebase';
-import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 
 interface AdminContextType {
   isAdmin: boolean;
@@ -29,30 +29,41 @@ export function AdminProvider({ children }: { children: ReactNode }) {
       return;
     }
     
+    // An admin is identified SOLELY by their email address matching the hardcoded one.
+    // This works because the firestore.rules also use this same logic.
     if (firebaseUser && firebaseUser.email === ADMIN_WEB_ID) {
       setIsAdmin(true);
     } else {
       setIsAdmin(false);
     }
     setIsLoading(false);
+
   }, [firebaseUser, isUserLoading]);
 
 
   const adminLogin = async (webId: string, key: string): Promise<boolean> => {
-    if (webId.toLowerCase() !== ADMIN_WEB_ID || key !== ADMIN_SECRET_KEY) {
-        return false;
+    // IMPORTANT: This is a placeholder for a more secure admin verification.
+    // It simply checks if the provided credentials match the hardcoded values.
+    // It does NOT perform a Firebase sign-in. For the Firestore rules to work,
+    // the person logging in as admin MUST ALREADY BE SIGNED IN to Firebase
+    // with the email 'mayanksharma4174@gmail.com' via a standard method (e.g., Google).
+    if (webId.toLowerCase() === ADMIN_WEB_ID && key === ADMIN_SECRET_KEY) {
+        // We don't sign in here. We just verify the user is logged in with the correct email.
+        if (auth.currentUser && auth.currentUser.email === ADMIN_WEB_ID) {
+            setIsAdmin(true);
+            return true;
+        } else {
+            // This case means the secret key was right, but they aren't logged in with the admin email.
+            // For simplicity, we just fail the login. A better UX would guide them to log in with Google first.
+            return false;
+        }
     }
-    
-    try {
-        await signInWithEmailAndPassword(auth, webId, key);
-        return true;
-    } catch (error) {
-        console.error("Admin sign-in failed", error);
-        return false;
-    }
+    return false;
   };
 
   const adminLogout = () => {
+    // Since admin status is tied to the Firebase user, logging out the Firebase user
+    // will automatically revoke admin status.
     signOut(auth);
     setIsAdmin(false);
   };
