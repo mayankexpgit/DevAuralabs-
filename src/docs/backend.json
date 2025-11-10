@@ -203,71 +203,6 @@
         "category"
       ]
     },
-    "Order": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Order",
-      "type": "object",
-      "description": "Represents a customer's order for a hardware product.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the Order entity."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to the User who placed the order."
-        },
-        "productId": {
-          "type": "string",
-          "description": "Reference to the Hardware product ordered."
-        },
-        "productName": {
-          "type": "string",
-          "description": "Name of the product at the time of order."
-        },
-        "amount": {
-          "type": "number",
-          "description": "Total amount paid."
-        },
-        "currency": {
-          "type": "string",
-          "description": "Currency of the payment."
-        },
-        "orderDate": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Date the order was placed."
-        },
-        "status": {
-          "type": "string",
-          "description": "Current status of the order.",
-          "enum": ["pending", "shipped", "delivered", "cancelled"]
-        },
-        "shippingAddress": {
-          "type": "object",
-          "properties": {
-            "fullName": { "type": "string" },
-            "address": { "type": "string" },
-            "city": { "type": "string" },
-            "state": { "type": "string" },
-            "zip": { "type": "string" },
-            "phone": { "type": "string" }
-          },
-          "required": ["fullName", "address", "city", "state", "zip", "phone"]
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "productId",
-        "productName",
-        "amount",
-        "currency",
-        "orderDate",
-        "status",
-        "shippingAddress"
-      ]
-    },
     "Showcase": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Showcase",
@@ -445,7 +380,9 @@
           "contactAddress": { "type": "string" },
           "twitterUrl": { "type": "string", "format": "uri" },
           "instagramUrl": { "type": "string", "format": "uri" },
-          "whatsappUrl": { "type": "string", "format": "uri" }
+          "whatsappUrl": { "type": "string", "format": "uri" },
+          "termsContent": { "type": "string" },
+          "privacyContent": { "type": "string" }
         }
     }
   },
@@ -540,17 +477,6 @@
               "name": "hardwareId",
               "description": "The unique identifier for the hardware product."
             }
-          ]
-        }
-      },
-      {
-        "path": "/orders/{orderId}",
-        "definition": {
-          "entityName": "Order",
-          "schema": { "$ref": "#/backend/entities/Order" },
-          "description": "Collection of hardware orders placed by users.",
-          "params": [
-            { "name": "orderId", "description": "The unique identifier for the order." }
           ]
         }
       },
@@ -658,6 +584,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to be secure and scalable. Public content like courses, skills, hardware, and the showcase are top-level collections with read access for everyone. User-specific data like enrollments and chats are nested under a `/users/{userId}` path to enforce ownership-based security rules. Admin privileges are managed through a `/privates` collection, allowing admins to manage content. A new top-level `orders` collection is added to store hardware order details; users can create orders, but only admins can manage them. This structure follows Firestore best practices by separating public and private data, enabling efficient and secure queries. A `settings` collection is added to store global site configuration, which is readable by all but writable only by admins."
+    "reasoning": "The Firestore structure is designed to be secure and scalable. Public content like courses, skills, hardware, and the showcase are top-level collections with read access for everyone. User-specific data like enrollments and chats are nested under a `/users/{userId}` path to enforce ownership-based security rules. Admin privileges are managed through a `/privates` collection, allowing admins to manage content. This structure follows Firestore best practices by separating public and private data, enabling efficient and secure queries. A `settings` collection is added to store global site configuration, which is readable by all but writable only by admins."
   }
 }

@@ -59,12 +59,6 @@ service cloud.firestore {
        allow create: if true;
     }
     
-    // Allow users to create orders, and admins to manage them.
-    match /orders/{orderId} {
-      allow list, read, update: if isAdmin();
-      allow create: if request.auth != null;
-    }
-
     match /promo_codes/{codeId}/{document=**} {
        allow read, write: if isAdmin();
     }

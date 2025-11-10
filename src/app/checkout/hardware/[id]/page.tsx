@@ -9,8 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { RippleEffect } from '@/components/ui/ripple-effect';
-import { useDoc, useFirestore, useMemoFirebase, useUser, addDocumentNonBlocking } from '@/firebase';
-import { doc, collection, serverTimestamp } from 'firebase/firestore';
+import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { doc } from 'firebase/firestore';
 import { useCurrency } from '@/context/currency-context';
 import { Loader2 } from 'lucide-react';
 import { createRazorpayOrder, applyPromoCode, recordPromoCodeRedemption } from '@/app/actions';
@@ -19,30 +19,8 @@ import { useState, useEffect } from 'react';
 import { useDemoUser } from '@/context/demo-user-context';
 import type { User } from 'firebase/auth';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
 
 const CONVERSION_RATE_USD_TO_INR = 83.5;
-
-const addressSchema = z.object({
-  fullName: z.string().min(2, 'Full name is required.'),
-  address: z.string().min(5, 'Street address is required.'),
-  city: z.string().min(2, 'City is required.'),
-  state: z.string().min(2, 'State is required.'),
-  zip: z.string().min(5, 'ZIP code is required.'),
-  phone: z.string().min(10, 'A valid phone number is required.'),
-});
-
-type AddressFormValues = z.infer<typeof addressSchema>;
 
 const getDemoUser = (): User => ({
   uid: 'demo_user',
@@ -84,39 +62,17 @@ export default function CheckoutHardwarePage() {
   const hardwareRef = useMemoFirebase(() => firestore && id ? doc(firestore, 'hardware', id as string) : null, [firestore, id]);
   const { data: hardware, isLoading: isHardwareLoading } = useDoc(hardwareRef);
 
-  const addressForm = useForm<AddressFormValues>({
-    resolver: zodResolver(addressSchema),
-    defaultValues: {
-      fullName: '',
-      address: '',
-      city: '',
-      state: '',
-      zip: '',
-      phone: '',
-    },
-  });
-
   useEffect(() => {
     if (isDemoLoading || isUserLoading) return;
     
     if (isDemoMode) {
       const demo = getDemoUser();
       setUser(demo);
-      addressForm.reset({
-        fullName: demo.displayName || '',
-        phone: demo.phoneNumber || '',
-      });
     } else {
       setUser(realUser);
-       if (realUser) {
-        addressForm.reset({
-            fullName: realUser.displayName || '',
-            phone: realUser.phoneNumber || '',
-        });
-       }
     }
     setAuthChecked(true);
-  }, [isDemoMode, isDemoLoading, realUser, isUserLoading, addressForm]);
+  }, [isDemoMode, isDemoLoading, realUser, isUserLoading]);
 
   const getPriceInSelectedCurrency = (price: number) => {
     return currency === 'INR' ? price * CONVERSION_RATE_USD_TO_INR : price;
@@ -153,7 +109,7 @@ export default function CheckoutHardwarePage() {
     }
   };
 
-  const handlePayment = async (shippingAddress: AddressFormValues) => {
+  const handlePayment = async () => {
     if (!hardware || !user || !firestore) {
         toast({ variant: 'destructive', title: 'Error', description: 'Hardware, user, or database not found.' });
         return;
@@ -192,22 +148,7 @@ export default function CheckoutHardwarePage() {
            await recordPromoCodeRedemption(appliedPromo.codeId, user.uid);
         }
         
-        const ordersCol = collection(firestore, 'orders');
-        await addDocumentNonBlocking(ordersCol, {
-          userId: user.uid,
-          userName: user.displayName,
-          userEmail: user.email,
-          productId: hardware.id,
-          productName: hardware.name,
-          amount: finalPrice,
-          currency: currency,
-          orderDate: serverTimestamp(),
-          status: 'pending',
-          shippingAddress: shippingAddress,
-          razorpay_payment_id: response.razorpay_payment_id,
-        });
-
-        toast({ title: 'Payment Successful!', description: `Your order for ${hardware.name} is confirmed.` });
+        toast({ title: 'Payment Successful!', description: `Your purchase of ${hardware.name} is confirmed.` });
         setIsPaying(false);
       },
       prefill: {
@@ -300,91 +241,8 @@ export default function CheckoutHardwarePage() {
                 </div>
               </CardContent>
             </Card>
-
           </div>
           <div>
-            <Card className="glass-card mb-8">
-              <CardHeader>
-                <CardTitle>Shipping Address</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Form {...addressForm}>
-                  <form className="space-y-4">
-                     <FormField
-                        control={addressForm.control}
-                        name="fullName"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl><Input {...field} className="bg-background/50" /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        <FormField
-                        control={addressForm.control}
-                        name="address"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Street Address</FormLabel>
-                            <FormControl><Input {...field} className="bg-background/50" /></FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
-                        />
-                        <div className="grid grid-cols-2 gap-4">
-                             <FormField
-                                control={addressForm.control}
-                                name="city"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>City</FormLabel>
-                                    <FormControl><Input {...field} className="bg-background/50" /></FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={addressForm.control}
-                                name="state"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>State</FormLabel>
-                                    <FormControl><Input {...field} className="bg-background/50" /></FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                         <div className="grid grid-cols-2 gap-4">
-                             <FormField
-                                control={addressForm.control}
-                                name="zip"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>ZIP / Postal Code</FormLabel>
-                                    <FormControl><Input {...field} className="bg-background/50" /></FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={addressForm.control}
-                                name="phone"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Phone</FormLabel>
-                                    <FormControl><Input {...field} className="bg-background/50" /></FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                  </form>
-                </Form>
-              </CardContent>
-            </Card>
-
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle>Confirm Order</CardTitle>
@@ -407,7 +265,7 @@ export default function CheckoutHardwarePage() {
                 </div>
               </CardContent>
               <CardFooter className="flex-col items-center gap-4">
-                <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={addressForm.handleSubmit(handlePayment)} disabled={isPaying}>
+                <Button size="lg" className="w-full gradient-btn gradient-btn-1 relative" onClick={handlePayment} disabled={isPaying}>
                   {isPaying ? <Loader2 className="animate-spin" /> : `Pay ${formatPrice(finalPrice)}`}
                   {!isPaying && <RippleEffect />}
                 </Button>
