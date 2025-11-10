@@ -3,6 +3,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useUser, useAuth } from '@/firebase';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 interface AdminContextType {
   isAdmin: boolean;
@@ -15,7 +16,6 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 const ADMIN_WEB_ID = 'mayanksharma4174@gmail.com';
 const ADMIN_SECRET_KEY = 'devaura@7790';
-const ADMIN_SESSION_KEY = 'devaura-admin-session';
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const { user: firebaseUser, isUserLoading } = useUser();
@@ -24,52 +24,40 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    try {
-      const isAdminSession = sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
-      if (isAdminSession) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
-    } catch (error) {
-      console.warn('Could not read admin session from sessionStorage:', error);
+    if (isUserLoading) {
+      setIsLoading(true);
+      return;
+    }
+    
+    if (firebaseUser && firebaseUser.email === ADMIN_WEB_ID) {
+      setIsAdmin(true);
+    } else {
+      setIsAdmin(false);
     }
     setIsLoading(false);
-  }, []);
+  }, [firebaseUser, isUserLoading]);
 
 
   const adminLogin = async (webId: string, key: string): Promise<boolean> => {
-    if (webId.toLowerCase() === ADMIN_WEB_ID && key === ADMIN_SECRET_KEY) {
-      try {
-        sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
-        setIsAdmin(true);
-        // Simulate a login for the security rules
-        if (auth.currentUser?.email !== webId) {
-            await auth.signOut().catch(() => {}); // Sign out any existing different user
-            // We don't need to actually sign in, the rules now depend on the session
-        }
-        return true;
-      } catch (error) {
-        console.error("Admin session setup failed", error);
+    if (webId.toLowerCase() !== ADMIN_WEB_ID || key !== ADMIN_SECRET_KEY) {
         return false;
-      }
     }
-    return false;
+    
+    try {
+        await signInWithEmailAndPassword(auth, webId, key);
+        return true;
+    } catch (error) {
+        console.error("Admin sign-in failed", error);
+        return false;
+    }
   };
 
   const adminLogout = () => {
-    try {
-      sessionStorage.removeItem(ADMIN_SESSION_KEY);
-    } catch (error) {
-      console.error('Could not remove admin session from sessionStorage:', error);
-    }
+    signOut(auth);
     setIsAdmin(false);
-    // We don't sign out the Firebase user, as they might be a regular user
-    // or the admin might just be "de-escalating" privileges.
   };
 
-  const value = { isAdmin, isLoading: isLoading || isUserLoading, login: adminLogin, logout: adminLogout };
+  const value = { isAdmin, isLoading, login: adminLogin, logout: adminLogout };
 
   return (
     <AdminContext.Provider value={value}>
