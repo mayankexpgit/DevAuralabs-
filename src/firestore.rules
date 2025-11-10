@@ -5,7 +5,8 @@ service cloud.firestore {
   match /databases/{database}/documents {
   
     function isAdmin() {
-      return request.auth != null;
+      // An admin user has a document in the /privates collection.
+      return exists(/databases/$(database)/documents/privates/$(request.auth.uid));
     }
 
     match /showcase/{showcaseId} {
@@ -49,7 +50,7 @@ service cloud.firestore {
     }
     
     match /privates/{userId} {
-        allow read, write: if false; // This collection is deprecated
+        allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
     match /website_requests/{requestId} {
