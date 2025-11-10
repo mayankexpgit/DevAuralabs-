@@ -5,7 +5,9 @@ service cloud.firestore {
   match /databases/{database}/documents {
   
     function isAdmin() {
-      return request.auth != null;
+      // An admin user is identified by their specific email address.
+      // This requires the admin to be logged into Firebase with this email.
+      return request.auth != null && request.auth.token.email == 'mayanksharma4174@gmail.com';
     }
 
     match /showcase/{showcaseId} {
@@ -55,6 +57,12 @@ service cloud.firestore {
     match /website_requests/{requestId} {
        allow read, write, list: if isAdmin();
        allow create: if true;
+    }
+    
+    // Allow users to create orders, and admins to manage them.
+    match /orders/{orderId} {
+      allow list, read, update: if isAdmin();
+      allow create: if request.auth != null;
     }
 
     match /promo_codes/{codeId}/{document=**} {
