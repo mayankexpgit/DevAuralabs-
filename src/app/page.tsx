@@ -1,3 +1,4 @@
+
 'use client';
 
 import HeroSection from '@/components/sections/hero';
@@ -27,7 +28,7 @@ export default function Home() {
         <Separator className="my-12 md:my-24 bg-white/10" />
         <ServicesSection />
       </div>
-      {isAdmin && !isDemoMode && <AdminFAB />}
+      {isAdmin && <AdminFAB />}
       <FloatingAiButton />
       <Footer />
     </div>
